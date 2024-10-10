@@ -1621,7 +1621,7 @@ client.on('interactionCreate', async inter => {
         headers: {
           "Content-Type": 'application/json',
           "Accept": "*/*",
-          "x-csrf-token": "ERqxVylgWzEl",
+          "x-csrf-token": "vysi2kbmIyjf",
           "Cookie": process.env.Cookie,
         },
         body: JSON.stringify({roleId: role.id})

@@ -529,7 +529,7 @@ module.exports = {
         keywords: ['nitro','nitor','nb','basic','classic'],
         channel: '1276066006313336874',
         rs: '1258245208907448392',
-        status: 1,
+        status: 4,
         id: '1096319579787116544',
         image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077186127970414/Logopit_1680918484757.png?width=1440&height=360',
         types: [
@@ -539,7 +539,7 @@ module.exports = {
             children: [
               //
               { name: 'Nitro Basic (Not avail)', price: 0, rs: 0 },
-              { name: 'Nitro Boost (Full warr)', price: 150, rs: 145 },
+              { name: 'Nitro Boost (Not avail)', price: 0, rs: 0 },
               //
             ],
           },

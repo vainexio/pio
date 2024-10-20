@@ -228,6 +228,9 @@ const {config, filteredWords, AI, shop, notices, auth, prefix, colors, status, t
 //Slash Commands
 const slashCmd = require("./storage/slashCommands.js");
 const { slashes } = slashCmd;
+// Roblox
+const robloxJs = require("./functions/roblox.js");
+const { handler } = robloxJs;
 /*
 ██████╗░███████╗██████╗░███╗░░░███╗░██████╗
 ██╔══██╗██╔════╝██╔══██╗████╗░████║██╔════╝

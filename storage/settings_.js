@@ -792,12 +792,16 @@ module.exports = {
             parent: 'Via Group Payout',
             children: [
               //
-              { name: '500 robux', price: 145, rs: 0 },
-              { name: '600 robux', price: 174, rs: 0 },
-              { name: '700 robux', price: 203, rs: 0 },
-              { name: '800 robux', price: 232, rs: 0 },
-              { name: '900 robux', price: 268, rs: 0 },
-              { name: '1000 robux', price: 290, rs: 0 },
+              { name: '100 robux', price: 30, rs: 0 },
+              { name: '200 robux', price: 60, rs: 0 },
+              { name: '300 robux', price: 90, rs: 0 },
+              { name: '400 robux', price: 120, rs: 0 },
+              { name: '500 robux', price: 150, rs: 0 },
+              { name: '600 robux', price: 180, rs: 0 },
+              { name: '700 robux', price: 210, rs: 0 },
+              { name: '800 robux', price: 240, rs: 0 },
+              { name: '900 robux', price: 270, rs: 0 },
+              { name: '1000 robux', price: 300, rs: 0 },
               { name: 'Must be in the group for 14 days!\n` [Join Here] ` https://www.roblox.com/groups/6648268/Kingsman-2-0', price: 0, rs: 0 },
               //
             ],
@@ -816,7 +820,7 @@ module.exports = {
               { name: '800 robux', price: 260, rs: 256 },
               { name: '900 robux', price: 293, rs: 288 },
               { name: '1000 robux', price: 325, rs: 320, booster: 320 },
-              { name: '*covered tax (hrs-3d process)*', price: 0, rs: 0 },
+              { name: '*covered tax (hrs-2d process)*', price: 0, rs: 0 },
               //
             ],
           },

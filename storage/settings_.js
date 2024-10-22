@@ -425,8 +425,8 @@ module.exports = {
         //Category
         name: 'Server Boosting',
         keywords: ['sb','boosting','boost'],
-        channel: '1276066006313336874',
-        rs: '1258245208907448392',
+        channel: '1298219151701315614',
+        rs: '1298219265484128307',
         status: 2,
         id: '1096319576331014155',
         image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077185905676309/Logopit_1680918458337.png?width=1440&height=360',
@@ -436,11 +436,11 @@ module.exports = {
             parent: '3 Months',
             children: [
               //
-              { name: '2x server boosts', price: 95, rs: 90 },
-              { name: '4x server boosts', price: 140, rs: 135 },
+              { name: '2x server boosts', price: 80, rs: 75 },
+              { name: '4x server boosts', price: 135, rs: 125 },
               { name: '6x server boosts', price: 190, rs: 185 },
-              { name: '8x server boosts', price: 250, rs: 245 },
-              { name: '14x server boosts', price: 395, rs: 390 },
+              { name: '8x server boosts', price: 235, rs: 225 },
+              { name: '14x server boosts', price: 360, rs: 355 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               { name: '80d warranty', price: 0, rs: 0 },
               //

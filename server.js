@@ -882,19 +882,23 @@ client.on("messageCreate", async (message) => {
       
     let member = message.mentions.members.first()
     if (member) {
-    let shopStatus = await getChannel(shop.channels.status);
+      let phone = await phoneModel.findOne({userId: member.user.id})
+      if (phone) {
+        shop.expected.push({channel: message.channel.id, amount: "auto", num: phone.number})
+      }
+      let shopStatus = await getChannel(shop.channels.status);
       if (shopStatus.name === 'shop : CLOSED') {
         message.channel.send("<@"+member.id+"> the shop is currently **closed**, please come back at <t:1677542400:t> to proceed with your order *!*")
       }
-    if (!await hasRole(member,['1109020434520887321'],message.channel.guild)) {
+      if (!await hasRole(member,['1109020434520887321'],message.channel.guild)) {
       
-      message.channel.send({content: "<@"+member.id+">", embeds: [embed], components: [row]})
-    } else if (await hasRole(member,['1109020434520887321'],message.guild)) {
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
-      );
-      message.channel.send({components: [row]})
-    }
+        message.channel.send({content: "<@"+member.id+">", embeds: [embed], components: [row]})
+      } else if (await hasRole(member,['1109020434520887321'],message.guild)) {
+        let row = new MessageActionRow().addComponents(
+          new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
+        );
+        message.channel.send({components: [row]})
+      }
     }
     }
   }
@@ -3242,7 +3246,13 @@ client.on('interactionCreate', async inter => {
         phone.number = num
         await phone.save()
       }
-      shop.expected.push({channel: inter.channel.id, amount: amount, num: num})
+      let foundShopData = shop.expected.find(i => i.channel == inter.channel.id)
+      if (!foundShopData) {
+        shop.expected.push({channel: inter.channel.id, amount: amount, num: num})
+      } else if (foundShopData) {
+        foundShopData.amount = amount
+        foundShopData.num = num
+      }
       let responder = shop.ar.responders.find(res => '.gcash' === shop.ar.prefix+res.command)
       if (responder) {
         await inter.channel.send({content: emojis.loading+" send your payment here :\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+num+"`\n-# Expected Amount: `"+thread[1].answer+"`", embeds: responder.embed ? [responder.embed] : [], files: responder.files ? responder.files : [], components: responder.components ? [responder.components] : []})
@@ -3419,7 +3429,13 @@ app.get('/gcash', async function (req, res) {
         if (!cd) return shop.expected.splice(i,1)
         await cd.send({content: emojis.check+" Your payment was received *!*", embeds: [embed]})
         shop.expected.splice(i,1)
-        return;
+        return
+      } else if (transac.num == data.senderNumber) {
+        let cd = await getChannel(transac.channel)
+        if (!cd) return shop.expected.splice(i,1)
+        await cd.send({content: emojis.check+" Payment was detected through registered number *!*", embeds: [embed]})
+        shop.expected.splice(i,1)
+        return
       }
     }
     await channel.send({content: '@everyone '+emojis.check+' New Transaction ('+data.senderNumber+')', embeds: [embed]})

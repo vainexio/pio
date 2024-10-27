@@ -882,7 +882,7 @@ client.on("messageCreate", async (message) => {
       
     let member = message.mentions.members.first()
     if (member) {
-      let phone = await phoneModel.findOne({userId: member.user.id})
+      let phone = await phoneModel.findOne({userId: member.id})
       if (phone) {
         shop.expected.push({channel: message.channel.id, amount: "auto", num: phone.number})
       }
@@ -3421,6 +3421,7 @@ app.get('/gcash', async function (req, res) {
       let cd = await getChannel(transac.channel)
       if (!cd) shop.expected.splice(i,1)
     }
+    console.log(shop.expected)
     for (let i in shop.expected) {
       let transac = shop.expected[i]
       console.log(transac)

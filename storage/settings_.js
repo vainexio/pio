@@ -154,6 +154,7 @@ module.exports = {
       "1297135823770091560", //unli
       "880071880747409458", //nov 22
       "1256977943767420928", //nov 26
+      "1153127943552385085", //nov 28
     ],
     scanner: [],
     expected: [],
@@ -349,7 +350,7 @@ module.exports = {
             parent: '1m nitro checker',
             children: [
               //
-              { name: 'through bot dms', price: 60, rs: 40 },
+              { name: 'through bot dms', price: 70, rs: 60 },
               { name: 'through server channel', price: 200, rs: 150 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ Can scan 50 links per second\n+ Shows difference between valid, calimed and invalid links\n+ Shows accurate expiration (date & time) of links\n+ Fool proof (avoids scanning duplicated links)\n\u200b'}
               //

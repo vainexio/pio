@@ -1666,7 +1666,7 @@ client.on('interactionCreate', async inter => {
         auth.headers["x-csrf-token"] = csrfToken;
         res = await fetch('https://economy.roblox.com/v1/groups/6648268/users-payout-eligibility?userIds='+user.id, auth);
       }
-      if (res.status !== 200) return await inter.editReply({content: "Cannot change rank: `"+res.status+": "+res.statusText+"`"})
+      if (res.status !== 200) return await inter.editReply({content: "Cannot check eligibility: `"+res.status+": "+res.statusText+"`"})
       res = await res.json()
       let data = res.usersGroupPayoutEligibility[user.id]
       await inter.editReply({content: "**"+user.name+"**: "+data})

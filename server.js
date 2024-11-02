@@ -3448,10 +3448,10 @@ app.post('/submit', async (req, res) => {
   if (!model || !messages) {
     return res.status(400).json({ error: 'Invalid data format' });
   }
-
+  console.log(req.body)
   console.log('Model:', model);
   console.log('Messages:', messages);
-  let reso = await ai.chatAI(messages[0].content,'chat',{ id: 1 }, { name: "NUX" })
+  /*let reso = await ai.chatAI(messages[0].content,'chat',{ id: 1 }, { name: "NUX" })
   console.log(reso.choices)
   res.send(reso.response);
   if (reso.response.choices) {
@@ -3462,8 +3462,8 @@ app.post('/submit', async (req, res) => {
         } else {
           config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
         }
-  }
-  //res.send({ choices: [ {message: {content: "Testing mode response."}}]});
+  }*/
+  res.send({ choices: [ {message: {content: "Testing mode response."}}]});
 });
 app.get('/sms', async function (req, res) {
   let msg = req.query.msg

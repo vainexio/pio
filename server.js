@@ -3463,7 +3463,7 @@ app.post('/submit', async (req, res) => {
           config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
         }
   }*/
-  res.send({ choices: [ {message: {content: "Testing mode response."}}]});
+  res.send({ choices: [ {message: {content: "Testing mode response.\nTesting mode response.\nTesting mode response.\nTesting mode response."}}]});
 });
 app.get('/sms', async function (req, res) {
   let msg = req.query.msg

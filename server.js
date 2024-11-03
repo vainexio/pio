@@ -1477,7 +1477,15 @@ client.on("messageCreate", async (message) => {
       shop.expected.splice(toRemove[i],1)
     }
     message.react(emojis.check)
-  }
+    
+    let comp = new MessageActionRow()
+        .addComponents(
+          new MessageButton().setLabel('Create Order').setCustomId('createTicket-order').setStyle('SECONDARY').setEmoji('🌄'),
+          new MessageButton().setLabel('Support Ticket').setCustomId('createTicket-support').setStyle('SECONDARY').setEmoji('🌅'),
+          new MessageButton().setLabel('Submit Report').setCustomId('createTicket-report').setStyle('SECONDARY').setEmoji('☀️')
+        )
+        await message.channel.send({components: [comp], content: 'Click the button below to create a ticket!\n\n<:y_seperator:1138707390657740870> Order — Availing products\n<:y_seperator:1138707390657740870> Support — General concerns and inquiries\n<:y_seperator:1138707390657740870> Report — Reporting revoked products',})
+        }
   else if (isCommand('autobuy',message)) {
     let msgUrl
     let row = new MessageActionRow().addComponents(

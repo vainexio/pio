@@ -62,7 +62,7 @@ module.exports = {
           `NU's vision is: We are National University, a dynamic private institution committed to nation building, recognized internationally in education and research.`,
           "NU's core values are:\n1. Integrity\n2. Compassion\n3. Innovation\n4. Resilience\n5. Patriotism",
           "Sir Marlon A. Diloy is not on office today.",
-          "Sir Felix Huerte is a professor and is on the campus and is on a class with the BSIT-231C 7-9am at AcadArena.",
+          "Sir Felix Huerte is a professor and is on the campus and is on a class with the BSIT-231C 3-5pm at AcadArena.",
           "The director of academics is Josefina González-San Miguel",
           "The foundation day of NU is August 1, which was established on August 1, 1900",
           "NU Laguna on the other hand, which was established on September 2018",

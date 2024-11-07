@@ -3177,8 +3177,15 @@ client.on('interactionCreate', async inter => {
       let row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SUCCESS').setLabel('Yes'),
       );
-      
-      await inter.channel.send({content: "** **\n<:gcash:1273091410228150276> Would you like to auto pay with GCash?\n-# Auto pay may have flaws. If the payment was not validated, please send the receipt instead.\n** **", components: [row]})
+      let phone = await phoneModel.findOne({userId: inter.member.id})
+      if (phone) {
+        let responder = shop.ar.responders.find(res => '.gcash' === shop.ar.prefix+res.command)
+        if (responder) {
+          await inter.channel.send({content: emojis.loading+" your payment will be validated automatically :\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+phone.number+"`\n-# Expected Amount: `ANY`", embeds: responder.embed ? [responder.embed] : [], files: responder.files ? responder.files : [], components: responder.components ? [responder.components] : []})
+        }
+      } else {
+        await inter.channel.send({content: "** **\n<:gcash:1273091410228150276> Would you like to auto pay with GCash?\n-# Auto pay may have flaws. If the payment was not validated, please send the receipt instead.\n** **", components: [row]})
+      }
     }
     else if (id.startsWith('autopay-')) {
       let userId = id.replace('autopay-','')
@@ -3218,7 +3225,7 @@ client.on('interactionCreate', async inter => {
       async function getResponse(data) {
         await inter.channel.send(data.question)
         let msg = await inter.channel.awaitMessages({ filter, max: 1,time: 900000 ,errors: ['time'] })
-        //if (!msg) shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
+        
         msg = msg?.first()
         data.answer = msg.content
       }

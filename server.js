@@ -1499,7 +1499,6 @@ client.on("messageCreate", async (message) => {
     
     await message.reply({content: "<:hb_announce:1138706465046134805> **auto buy products**", components: [row]})
   }
-  //
   //vouch
   if (message.channel.id === shop.channels.vouch) {
     let backup = await getChannel("1141338128494362646")

@@ -12,19 +12,23 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { exec } = require('node:child_process'); 
-const fs = require('fs');
-//
+//////////////////////////////////
+const { SpeechClient } = require('@google-cloud/speech');
 const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
-const { Configuration, OpenAIApi } = require("openai");
-const speech = require('@google-cloud/speech');
+const { OpenAI } = require("openai");
+const fs = require('fs');
+const multer = require('multer');
+const util = require('util');
 
-const speechClient = new speech.SpeechClient();
-// Initialize clients
-const openaiConfig = new Configuration({
+const speechClient = new SpeechClient();
+const ttsClient = new TextToSpeechClient();
+
+const openaiConfig = new OpenAI({
     apiKey: process.env.OPEN_AI,
 });
 const openai = new OpenAIApi(openaiConfig);
-const ttsClient = new TextToSpeechClient();
+const upload = multer({ dest: 'uploads/' });
+
 /////////////////////////////////
 //Discord
 const Discord = require('discord.js');
@@ -3591,81 +3595,75 @@ app.post('/save-nickname', async function (req, res) {
 });
 
 // VOICE TO VOICE
-// Step 1: Speech-to-Text (Using OpenAI Whisper API)
+app.post('/voiceToVoice', upload.single('audio'), async (req, res) => {
+    try {
+        const audioFilePath = req.file.path;  // Path to uploaded audio file
+
+        // Step 1: Transcribe audio using Google Speech-to-Text
+        const transcription = await transcribeAudio(audioFilePath);
+        console.log("Transcription:", transcription);
+
+        // Step 2: Get ChatGPT response
+        const chatResponse = await getChatGPTResponse(transcription);
+        console.log("ChatGPT Response:", chatResponse);
+
+        // Step 3: Convert ChatGPT response to audio using Google TTS
+        const audioOutputPath = 'output.mp3';
+        await synthesizeSpeech(chatResponse, audioOutputPath);
+
+        // Step 4: Send the audio file back to the client
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.sendFile(audioOutputPath, { root: __dirname });
+
+    } catch (error) {
+        console.error("Error processing request:", error);
+        res.status(500).json({ error: "Failed to process voice-to-voice conversation" });
+    } finally {
+        // Clean up uploaded and generated files
+        if (req.file) fs.unlinkSync(req.file.path);  // Delete uploaded audio
+        if (fs.existsSync('output.mp3')) fs.unlinkSync('output.mp3');  // Delete generated response audio
+    }
+});
+
+// Function to transcribe audio
 async function transcribeAudio(audioFilePath) {
     const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
     
     const audio = { content: audioBytes };
-    const config = { encoding: 'LINEAR16', sampleRateHertz: 16000, languageCode: 'en-US' };
-    const request = { audio: audio, config: config };
-    
-    // Detects speech in the audio file
-    const [response] = await client.recognize(request);
+    const config = {
+        encoding: 'LINEAR16',  // Adjust based on your file format, e.g., 'MP3' for MP3 files
+        sampleRateHertz: 16000,  // Set according to your audio’s sample rate
+        languageCode: 'en-US',
+    };
+
+    const [response] = await speechClient.recognize({ audio, config });
     const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n');
-    console.log(`Transcription: ${transcription}`);
     return transcription;
 }
-// Step 2: ChatGPT Text Generation
-async function getChatResponse(userText) {
-    const response = await openai.createChatCompletion({
-        model: "gpt-4",
-        messages: [{ role: "user", content: userText }],
-    });
-    return response.data.choices[0].message.content;
+
+// Function to get ChatGPT response
+async function getChatGPTResponse(text) {
+    let reso = await ai.chatAI(text,'chat',{ id: 1 }, { name: "NUX" })
+    if (reso.response.choices) {
+      let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}
+      let found = config.AI.users.find(u => u.id === 1 && u.ai === "NUX")
+      if (found) {
+        found.messages.push(msgData)
+      } else {
+        config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
+      }
+    }
+    return reso.response.data.choices[0].message.content;
 }
-// Step 3: Text-to-Speech (Using Google Cloud TTS)
+
+// Function to synthesize text to speech
 async function synthesizeSpeech(text, outputFile) {
     const [response] = await ttsClient.synthesizeSpeech({
         input: { text: text },
         voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
         audioConfig: { audioEncoding: 'MP3' },
     });
-    fs.writeFileSync(outputFile, response.audioContent, 'binary');
+
+    await util.promisify(fs.writeFile)(outputFile, response.audioContent, 'binary');
     console.log('Audio content written to file:', outputFile);
 }
-
-// Full Voice-to-Voice Flow
-async function voiceToVoiceConversation(audioInputPath) {
-    try {
-        // Transcribe user audio
-        const userText = await transcribeAudio(audioInputPath);
-        console.log("User said:", userText);
-
-        // Get ChatGPT response
-        const chatResponse = await getChatResponse(userText);
-        console.log("ChatGPT response:", chatResponse);
-
-        // Convert ChatGPT response to speech
-        const audioOutputPath = 'output.mp3';
-        await synthesizeSpeech(chatResponse, audioOutputPath);
-
-        // Play the response audio (optional step, use a player like `play-sound` for playback)
-        console.log("Response audio generated:", audioOutputPath);
-      
-      return audioOutputPath;
-    } catch (error) {
-        console.error("Error in voice-to-voice conversation:", error);
-    }
-}
-
-app.post('/voiceToVoice', async (req, res) => {
-    const { model, messages } = req.body;
-  if (!model || !messages) {
-    return res.status(400).json({ error: 'Invalid data format' });
-  }
-  console.log(req.body)
-  console.log('Model:', model);
-  console.log('Messages:', messages);
-  let reso = await ai.chatAI(messages[0].content,'chat',{ id: 1 }, { name: "NUX" })
-  console.log(reso.choices)
-  res.send(reso.response);
-  if (reso.response.choices) {
-    let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}
-        let found = config.AI.users.find(u => u.id === 1 && u.ai === "NUX")
-        if (found) {
-          found.messages.push(msgData)
-        } else {
-          config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
-        }
-  }
-});

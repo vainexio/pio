@@ -13,6 +13,8 @@ const cors = require('cors');
 const body_parser = require('body-parser');
 const { exec } = require('node:child_process'); 
 //
+const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
+const { Configuration, OpenAIApi } = require("openai");
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord; 

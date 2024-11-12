@@ -12,9 +12,20 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { exec } = require('node:child_process'); 
+const fs = require('fs');
 //
 const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
 const { Configuration, OpenAIApi } = require("openai");
+const speech = require('@google-cloud/speech');
+
+const speechClient = new speech.SpeechClient();
+// Initialize clients
+const openaiConfig = new Configuration({
+    apiKey: process.env.OPEN_AI,
+});
+const openai = new OpenAIApi(openaiConfig);
+const ttsClient = new TextToSpeechClient();
+/////////////////////////////////
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord; 
@@ -3577,4 +3588,84 @@ app.post('/save-nickname', async function (req, res) {
     } catch (error) {
         res.status(500).send("Error saving nickname");
     }
+});
+
+// VOICE TO VOICE
+// Step 1: Speech-to-Text (Using OpenAI Whisper API)
+async function transcribeAudio(audioFilePath) {
+    const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
+    
+    const audio = { content: audioBytes };
+    const config = { encoding: 'LINEAR16', sampleRateHertz: 16000, languageCode: 'en-US' };
+    const request = { audio: audio, config: config };
+    
+    // Detects speech in the audio file
+    const [response] = await client.recognize(request);
+    const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n');
+    console.log(`Transcription: ${transcription}`);
+    return transcription;
+}
+// Step 2: ChatGPT Text Generation
+async function getChatResponse(userText) {
+    const response = await openai.createChatCompletion({
+        model: "gpt-4",
+        messages: [{ role: "user", content: userText }],
+    });
+    return response.data.choices[0].message.content;
+}
+// Step 3: Text-to-Speech (Using Google Cloud TTS)
+async function synthesizeSpeech(text, outputFile) {
+    const [response] = await ttsClient.synthesizeSpeech({
+        input: { text: text },
+        voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
+        audioConfig: { audioEncoding: 'MP3' },
+    });
+    fs.writeFileSync(outputFile, response.audioContent, 'binary');
+    console.log('Audio content written to file:', outputFile);
+}
+
+// Full Voice-to-Voice Flow
+async function voiceToVoiceConversation(audioInputPath) {
+    try {
+        // Transcribe user audio
+        const userText = await transcribeAudio(audioInputPath);
+        console.log("User said:", userText);
+
+        // Get ChatGPT response
+        const chatResponse = await getChatResponse(userText);
+        console.log("ChatGPT response:", chatResponse);
+
+        // Convert ChatGPT response to speech
+        const audioOutputPath = 'output.mp3';
+        await synthesizeSpeech(chatResponse, audioOutputPath);
+
+        // Play the response audio (optional step, use a player like `play-sound` for playback)
+        console.log("Response audio generated:", audioOutputPath);
+      
+      return audioOutputPath;
+    } catch (error) {
+        console.error("Error in voice-to-voice conversation:", error);
+    }
+}
+
+app.post('/voiceToVoice', async (req, res) => {
+    const { model, messages } = req.body;
+  if (!model || !messages) {
+    return res.status(400).json({ error: 'Invalid data format' });
+  }
+  console.log(req.body)
+  console.log('Model:', model);
+  console.log('Messages:', messages);
+  let reso = await ai.chatAI(messages[0].content,'chat',{ id: 1 }, { name: "NUX" })
+  console.log(reso.choices)
+  res.send(reso.response);
+  if (reso.response.choices) {
+    let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}
+        let found = config.AI.users.find(u => u.id === 1 && u.ai === "NUX")
+        if (found) {
+          found.messages.push(msgData)
+        } else {
+          config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
+        }
+  }
 });

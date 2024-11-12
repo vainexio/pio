@@ -15,7 +15,6 @@ const { exec } = require('node:child_process');
 //////////////////////////////////
 const { SpeechClient } = require('@google-cloud/speech');
 const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
-const { OpenAI } = require("openai");
 const fs = require('fs');
 const multer = require('multer');
 const util = require('util');
@@ -23,13 +22,9 @@ const util = require('util');
 const speechClient = new SpeechClient();
 const ttsClient = new TextToSpeechClient();
 
-const openaiConfig = new OpenAI({
-    apiKey: process.env.OPEN_AI,
-});
-const openai = new OpenAIApi(openaiConfig);
 const upload = multer({ dest: 'uploads/' });
 
-/////////////////////////////////
+//
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord; 

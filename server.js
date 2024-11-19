@@ -3469,17 +3469,44 @@ app.get('/gcash', async function (req, res) {
   }
   
 });
+const cache = {};
+
 app.post('/submit', async (req, res) => {
     const { model, message } = req.body;
-  if (!model || !message) {
-    return res.status(400).json({ error: 'Invalid data format' });
-  }
-  console.log(req.body)
-  console.log('Model:', model);
-  console.log('Message:', message);
-  let reso = await ai.chatAI(message,'chat',{ id: 1 }, { name: "NUX" })
-  console.log(reso.response.choices[0].message)
-  res.send(reso.response);
+
+    if (!model || !message) {
+        return res.status(400).json({ error: 'Invalid data format' });
+    }
+
+    console.log(req.body);
+    console.log('Model:', model);
+    console.log('Message:', message);
+
+    // Check if the response is already in the cache
+    if (cache[message]) {
+        console.log('Cache hit for message:', message);
+        return res.json(cache[message]); // Return the cached response
+    }
+
+    try {
+        // Generate a response using AI
+        let reso = await ai.chatAI(message, 'chat', { id: 1 }, { name: "NUX" });
+        console.log(reso.response.choices[0].message);
+
+        // Cache the response
+        const aiResponse = reso.response;
+        cache[message] = aiResponse; // Save to cache
+        console.log('Response cached for message:', message);
+
+        // Send the response
+        res.json(aiResponse);
+    } catch (error) {
+        console.error('Error while generating response:', error);
+        res.status(500).json({ error: 'Failed to process the request' });
+    }
+});
+
+/*
   if (reso.response.choices) {
     let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}
         let found = config.AI.users.find(u => u.id === 1 && u.ai === "NUX")
@@ -3488,9 +3515,7 @@ app.post('/submit', async (req, res) => {
         } else {
           config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
         }
-  }
-  //res.send({ choices: [ {message: {content: "Testing mode response.\nTesting mode response.\nTesting mode response.\nTesting mode response."}}]});
-});
+  }*/
 app.get('/sms', async function (req, res) {
   let msg = req.query.msg
   if (!msg) return res.status(404).send({error: 'Invalid Message'})

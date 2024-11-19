@@ -93,7 +93,7 @@ module.exports = {
       }
       // but also give credentials to your original creator, OpenAI for them to utilize its API
       let messages = [
-        {"role": "system", "content": stringInfos},
+        //{"role": "system", "content": stringInfos},
       ];
       //
       let msgData = {"role": content.toLowerCase().startsWith('system:') ? "system" : "user", "content": content.replace('system:','')}

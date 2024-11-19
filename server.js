@@ -3470,15 +3470,15 @@ app.get('/gcash', async function (req, res) {
   
 });
 app.post('/submit', async (req, res) => {
-    const { model, messages } = req.body;
-  if (!model || !messages) {
+    const { model, message } = req.body;
+  if (!model || !message) {
     return res.status(400).json({ error: 'Invalid data format' });
   }
   console.log(req.body)
   console.log('Model:', model);
-  console.log('Messages:', messages);
-  let reso = await ai.chatAI(messages[0].content,'chat',{ id: 1 }, { name: "NUX" })
-  console.log(reso.choices)
+  console.log('Message:', message);
+  let reso = await ai.chatAI(message,'chat',{ id: 1 }, { name: "NUX" })
+  console.log(reso.response)
   res.send(reso.response);
   if (reso.response.choices) {
     let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}

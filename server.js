@@ -3478,7 +3478,7 @@ app.post('/submit', async (req, res) => {
   console.log('Model:', model);
   console.log('Message:', message);
   let reso = await ai.chatAI(message,'chat',{ id: 1 }, { name: "NUX" })
-  console.log(reso.response)
+  console.log(reso.response.choices[0].message)
   res.send(reso.response);
   if (reso.response.choices) {
     let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}

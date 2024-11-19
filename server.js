@@ -3490,7 +3490,7 @@ app.post('/submit', async (req, res) => {
 
     try {
         // Generate a response using AI
-        let reso = await ai.chatAI(message, 'chat', { id: 1 }, { name: "NUX" });
+        let reso = await ai.chatAI(`What is the calories per gram of the food '${message}'? If completely unknown, reply with 'Food not recognized.' then add your very short reason why. If partially unknown (have data for average/common calories per gram of the specific food based on common ingredients), reply with "No specific data." then add your very short reason why and the average/common calories per gram of the specific food is possible. Otherwise, provide only the calorie value. Recognize typos.`, 'chat', { id: 1 }, { name: "NUX" });
         console.log(reso.response.choices[0].message);
 
         // Cache the response

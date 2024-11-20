@@ -3702,66 +3702,74 @@ async function synthesizeSpeech(text, outputFile) {
 }
 
 const scalesRef = db.ref('scales');
-// Map to track last stable weights for each scale
-const stableWeights = new Map();
-// Function to format timestamp with GMT+8
-// Function to get the current time in GMT+8 and format it
+const stableWeights = new Map(); // Track stable weights
+let saveHistory = false; // Flag to control saving logic
+
+// Function to get the current time in GMT+8
 function formatTimestamp() {
   const now = new Date();
-
-  // Format the current date and time in GMT+8
   return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Singapore', // GMT+8
+    timeZone: 'Asia/Singapore',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: true, // Use AM/PM format
+    hour12: true,
   }).format(now);
 }
-// Function to monitor the database
+
+// Monitor Firestore "appStatus/userStatus" for changes
+firestore.doc('appStatus/userStatus').onSnapshot((doc) => {
+  if (doc.exists) {
+    const { online } = doc.data();
+    saveHistory = !online; // Save history only if online is false
+    console.log(`Save history status: ${saveHistory ? 'Enabled' : 'Disabled'}`);
+  } else {
+    console.error('Document "appStatus/userStatus" not found');
+  }
+});
+
+// Monitor database for weight changes
 scalesRef.on('child_changed', handleScaleUpdate);
 scalesRef.on('child_added', handleScaleUpdate);
 
-// Function to handle updates for each scale
+// Handle updates for each scale
 function handleScaleUpdate(snapshot) {
+  if (!saveHistory) return; // Skip processing if history saving is disabled
+
   const scaleData = snapshot.val();
   const scaleId = snapshot.key;
 
   const { name, scaleId: idFromDb, timestamp, weight } = scaleData;
 
-  // Skip if the weight is 0 or any field is undefined
-  if (!weight || !name || !idFromDb || !timestamp) {
-    return;
-  }
+  // Skip if data is invalid
+  if (!weight || !name || !idFromDb || !timestamp) return;
 
   const previousWeightData = stableWeights.get(scaleId) || {};
 
   // If the weight has changed, reset the timer
   if (previousWeightData.weight !== weight) {
-    // Set a timeout to check for stability after 1.5 seconds
     clearTimeout(previousWeightData.timer);
     const timer = setTimeout(async () => {
       const currentSnapshot = await scalesRef.child(scaleId).once('value');
       const { weight: latestWeight } = currentSnapshot.val();
 
       if (latestWeight === weight) {
-        // Check existing entries in Firestore to calculate entry number
         const existingEntries = await firestore
           .collection('weightHistory')
           .where('scaleId', '==', idFromDb)
           .get();
 
-        const entryNumber = existingEntries.size + 1; // Calculate entry number
+        const entryNumber = existingEntries.size + 1;
 
         const weightEntry = {
           name,
           scaleId: idFromDb,
-          timestamp: formatTimestamp(), // Save current time as a Date object
+          timestamp: formatTimestamp(),
           weight: latestWeight,
-          entryNumber // Add the entry number
+          entryNumber,
         };
 
         // Avoid saving duplicate stable weights
@@ -3769,22 +3777,21 @@ function handleScaleUpdate(snapshot) {
           await firestore.collection('weightHistory').add(weightEntry);
           console.log(`Saved to Firestore:`, weightEntry);
 
-          // Update the stable weight record
           stableWeights.set(scaleId, {
             weight: latestWeight,
             timer: null,
             saved: true,
-            savedWeight: latestWeight
+            savedWeight: latestWeight,
           });
         }
       }
-    }, 1500); // Wait 1.5 seconds
+    }, 1500);
 
     // Update the timer and weight for this scale
     stableWeights.set(scaleId, {
       weight,
       timer,
-      saved: false
+      saved: false,
     });
   }
 }

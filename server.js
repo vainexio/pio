@@ -18,7 +18,23 @@ const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const multer = require('multer');
 const util = require('util');
+///
+const admin = require('firebase-admin');
 
+// Initialize Firebase Admin
+const serviceAccount = require('./serviceAccount.json'); // Replace with your service account key
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://android-iot-9a7ca-default-rtdb.firebaseio.com/' // Replace with your Realtime Database URL
+});
+
+const db = admin.database(); // Realtime Database reference
+const firestore = admin.firestore(); // Firestore reference
+
+// Reference to the scales node in Realtime Database
+const scalesRef = db.ref('scales');
+
+////
 const speechClient = new SpeechClient();
 const ttsClient = new TextToSpeechClient();
 
@@ -3687,3 +3703,39 @@ async function synthesizeSpeech(text, outputFile) {
     await util.promisify(fs.writeFile)(outputFile, response.audioContent, 'binary');
     console.log('Audio content written to file:', outputFile);
 }
+
+// Function to format the timestamp
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', { hour12: true });
+}
+
+// Function to monitor the database
+scalesRef.on('value', async (snapshot) => {
+  const scales = snapshot.val();
+  for (const key in scales) {
+    const { name, scaleId, timestamp, weight } = scales[key];
+
+    if (weight !== 0) {
+      // Track stability for 1.5 seconds
+      setTimeout(async () => {
+        const updatedSnapshot = await scalesRef.child(key).once('value');
+        const updatedWeight = updatedSnapshot.val().weight;
+
+        if (updatedWeight === weight && updatedWeight !== 0) {
+          const formattedTimestamp = formatTimestamp(timestamp * 1000); // Convert to milliseconds
+          const weightEntry = {
+            name,
+            scaleId,
+            timestamp: formattedTimestamp,
+            weight: updatedWeight
+          };
+
+          // Save to Firestore
+          await firestore.collection('weightHistory').add(weightEntry);
+          console.log(`Saved to Firestore:`, weightEntry);
+        }
+      }, 1500); // Wait 1.5 seconds
+    }
+  }
+});

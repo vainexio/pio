@@ -3705,20 +3705,25 @@ const scalesRef = db.ref('scales');
 // Map to track last stable weights for each scale
 const stableWeights = new Map();
 // Function to format timestamp with GMT+8
-function formatTimestamp(timestamp) {
-  const date = new Date(timestamp);
-  const gmt8Date = new Date(date.getTime() + 8 * 60 * 60 * 1000);
-  return gmt8Date.toLocaleString('en-US', { hour12: true, timeZone: 'Asia/Singapore' });
+// Function to get the current time in GMT+8 and format it
+function formatTimestamp() {
+  const now = new Date();
+
+  // Format the current date and time in GMT+8
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Singapore', // GMT+8
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true, // Use AM/PM format
+  }).format(now);
 }
-
-// Monitor all children under the "scales" node
-scalesRef.on('child_changed', (snapshot) => {
-  handleScaleUpdate(snapshot);
-});
-
-scalesRef.on('child_added', (snapshot) => {
-  handleScaleUpdate(snapshot);
-});
+// Function to monitor the database
+scalesRef.on('child_changed', handleScaleUpdate);
+scalesRef.on('child_added', handleScaleUpdate);
 
 // Function to handle updates for each scale
 function handleScaleUpdate(snapshot) {
@@ -3743,13 +3748,20 @@ function handleScaleUpdate(snapshot) {
       const { weight: latestWeight } = currentSnapshot.val();
 
       if (latestWeight === weight) {
-        // Save to Firestore only if weight remains stable
-        const formattedTimestamp = formatTimestamp(Date.now()); // Use current time
+        // Check existing entries in Firestore to calculate entry number
+        const existingEntries = await firestore
+          .collection('weightHistory')
+          .where('scaleId', '==', idFromDb)
+          .get();
+
+        const entryNumber = existingEntries.size + 1; // Calculate entry number
+
         const weightEntry = {
           name,
           scaleId: idFromDb,
-          timestamp: formattedTimestamp,
-          weight: latestWeight
+          timestamp: new Date(), // Save current time as a Date object
+          weight: latestWeight,
+          entryNumber // Add the entry number
         };
 
         // Avoid saving duplicate stable weights

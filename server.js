@@ -31,9 +31,6 @@ admin.initializeApp({
 const db = admin.database(); // Realtime Database reference
 const firestore = admin.firestore(); // Firestore reference
 
-// Reference to the scales node in Realtime Database
-const scalesRef = db.ref('scales');
-
 ////
 const speechClient = new SpeechClient();
 const ttsClient = new TextToSpeechClient();
@@ -3704,38 +3701,78 @@ async function synthesizeSpeech(text, outputFile) {
     console.log('Audio content written to file:', outputFile);
 }
 
-// Function to format the timestamp
+const scalesRef = db.ref('scales');
+// Map to track last stable weights for each scale
+const stableWeights = new Map();
+// Function to format timestamp with GMT+8
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp);
-  return date.toLocaleString('en-US', { hour12: true });
+  const gmt8Date = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return gmt8Date.toLocaleString('en-US', { hour12: true, timeZone: 'Asia/Singapore' });
 }
 
-// Function to monitor the database
-scalesRef.on('value', async (snapshot) => {
-  const scales = snapshot.val();
-  for (const key in scales) {
-    const { name, scaleId, timestamp, weight } = scales[key];
+// Monitor all children under the "scales" node
+scalesRef.on('child_changed', (snapshot) => {
+  handleScaleUpdate(snapshot);
+});
 
-    if (weight !== 0) {
-      // Track stability for 1.5 seconds
-      setTimeout(async () => {
-        const updatedSnapshot = await scalesRef.child(key).once('value');
-        const updatedWeight = updatedSnapshot.val().weight;
+scalesRef.on('child_added', (snapshot) => {
+  handleScaleUpdate(snapshot);
+});
 
-        if (updatedWeight === weight && updatedWeight !== 0) {
-          const formattedTimestamp = formatTimestamp(timestamp * 1000); // Convert to milliseconds
-          const weightEntry = {
-            name,
-            scaleId,
-            timestamp: formattedTimestamp,
-            weight: updatedWeight
-          };
+// Function to handle updates for each scale
+function handleScaleUpdate(snapshot) {
+  const scaleData = snapshot.val();
+  const scaleId = snapshot.key;
 
-          // Save to Firestore
+  const { name, scaleId: idFromDb, timestamp, weight } = scaleData;
+
+  // Skip if the weight is 0 or any field is undefined
+  if (!weight || !name || !idFromDb || !timestamp) {
+    return;
+  }
+
+  const previousWeightData = stableWeights.get(scaleId) || {};
+
+  // If the weight has changed, reset the timer
+  if (previousWeightData.weight !== weight) {
+    // Set a timeout to check for stability after 1.5 seconds
+    clearTimeout(previousWeightData.timer);
+    const timer = setTimeout(async () => {
+      const currentSnapshot = await scalesRef.child(scaleId).once('value');
+      const { weight: latestWeight } = currentSnapshot.val();
+
+      if (latestWeight === weight) {
+        // Save to Firestore only if weight remains stable
+        const formattedTimestamp = formatTimestamp(Date.now()); // Use current time
+        const weightEntry = {
+          name,
+          scaleId: idFromDb,
+          timestamp: formattedTimestamp,
+          weight: latestWeight
+        };
+
+        // Avoid saving duplicate stable weights
+        if (!previousWeightData.saved || previousWeightData.savedWeight !== latestWeight) {
           await firestore.collection('weightHistory').add(weightEntry);
           console.log(`Saved to Firestore:`, weightEntry);
+
+          // Update the stable weight record
+          stableWeights.set(scaleId, {
+            weight: latestWeight,
+            timer: null,
+            saved: true,
+            savedWeight: latestWeight
+          });
         }
-      }, 1500); // Wait 1.5 seconds
-    }
+      }
+    }, 1500); // Wait 1.5 seconds
+
+    // Update the timer and weight for this scale
+    stableWeights.set(scaleId, {
+      weight,
+      timer,
+      saved: false
+    });
   }
-});
+}

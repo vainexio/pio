@@ -3759,7 +3759,7 @@ function handleScaleUpdate(snapshot) {
         const weightEntry = {
           name,
           scaleId: idFromDb,
-          timestamp: new Date(), // Save current time as a Date object
+          timestamp: formatTimestamp(), // Save current time as a Date object
           weight: latestWeight,
           entryNumber // Add the entry number
         };

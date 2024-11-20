@@ -97,7 +97,7 @@ module.exports = {
       ];
       //
       let msgData = {"role": content.toLowerCase().startsWith('system:') ? "system" : "user", "content": content.replace('system:','')}
-      if (user.id) {
+      /*if (user.id) {
         let found = config.AI.users.find(u => u.id === user.id && u.ai === acc.name)
         if (found) {
           for (let i in found.messages) {
@@ -108,7 +108,7 @@ module.exports = {
         } else {
           config.AI.users.push({id: user.id, messages: [msgData], ai: acc.name})
         }
-      }
+      }*/
       messages.push(msgData)
       let chosenAPI = null
       //Image generation

@@ -128,7 +128,6 @@ module.exports = {
         data = {
           "model": "gpt-4-turbo",//config.AI.models[config.AI.modelCount],
           "messages": messages,
-          "max_tokens": 100,
         }
       }
       //Post to API

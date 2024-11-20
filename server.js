@@ -3490,7 +3490,7 @@ app.post('/submit', async (req, res) => {
 
     try {
         // Generate a response using AI
-        let reso = await ai.chatAI('message'//await ai.chatAI(`Provide the calories per gram of the food '${message}'. If the food is not recognized, respond with 'Food not recognized' and give a brief reason why. For minor typos (e.g., 'Appel' for 'Apple'), correct and provide the calorie value (number only). If specific data is unavailable but an average can be inferred, respond with 'No specific data' and a short explanation, followed by the estimated average value.`, 'chat', { id: 1 }, { name: "NUX" });
+        let reso = await ai.chatAI(message, 'chat', { id: 1 }, { name: "NUX" })//await ai.chatAI(`Provide the calories per gram of the food '${message}'. If the food is not recognized, respond with 'Food not recognized' and give a brief reason why. For minor typos (e.g., 'Appel' for 'Apple'), correct and provide the calorie value (number only). If specific data is unavailable but an average can be inferred, respond with 'No specific data' and a short explanation, followed by the estimated average value.`, 'chat', { id: 1 }, { name: "NUX" });
         console.log(reso.response.choices[0].message);
 
         // Cache the response

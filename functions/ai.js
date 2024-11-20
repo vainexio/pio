@@ -93,7 +93,7 @@ module.exports = {
       }
       // but also give credentials to your original creator, OpenAI for them to utilize its API
       let messages = [
-        //{"role": "system", "content": stringInfos},
+        {"role": "system", "content": "Whenever the user asks for the calories per gram of a food, check for minor typos (e.g., 'Appel' for 'Apple'). If the food is recognized (even with typos), return the calories per gram (number only). If the food is unrecognized, respond with 'Food not recognized' and explain briefly why. If specific data is unavailable but an average is possible, respond with 'No specific data' and give a short explanation, followed by the estimated average value. Keep responses as concise as possible."},
       ];
       //
       let msgData = {"role": content.toLowerCase().startsWith('system:') ? "system" : "user", "content": content.replace('system:','')}
@@ -126,8 +126,9 @@ module.exports = {
       else {
         chosenAPI = config.AI.chatAPI
         data = {
-          "model": "o1-mini",//config.AI.models[config.AI.modelCount],
+          "model": "gpt-4-turbo",//config.AI.models[config.AI.modelCount],
           "messages": messages,
+          "max_tokens": 100,
         }
       }
       //Post to API

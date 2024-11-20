@@ -126,7 +126,7 @@ module.exports = {
       else {
         chosenAPI = config.AI.chatAPI
         data = {
-          "model": config.AI.models[config.AI.modelCount],
+          "model": "o1-mini",//config.AI.models[config.AI.modelCount],
           "messages": messages,
         }
       }

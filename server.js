@@ -3689,6 +3689,7 @@ async function getChatGPTResponse(text) {
     return reso.response.data.choices[0].message.content;
 }
 
+
 // Function to synthesize text to speech
 async function synthesizeSpeech(text, outputFile) {
     const [response] = await ttsClient.synthesizeSpeech({

@@ -3785,7 +3785,7 @@ function handleScaleUpdate(snapshot) {
           });
         }
       }
-    }, 1500);
+    }, 3000);
 
     // Update the timer and weight for this scale
     stableWeights.set(scaleId, {

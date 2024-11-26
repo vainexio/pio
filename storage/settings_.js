@@ -441,13 +441,12 @@ module.exports = {
             parent: '3 Months',
             children: [
               //
-              { name: '2x server boosts', price: 80, rs: 75 },
-              { name: '4x server boosts', price: 135, rs: 125 },
-              { name: '6x server boosts', price: 190, rs: 185 },
-              { name: '8x server boosts', price: 235, rs: 225 },
-              { name: '14x server boosts', price: 360, rs: 355 },
+              { name: '2x server boosts', price: 65, rs: 60 },
+              { name: '4x server boosts', price: 85, rs: 80 },
+              { name: '6x server boosts', price: 120, rs: 115 },
+              { name: '8x server boosts', price: 150, rs: 140 },
+              { name: '14x server boosts', price: 220, rs: 215 },
               { name: 'mins-hours process', price: 0, rs: 0 },
-              { name: '80d warranty', price: 0, rs: 0 },
               //
             ],
           },
@@ -807,7 +806,7 @@ module.exports = {
               { name: '800 robux', price: 240, rs: 0 },
               { name: '900 robux', price: 270, rs: 0 },
               { name: '1000 robux', price: 300, rs: 0 },
-              { name: 'Must be in the group for 14 days!\n` [Join Here] ` https://www.roblox.com/groups/6648268/Kingsman-2-0', price: 0, rs: 0 },
+              { name: 'Must be in the group for 14 days!\n` [JOIN HERE] ` https://www.roblox.com/communities/6648268/Sloopies', price: 0, rs: 0 },
               //
             ],
           },

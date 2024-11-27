@@ -3204,9 +3204,9 @@ client.on('interactionCreate', async inter => {
         if (responder) {
           
           let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SECONDARY').setEmoji(':y_ywhale:1160917737904816178>').setLabel('New Number'),
+            new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SECONDARY').setLabel('new number'),
           );
-          await inter.channel.send({content: emojis.loading+" your payment will be validated automatically:\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+phone.number+"`\n-# Expected Amount: `ANY`\n\n-#‼️ If you are going to use a new number to send, please click the button below!", components: [row]})
+          await inter.channel.send({content: emojis.loading+" your payment will be validated automatically:\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+phone.number+"`\n-# Expected Amount: `ANY`\n\n-# ‼️ If you are going to use a new number to send, please click the button below!", components: [row]})
         }
       } else {
         

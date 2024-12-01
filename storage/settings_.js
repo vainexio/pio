@@ -443,9 +443,9 @@ module.exports = {
               //
               { name: '2x server boosts', price: 65, rs: 60 },
               { name: '4x server boosts', price: 85, rs: 80 },
-              { name: '6x server boosts', price: 120, rs: 115 },
-              { name: '8x server boosts', price: 150, rs: 140 },
-              { name: '14x server boosts', price: 220, rs: 215 },
+              { name: '6x server boosts', price: 130, rs: 120 },
+              { name: '8x server boosts', price: 155, rs: 145 },
+              { name: '14x server boosts', price: 245, rs: 240 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               //
             ],

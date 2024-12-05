@@ -3533,8 +3533,8 @@ app.get('/text', async (req, res) => {
         let reso = await ai.chatAI(req.query.input, 'chat', { id: 1 }, { name: "AI" })//await ai.chatAI(`Provide the calories per gram of the food '${message}'. If the food is not recognized, respond with 'Food not recognized' and give a brief reason why. For minor typos (e.g., 'Appel' for 'Apple'), correct and provide the calorie value (number only). If specific data is unavailable but an average can be inferred, respond with 'No specific data' and a short explanation, followed by the estimated average value.`, 'chat', { id: 1 }, { name: "NUX" });
         console.log(reso.response.choices[0].message);
         const aiResponse = reso.response;
-      
-        res.status(200).text(reso.response.choices[0].message)
+        res.type('text/plain');
+        res.status(200).send(reso.response.choices[0].message.content)
     } catch (error) {
         console.error('Error while generating response:', error);
         res.status(500).json({ error: 'Failed to process the request' });

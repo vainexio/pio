@@ -3524,16 +3524,23 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-/*
-  if (reso.response.choices) {
-    let msgData = {"role": "assistant", "content": reso.response.choices[0].message.content}
-        let found = config.AI.users.find(u => u.id === 1 && u.ai === "NUX")
-        if (found) {
-          found.messages.push(msgData)
-        } else {
-          config.AI.users.push({id: 1, messages: [msgData], ai: "NUX"})
-        }
-  }*/
+app.get('/text', async (req, res) => {
+    if (!req.query.input) {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    try {
+        let reso = await ai.chatAI(req.query.input, 'chat', { id: 1 }, { name: "AI" })//await ai.chatAI(`Provide the calories per gram of the food '${message}'. If the food is not recognized, respond with 'Food not recognized' and give a brief reason why. For minor typos (e.g., 'Appel' for 'Apple'), correct and provide the calorie value (number only). If specific data is unavailable but an average can be inferred, respond with 'No specific data' and a short explanation, followed by the estimated average value.`, 'chat', { id: 1 }, { name: "NUX" });
+        console.log(reso.response.choices[0].message);
+        const aiResponse = reso.response;
+      
+        res.status(200).text(reso.response.choices[0].message)
+    } catch (error) {
+        console.error('Error while generating response:', error);
+        res.status(500).json({ error: 'Failed to process the request' });
+    }
+});
+
 app.get('/sms', async function (req, res) {
   let msg = req.query.msg
   if (!msg) return res.status(404).send({error: 'Invalid Message'})

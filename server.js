@@ -18,18 +18,6 @@ const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const multer = require('multer');
 const util = require('util');
-///
-const admin = require('firebase-admin');
-
-// Initialize Firebase Admin
-const serviceAccount = require('./serviceAccount.json'); // Replace with your service account key
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://android-iot-9a7ca-default-rtdb.firebaseio.com/' // Replace with your Realtime Database URL
-});
-
-const db = admin.database(); // Realtime Database reference
-const firestore = admin.firestore(); // Firestore reference
 
 ////
 const speechClient = new SpeechClient();
@@ -3712,99 +3700,4 @@ async function synthesizeSpeech(text, outputFile) {
 
     await util.promisify(fs.writeFile)(outputFile, response.audioContent, 'binary');
     console.log('Audio content written to file:', outputFile);
-}
-
-const scalesRef = db.ref('scales');
-const stableWeights = new Map(); // Track stable weights
-let saveHistory = false; // Flag to control saving logic
-
-// Function to get the current time in GMT+8
-function formatTimestamp() {
-  const now = new Date();
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Singapore',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  }).format(now);
-}
-
-// Monitor Firestore "appStatus/userStatus" for changes
-firestore.doc('appStatus/userStatus').onSnapshot((doc) => {
-  if (doc.exists) {
-    const { online } = doc.data();
-    saveHistory = !online; // Save history only if online is false
-    console.log(`Save history status: ${saveHistory ? 'Enabled' : 'Disabled'}`);
-  } else {
-    console.error('Document "appStatus/userStatus" not found');
-  }
-});
-
-// Monitor database for weight changes
-scalesRef.on('child_changed', handleScaleUpdate);
-scalesRef.on('child_added', handleScaleUpdate);
-
-// Handle updates for each scale
-function handleScaleUpdate(snapshot) {
-  if (!saveHistory) return; // Skip processing if history saving is disabled
-
-  const scaleData = snapshot.val();
-  const scaleId = snapshot.key;
-
-  const { name, scaleId: idFromDb, timestamp, weight } = scaleData;
-
-  // Skip if data is invalid
-  if (!weight || !name || !idFromDb || !timestamp) return;
-
-  const previousWeightData = stableWeights.get(scaleId) || {};
-
-  // If the weight has changed, reset the timer
-  if (previousWeightData.weight !== weight) {
-    clearTimeout(previousWeightData.timer);
-    const timer = setTimeout(async () => {
-      const currentSnapshot = await scalesRef.child(scaleId).once('value');
-      const { weight: latestWeight } = currentSnapshot.val();
-
-      if (latestWeight === weight) {
-        const existingEntries = await firestore
-          .collection('weightHistory')
-          .where('scaleId', '==', idFromDb)
-          .get();
-
-        const entryNumber = existingEntries.size + 1;
-
-        const weightEntry = {
-          name,
-          scaleId: idFromDb,
-          timestamp: formatTimestamp(),
-          weight: latestWeight,
-          entryNumber,
-        };
-
-        // Avoid saving duplicate stable weights
-        if (!previousWeightData.saved || previousWeightData.savedWeight !== latestWeight) {
-          await firestore.collection('weightHistory').add(weightEntry);
-          console.log(`Saved to Firestore:`, weightEntry);
-
-          stableWeights.set(scaleId, {
-            weight: latestWeight,
-            timer: null,
-            saved: true,
-            savedWeight: latestWeight,
-          });
-        }
-      }
-    }, 3000);
-
-    // Update the timer and weight for this scale
-    stableWeights.set(scaleId, {
-      weight,
-      timer,
-      saved: false,
-    });
-  }
 }

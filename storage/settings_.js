@@ -153,6 +153,7 @@ module.exports = {
     ],
     checkerWhitelist: [
       "1147240610009456712",
+      "1316608765319053363" //jan 12, 2025
     ],
     scanner: [],
     expected: [],

@@ -2378,7 +2378,7 @@ client.on('interactionCreate', async inter => {
                 let text = args[0].includes(':') ? args.slice(1).join(" ") : msg
                 let emoji = args[0].includes(':') ? args[0] : null
                 if (stockHolder[holderCount].length === 5) holderCount++
-                stockHolder[holderCount].push(new MessageButton().setCustomId("none"+getRandom(1,10000)).setStyle(text.includes("!") ? "DANGER" : "SECONDARY").setLabel(text.replace(/!/g,'')).setEmoji(args[0].includes(':') ? args[0] : null).setDisabled(text.includes("!") ? true : false));
+                stockHolder[holderCount].push(new MessageButton().setCustomId("none"+getRandom(1,10000)).setStyle("SECONDARY").setLabel(text.replace(/!/g,'')).setEmoji(args[0].includes(':') ? args[0] : null).setDisabled(text.includes("!") ? true : false));
               }
             }
             //Handle display

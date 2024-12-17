@@ -2368,8 +2368,8 @@ client.on('interactionCreate', async inter => {
               .then(async (messages) => {
               messages.forEach(async (gotMsg) => { arrays.push(gotMsg.content) }); 
             });
-            stockHolder[0].push(new MessageButton().setCustomId('none').setStyle('SECONDARY').setLabel('nitro boost ( '+data.nitroBoost+' )').setEmoji(emojis.nboost))
-            stockHolder[0].push(new MessageButton().setCustomId('none2').setStyle('SECONDARY').setLabel('nitro basic ( '+data.nitroBasic+' )').setEmoji(emojis.nbasic))
+            //stockHolder[0].push(new MessageButton().setCustomId('none').setStyle('SECONDARY').setLabel('nitro boost ( '+data.nitroBoost+' )').setEmoji(emojis.nboost))
+            //stockHolder[0].push(new MessageButton().setCustomId('none2').setStyle('SECONDARY').setLabel('nitro basic ( '+data.nitroBasic+' )').setEmoji(emojis.nbasic))
             //Loop
             for (let i in arrays) {
               let msg = arrays[i];
@@ -2378,7 +2378,7 @@ client.on('interactionCreate', async inter => {
                 let text = args[0].includes(':') ? args.slice(1).join(" ") : msg
                 let emoji = args[0].includes(':') ? args[0] : null
                 if (stockHolder[holderCount].length === 5) holderCount++
-                stockHolder[holderCount].push(new MessageButton().setCustomId("none"+getRandom(1,10000)).setStyle("SECONDARY").setLabel(text).setEmoji(args[0].includes(':') ? args[0] : null));
+                stockHolder[holderCount].push(new MessageButton().setCustomId("none"+getRandom(1,10000)).setStyle(text.includes("!") ? "DANGER" : "SECONDARY").setLabel(text.replace(/!/g,'')).setEmoji(args[0].includes(':') ? args[0] : null).setDisabled(text.includes("!") ? true : false));
               }
             }
             //Handle display

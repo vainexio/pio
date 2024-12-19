@@ -514,38 +514,9 @@ client2.on("messageCreate", async (message) => {
           await message.react(emojis.loading)
           
           for (let i in args) {
-            //await sleep(100)
             if (args[i].includes('roblox.com')) {
-              console.log('scan')
-              let auth = {
-                method: 'GET',
-                headers: {
-                  'Cookie': process.env.robloxCookie,
-                  'Host': 'www.roblox.com',
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                  'Accept-Language': 'en-US,en;q=0.5',
-                  'Accept-Encoding': 'gzip, deflate',
-                  'Upgrade-Insecure-Requests': '1',
-                  'Sec-Fetch-Dest': 'document',
-                  'Sec-Fetch-Mode': 'navigate',
-                  'Sec-Fetch-Site': 'none',
-                  'Sec-Fetch-User': '?1',
-                  'Te': 'trailers',
-                  'Referer': 'https://www.roblox.com/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fcatalog%2F14189234649%2FGP',
-                  'Content-Type': 'application/json'
-                }
-              }
-              let auth2 = {
-                method: 'GET',
-                headers: {
-                  'Host': 'catalog.roblox.com',
-                  'Authorization': process.env.robloxCookie,
-                  'Content-Type': 'application/json'
-                }
-              }
               count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true',auth)
+              let response = await fetch(args[i].replace(',','')+'?nl=true')
             
               let htmlContent = await response.text()
               let $ = cheerio.load(htmlContent);
@@ -592,36 +563,8 @@ client2.on("messageCreate", async (message) => {
           for (let i in args) {
             //await sleep(100)
             if (args[i].includes('roblox.com')) {
-              console.log('scan')
-              let auth = {
-                method: 'GET',
-                headers: {
-                  'Cookie': process.env.robloxCookie,
-                  'Host': 'www.roblox.com',
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                  'Accept-Language': 'en-US,en;q=0.5',
-                  'Accept-Encoding': 'gzip, deflate',
-                  'Upgrade-Insecure-Requests': '1',
-                  'Sec-Fetch-Dest': 'document',
-                  'Sec-Fetch-Mode': 'navigate',
-                  'Sec-Fetch-Site': 'none',
-                  'Sec-Fetch-User': '?1',
-                  'Te': 'trailers',
-                  'Referer': 'https://www.roblox.com/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fcatalog%2F14189234649%2FGP',
-                  'Content-Type': 'application/json'
-                }
-              }
-              let auth2 = {
-                method: 'GET',
-                headers: {
-                  'Host': 'catalog.roblox.com',
-                  'Authorization': process.env.robloxCookie,
-                  'Content-Type': 'application/json'
-                }
-              }
               count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true',auth)
+              let response = await fetch(args[i].replace(',','')+'?nl=true')
             
               let htmlContent = await response.text()
               let $ = cheerio.load(htmlContent);
@@ -647,7 +590,6 @@ client2.on("messageCreate", async (message) => {
               let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g,'')) : price
               let ct = !isNaN(raw) ? '\nYou will receive: **'+Math.round(raw*0.7)+'** '+emojis.robux : ''
               content +=  price+': '+args[i]+'\n'
-              //console.log("Total price: "+total)
             }
           }
           let err = content.includes('NaN') ? "\n"+emojis.warning+" A link resulted an invalid price. Rescan is recommended." : ""
@@ -672,36 +614,8 @@ client2.on("messageCreate", async (message) => {
           for (let i in args) {
             //await sleep(100)
             if (args[i].includes('roblox.com')) {
-              console.log('scan')
-              let auth = {
-                method: 'GET',
-                headers: {
-                  'Cookie': process.env.robloxCookie,
-                  'Host': 'www.roblox.com',
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                  'Accept-Language': 'en-US,en;q=0.5',
-                  'Accept-Encoding': 'gzip, deflate',
-                  'Upgrade-Insecure-Requests': '1',
-                  'Sec-Fetch-Dest': 'document',
-                  'Sec-Fetch-Mode': 'navigate',
-                  'Sec-Fetch-Site': 'none',
-                  'Sec-Fetch-User': '?1',
-                  'Te': 'trailers',
-                  'Referer': 'https://www.roblox.com/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fcatalog%2F14189234649%2FGP',
-                  'Content-Type': 'application/json'
-                }
-              }
-              let auth2 = {
-                method: 'GET',
-                headers: {
-                  'Host': 'catalog.roblox.com',
-                  'Authorization': process.env.robloxCookie,
-                  'Content-Type': 'application/json'
-                }
-              }
               count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true',auth)
+              let response = await fetch(args[i].replace(',','')+'?nl=true')
             
               let htmlContent = await response.text()
               let $ = cheerio.load(htmlContent);
@@ -795,36 +709,8 @@ client2.on("messageCreate", async (message) => {
           for (let i in args) {
             //await sleep(100)
             if (args[i].includes('roblox.com')) {
-              //Authorization
-              let auth = {
-                method: 'GET',
-                headers: {
-                  'Cookie': process.env.robloxCookie,
-                  'Host': 'www.roblox.com',
-                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                  'Accept-Language': 'en-US,en;q=0.5',
-                  'Accept-Encoding': 'gzip, deflate',
-                  'Upgrade-Insecure-Requests': '1',
-                  'Sec-Fetch-Dest': 'document',
-                  'Sec-Fetch-Mode': 'navigate',
-                  'Sec-Fetch-Site': 'none',
-                  'Sec-Fetch-User': '?1',
-                  'Te': 'trailers',
-                  'Referer': 'https://www.roblox.com/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fcatalog%2F14189234649%2FGP',
-                  'Content-Type': 'application/json'
-                }
-              }
-              let auth2 = {
-                method: 'GET',
-                headers: {
-                  'Host': 'catalog.roblox.com',
-                  'Authorization': process.env.robloxCookie,
-                  'Content-Type': 'application/json'
-                }
-              }
               count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true',auth)
+              let response = await fetch(args[i].replace(',','')+'?nl=true')
             
               let htmlContent = await response.text()
               let $ = cheerio.load(htmlContent);

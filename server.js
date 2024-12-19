@@ -502,152 +502,76 @@ client2.on("messageCreate", async (message) => {
       })
     }
   }
-  if (message.content.toLowerCase() === 'scan' && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
+  if ((['scan', 'nct', 'ct'].includes(message.content.toLowerCase())) && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
     if (message.type === 'REPLY') {
-      let msg = await message.channel.messages.fetch(message.reference.messageId)
+      let msg = await message.channel.messages.fetch(message.reference.messageId);
       if (msg) {
         try {
-          let args = getArgs(msg.content)
-          let content = ''
-          let count = 0
-          if (args < 1 || !msg.content.includes('roblox.com')) return message.reply('⚠️ No roblox links was found!')
-          await message.react(emojis.loading)
-          
-          for (let i in args) {
-            if (args[i].includes('roblox.com')) {
-              count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true')
-            
-              let htmlContent = await response.text()
-              let $ = cheerio.load(htmlContent);
-              let price = null
-              //
-              const itemContainer = $('#item-container');
-              
-              if ($('.text-robux-lg').length > 0) {
-                price = 'Price: '+$('.text-robux-lg').text().trim()
-                console.log(price);
-              } else {
-                let itemId = itemContainer.attr('data-item-id');
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/'+itemId+'/details?itemType=Asset')
-                res = await res.json();
-                if (res.errors) price = "Can't scan catalog items"
-                  else {
-                  price = 'Price: '+res.price.toString();
-                  console.log(price);
-                }
-              }
-              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g,'')) : price
-              let ct = !isNaN(raw) ? '\nYou will receive: **'+Math.floor(raw*0.7)+'** '+emojis.robux : ''
-              content +=  count+'. '+args[i]+'\n'+price+' '+emojis.robux+ct+'\n\n'
-            }
+          let args = getArgs(msg.content);
+          if (args.length < 1 || !msg.content.includes('roblox.com')) {
+            return message.reply('⚠️ No roblox links were found!');
           }
-          await message.channel.send(content)
-        } catch (err) {
-          message.reply(err.message)
-        }
-      }
-    }
-  }
-  if (message.content.toLowerCase() === 'nct' && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
-    if (message.type === 'REPLY') {
-      let msg = await message.channel.messages.fetch(message.reference.messageId)
-      if (msg) {
-        try {
-          let args = getArgs(msg.content)
-          let content = ''
-          let count = 0
-          if (args < 1 || !msg.content.includes('roblox.com')) return message.reply('⚠️ No roblox links was found!')
-          await message.react(emojis.loading)
-          let total = 0
+
+          await message.react(emojis.loading);
+
+          let content = '';
+          let count = 0;
+          let total = 0;
+          let commandType = message.content.toLowerCase();
+
           for (let i in args) {
-            //await sleep(100)
             if (args[i].includes('roblox.com')) {
-              count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true')
-            
-              let htmlContent = await response.text()
+              count++;
+              let response = await fetch(args[i].replace(',', '') + '?nl=true');
+              let htmlContent = await response.text();
               let $ = cheerio.load(htmlContent);
-              let price = null
-              //
+              let price = null;
+
               const itemContainer = $('#item-container');
-              
               if ($('.text-robux-lg').length > 0) {
-                price = $('.text-robux-lg').text().trim()
-                total += Number($('.text-robux-lg').text().trim().replace(',',''))
-                console.log(price);
+                price = $('.text-robux-lg').text().trim();
               } else {
                 let itemId = itemContainer.attr('data-item-id');
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/'+itemId+'/details?itemType=Asset')
+                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId + '/details?itemType=Asset');
                 res = await res.json();
-                if (res.errors) price = "Can't scan catalog items"
-                  else {
+                if (res.errors) {
+                  price = "Can't scan catalog items";
+                } else {
                   price = res.price.toString();
-                  total += res.price
-                  console.log(price);
                 }
               }
-              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g,'')) : price
-              let ct = !isNaN(raw) ? '\nYou will receive: **'+Math.round(raw*0.7)+'** '+emojis.robux : ''
-              content +=  price+': '+args[i]+'\n'
-            }
-          }
-          let err = content.includes('NaN') ? "\n"+emojis.warning+" A link resulted an invalid price. Rescan is recommended." : ""
-          await message.channel.send(content+'\n\nTotal gamepass price (NCT): '+total+err)
-        } catch (err) {
-          message.reply(err.message)
-        }
-      }
-    }
-  }
-  if (message.content.toLowerCase() === 'ct' && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
-    if (message.type === 'REPLY') {
-      let msg = await message.channel.messages.fetch(message.reference.messageId)
-      if (msg) {
-        try {
-          let args = getArgs(msg.content)
-          let content = ''
-          let count = 0
-          if (args < 1 || !msg.content.includes('roblox.com')) return message.reply('⚠️ No roblox links was found!')
-          await message.react(emojis.loading)
-          let total = 0
-          for (let i in args) {
-            //await sleep(100)
-            if (args[i].includes('roblox.com')) {
-              count++
-              let response = await fetch(args[i].replace(',','')+'?nl=true')
+
+              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g, '')) : price;
             
-              let htmlContent = await response.text()
-              let $ = cheerio.load(htmlContent);
-              let price = null
-              //
-              const itemContainer = $('#item-container');
-              
-              if ($('.text-robux-lg').length > 0) {
-                price = Number($('.text-robux-lg').text().trim().replace(',',''))*0.7
-                total += Math.floor(price)
-                console.log(price);
-              } else {
-                let itemId = itemContainer.attr('data-item-id');
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/'+itemId+'/details?itemType=Asset')
-                res = await res.json();
-                if (res.errors) price = "Can't scan catalog items"
-                  else {
-                  price = Math.floor(res.price*0.7)
-                  total += price
-                  console.log(price);
-                }
+              if (commandType === 'scan') {
+                let ct = !isNaN(raw) ? '\nYou will receive: **' + Math.floor(raw * 0.7) + '** ' + emojis.robux : '';
+                content += count + '. ' + args[i] + '\nPrice: ' + price + ' ' + emojis.robux + ct + '\n\n';
               }
-              let raw = price !== "Can't scan catalog items" ? price : price
-              let ct = !isNaN(raw) ? '\nYou will receive: **'+Math.round(raw)+'** '+emojis.robux : ''
-              content +=  Math.floor(price)+': '+args[i]+'\n'
-              //console.log("Total gamepass price (CT): "+total)
+              
+              else if (commandType === 'nct') {
+                if (!isNaN(raw)) total += raw;
+                content += price + ': ' + args[i] + '\n';
+              }
+              
+              else if (commandType === 'ct') {
+                let adjustedPrice = !isNaN(raw) ? Math.floor(raw * 0.7) : raw;
+                if (!isNaN(adjustedPrice)) total += adjustedPrice;
+                content += adjustedPrice + ': ' + args[i] + '\n';
+              }
+              
             }
           }
-          let err = content.includes('NaN') ? "\n"+emojis.warning+" A link resulted an invalid price. Rescan is recommended." : ""
-          await message.channel.send(content+'\n\nTotal amount (CT): '+total+err)
+
+          let err = content.includes('NaN') ? '\n' + emojis.warning + ' A link resulted in an invalid price. Rescan is recommended.' : '';
+          if (commandType === 'nct') {
+            content += '\n\nTotal gamepass price (NCT): ' + total + err;
+          } else if (commandType === 'ct') {
+            content += '\n\nTotal amount (CT): ' + total + err;
+          }
+
+          await message.channel.send(content);
         } catch (err) {
-          message.reply(err.message)
+          message.reply(err.message);
         }
       }
     }
@@ -669,7 +593,6 @@ client2.on("messageCreate", async (message) => {
           let prices = []
           //Maximizer
           function findClosestSum(items, maxSum) {
-            // Helper function for recursive calculation
             function helper(i, remainingSum, memo) {
               // Base cases
               if (i === items.length || remainingSum === 0) return { sum: 0, chosen: [], notChosen: items.slice(i) };
@@ -688,10 +611,19 @@ client2.on("messageCreate", async (message) => {
                 result2.notChosen = subResult.notChosen;
               }
 
-              // Choose the option that gets closest to maxSum without exceeding it
+              // Choose the better result
               let result;
               if (result2.sum > result1.sum) {
                 result = result2;
+              } else if (result2.sum === result1.sum) {
+                // Tie-breaking: prioritize earlier items
+                if (result2.chosen.length < result1.chosen.length) {
+                  result = result2;
+                } else if (result2.chosen.length === result1.chosen.length) {
+                  result = result2.chosen.some((item, index) => item.index < result1.chosen[index]?.index) ? result2 : result1;
+                } else {
+                  result = result1;
+                }
               } else {
                 result = result1;
               }
@@ -699,6 +631,9 @@ client2.on("messageCreate", async (message) => {
               memo[i][remainingSum] = result;
               return result;
             }
+
+            // Include item indices to preserve original order
+            items = items.map((item, index) => ({ ...item, index }));
 
             // Initialize memoization array
             let memo = Array.from({ length: items.length + 1 }, () => Array(maxSum + 1).fill(undefined));

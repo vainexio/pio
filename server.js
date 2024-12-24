@@ -3007,18 +3007,18 @@ client.on('interactionCreate', async inter => {
       let msg = await temp.messages.fetch('1258055219355586600')
       await inter.channel.send({content: msg.content.replace('{status}',booster)})
       
-      let phone = await phoneModel.findOne({userId: inter.member.id})
+      await inter.channel.send({content: ".autopay"})
+      /*let phone = await phoneModel.findOne({userId: inter.member.id})
       if (phone) {
         let responder = shop.ar.responders.find(res => '.gcash' === shop.ar.prefix+res.command)
         if (responder) {
           
-          await inter.channel.send({content: ".autopay"})
-          /*let row = new MessageActionRow().addComponents(
+          
+          let row = new MessageActionRow().addComponents(
             new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SECONDARY').setLabel('new number').setEmoji('<:S_letter:1138714993425125556>'),
             new MessageButton().setCustomId('reply-09459868489').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")
           );
           await inter.channel.send({content: emojis.loading+" your payment will be validated automatically:\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+phone.number+"`\n-# Expected Amount: `ANY`\n\n-# ‼️ If you are going to use a new number to send, please click the button below!", components: [row]})
-        */
         }
       } else {
         
@@ -3026,7 +3026,7 @@ client.on('interactionCreate', async inter => {
           new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SUCCESS').setLabel('Yes'),
         );
         await inter.channel.send({content: "** **\n<:gcash:1273091410228150276> Would you like to auto pay with GCash?\n-# Auto pay may have flaws. If the payment was not validated, please send the receipt instead.\n** **", components: [row]})
-      }
+      }*/
     }
     else if (id.startsWith('autopay-')) {
       let userId = id.replace('autopay-','')

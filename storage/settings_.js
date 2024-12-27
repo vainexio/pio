@@ -948,11 +948,6 @@ module.exports = {
           autoDelete: true,
         },
         {
-          command: 'robux',
-          response: '• Gamepass/Shirt Link:\n• Amount:',
-          autoDelete: true,
-        },
-        {
           command: 'valorant',
           response: '<:mark:1056579773989650543>Riot ID:',
           autoDelete: true,
@@ -980,7 +975,7 @@ module.exports = {
           autoDelete: true,
         },
         {
-          command: '.rbux',
+          command: 'robux',
           response: '**robux report form**\n- gamepass link:\n- vouch link:\n- price paid:\n- date availed:\n\n<:S_letter:1138714993425125556> Ensure that no rules were violated, in accordance with the terms and conditions accepted during the ordering process.',
           autoDelete: true,
         },

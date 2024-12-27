@@ -980,8 +980,8 @@ module.exports = {
           autoDelete: true,
         },
         {
-          command: 'qwe3w2313',
-          response: '',
+          command: '.rbux',
+          response: '**robux report form**\n- gamepass link:\n- vouch link:\n- price paid:\n- date availed:\n\n<:S_letter:1138714993425125556> Ensure that no rules were violated, in accordance with the terms and conditions accepted during the ordering process.',
           autoDelete: true,
         },
       ]

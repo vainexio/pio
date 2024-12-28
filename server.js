@@ -2668,7 +2668,7 @@ client.on('interactionCreate', async inter => {
       else if (found === 'noted' && !ticket.name.includes('n。')) ticket.setName('n。'+ticket.name.replace('p。','').replace('done。',''))
       let messages = await ticket.messages.fetch({limit: 100}).then(async messages => {
         messages.forEach(async (gotMsg) => {
-          if (gotMsg.content.toLowerCase().includes('<a:active:1322624683757015041') && gotMsg.author.id === client.user.id) {
+          if (gotMsg.content.toLowerCase().includes('active:') && gotMsg.author.id === client.user.id) {
             gotMsg.delete();
           }
         })

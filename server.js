@@ -2450,6 +2450,11 @@ client.on('interactionCreate', async inter => {
         if (method === 'delete') {
           text = 'This channel will be deleted in a few seconds.'
           comp = null
+          
+          let sticky = await stickyModel.findOne({channelId: inter.channel.id})
+          if (sticky) {
+            await stickyModel.deleteOne({channelId: inter.channel.id})
+          }
         }
         else if (method === 'closed') {
           let row = new MessageActionRow().addComponents(
@@ -2720,7 +2725,7 @@ client.on('interactionCreate', async inter => {
         newSticky.message = stickyMsg.content
         await newSticky.save()
       }
-      await ticket.send(stickyMsg.content)
+      await ticket.send({content: stickyMsg.content,components: comp})
     }
     else if (id === 'cancel') {
       inter.reply({content: 'Interaction cancelled.', ephemeral: true})

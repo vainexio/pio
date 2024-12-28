@@ -564,9 +564,9 @@ client2.on("messageCreate", async (message) => {
 
           let err = content.includes('NaN') ? '\n' + emojis.warning + ' A link resulted in an invalid price. Rescan is recommended.' : '';
           if (commandType === 'nct') {
-            content += '\n\nTotal gamepass price (NCT): ' + total + err;
+            content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (NCT): ' + total + err;
           } else if (commandType === 'ct') {
-            content += '\n\nTotal amount (CT): ' + total + err;
+            content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (CT): ' + total + err;
           }
 
           await message.channel.send(content);

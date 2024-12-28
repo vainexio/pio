@@ -178,6 +178,8 @@ module.exports = {
           new MessageSelectMenu().setCustomId('orderStatus').setPlaceholder('Update Order Status').addOptions([
             {label: 'Noted',description: 'Change Order Status',value: 'noted', emoji: '<:S_yellowheart:1141708792141189200>'},
             {label: 'Processing',description: 'Change Order Status',value: 'processing', emoji: '<a:yt_chickclap:1138707159287345263>'},
+            {label: 'Delayed',description: 'Change Order Status',value: 'delayed',emoji:'<a:warningping:1320359447134212147>'},
+            {label: 'Almost there',description: 'Change Order Status',value: 'almost',emoji: '<a:y_starroll:1138704563529076786>'},
             {label: 'Completed',description: 'Change Order Status',value: 'completed', emoji: '<a:checkmark_yellow:1151123927691694110>'},
             {label: 'Cancelled',description: 'Change Order Status',value: 'cancelled', emoji: '<:yl_exclamation:1138705048562581575>'},
           ]),

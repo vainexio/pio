@@ -2630,10 +2630,12 @@ client.on('interactionCreate', async inter => {
     else if (id === 'orderStatus') {
       if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission', ephemeral: true});
       
-      let stat = ['noted','processing','completed','cancelled']
+      let stat = ['noted','processing','delayed','almost','completed','cancelled']
       let otherStat = [
         '1322628345896370268',
         '1322628417581088920',
+        '1322638589888303179',
+        '1322639900146925653',
         '1322629056453152849',
         '1322629752888098907']
       let found = stat.find(s => s === inter.values[0])
@@ -2666,7 +2668,7 @@ client.on('interactionCreate', async inter => {
       else if (found === 'noted' && !ticket.name.includes('n。')) ticket.setName('n。'+ticket.name.replace('p。','').replace('done。',''))
       let messages = await ticket.messages.fetch({limit: 100}).then(async messages => {
         messages.forEach(async (gotMsg) => {
-          if (gotMsg.content.toLowerCase().includes('<a:active:1322624683757015041>') && gotMsg.author.id === client.user.id) {
+          if (gotMsg.content.toLowerCase().includes('<a:active:1322624683757015041') && gotMsg.author.id === client.user.id) {
             gotMsg.delete();
           }
         })

@@ -2627,10 +2627,10 @@ client.on('interactionCreate', async inter => {
       
       let stat = ['noted','processing','completed','cancelled']
       let otherStat = [
-        '<:hb_notify:1138706399656943707> Order noted',
-        '<:hb_notify:1138706399656943707> Your order was submitted for processing',
-        "<a:yl_exclamationan:1138705076395978802> Your order is done!\nPlease make sure to vouch in <#1109020436026634260> within 12 hours\n\n# PLEASE CLOSE YOUR TICKET",
-        emojis.warning+' Your order was cancelled']
+        '1322628345896370268',
+        '1322628417581088920',
+        '1322629056453152849',
+        ']
       let found = stat.find(s => s === inter.values[0])
       let foundStat = otherStat[stat.indexOf(found)]
       if (!found) return inter.reply({content: emojis.warning+' Invalid order status: `'+inter.values[0]+'`', ephemeral: true})

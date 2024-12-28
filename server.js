@@ -2716,7 +2716,12 @@ client.on('interactionCreate', async inter => {
       let stickyMsg = await templates.messages.fetch(foundStat)
       let foundSticky = await stickyModel.findOne({channelId: ticket.id})
       
-      if (foundSticky) {
+      if (found == 'completed' || found == 'cancelled') {
+        if (foundSticky) {
+          await stickyModel.deleteOne({channelId: ticket.id})
+        }
+      }
+      else if (foundSticky) {
         foundSticky.message = stickyMsg.content
         await foundSticky.save()
       } else {

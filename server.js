@@ -2630,7 +2630,7 @@ client.on('interactionCreate', async inter => {
         '1322628345896370268',
         '1322628417581088920',
         '1322629056453152849',
-        ']
+        '1322629752888098907']
       let found = stat.find(s => s === inter.values[0])
       let foundStat = otherStat[stat.indexOf(found)]
       if (!found) return inter.reply({content: emojis.warning+' Invalid order status: `'+inter.values[0]+'`', ephemeral: true})
@@ -2647,7 +2647,7 @@ client.on('interactionCreate', async inter => {
       let closeButton = new MessageActionRow().addComponents(
         new MessageButton().setCustomId('closedTicket-'+member.id).setStyle('SECONDARY').setLabel('Close').setEmoji('🔒'),
       );
-      let comp = found === 'completed' ? [closeButton] : []
+      let comp = found === 'completed' || found === 'cancelled' ? [closeButton] : []
       
       await inter.update({content: content, components: [row]})
       //
@@ -2661,9 +2661,7 @@ client.on('interactionCreate', async inter => {
       else if (found === 'noted' && !ticket.name.includes('n。')) ticket.setName('n。'+ticket.name.replace('p。','').replace('done。',''))
       let messages = await ticket.messages.fetch({limit: 100}).then(async messages => {
         messages.forEach(async (gotMsg) => {
-          if (gotMsg.content.toLowerCase().includes('**order status**') && gotMsg.author.id === client.user.id) {
-            gotContent = gotMsg.content+'\n> \n> \n> \n'+foundStat.toLowerCase()+'\n<:indent:1174738613330788512> <t:'+time+':R>'
-            got = true
+          if (gotMsg.content.toLowerCase().includes('<a:active:1322624683757015041>') && gotMsg.author.id === client.user.id) {
             gotMsg.delete();
           }
         })
@@ -2709,11 +2707,20 @@ client.on('interactionCreate', async inter => {
         }
       }
       //
-      if (!got) {
-        await ticket.send({content: '<a:y_b2buntrain1:1138705768808464514> **order status**\n\n'+foundStat.toLowerCase()+'\n<:indent:1174738613330788512> <t:'+time+':R>', components: comp})
+      let templates = await getChannel(shop.channels.templates)
+      let stickyMsg = await templates.messages.fetch(foundStat)
+      let foundSticky = await stickyModel.findOne({channelId: ticket.id})
+      
+      if (foundSticky) {
+        foundSticky.message = stickyMsg.content
+        await foundSticky.save()
       } else {
-        await ticket.send({content: gotContent, components: comp})
+        let newSticky = new stickyModel(stickySchema)
+        newSticky.channelId = ticket.id
+        newSticky.message = stickyMsg.content
+        await newSticky.save()
       }
+      await ticket.send(stickyMsg.content)
     }
     else if (id === 'cancel') {
       inter.reply({content: 'Interaction cancelled.', ephemeral: true})

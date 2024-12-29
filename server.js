@@ -1407,18 +1407,13 @@ client.on("messageCreate", async (message) => {
       console.log(custom)
       if (custom) return;
       //
-    if (!await hasRole(message.member,['pr access'],message.guild)) {
-      message.reply("<:S_letter:1138714993425125556> please head to <#1109020436278300810> and click the **access** button to be able to view our pricelist channels *!*")
-    } 
-    else {
       let channels = ''
       message.guild.channels.cache.forEach( ch => {
-        if (ch.parent?.name === 'PRICELIST' && ch.type !== 'GUILD_TEXT') {
+        if (ch.parent?.name.includes('LIST')) {
           channels += '\n- <#'+ch.id+'>'
         }
       })
       message.reply("<:S_letter:1138714993425125556> hello, there *!* You can check our products' pricelists through these channels :\n"+channels) 
-    }
     }
   //
   let userPerms = await getPerms(message.member, 3)

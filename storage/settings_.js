@@ -922,10 +922,10 @@ module.exports = {
           autoDelete: true,
         },
         {
-          command: 'form',
-          response: null,
+          command: 'restrict',
+          response: "Click the button below to request for removal of your @restricted role.\n-# Make sure to remove any advertisement statuses on your profile.",
           components: new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
+            new MessageButton().setCustomId('restrictRemoval').setStyle('SECONDARY').setLabel('request removal').setEmoji('<a:yl_exclamationan:1138705076395978802>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
           ),
           autoDelete: true,
         },

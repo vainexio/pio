@@ -2959,6 +2959,12 @@ client.on('interactionCreate', async inter => {
       let notice = await getChannel(shop.channels.alerts)
       notice.send('<@'+inter.user.id+'> '+emojis.x)
     }
+    else if (id == 'restrictRemoval') {
+      let ch = await getChannel('1109020437096181831')
+      await ch.send(inter.user.toString()+" wants to be unrestricted. <@&1109020434554433552>")
+      
+      await inter.reply({content: "Your request has been submitted!\n-# Make sure not to spam the button or you will be banned.", ephemeral: true})
+    }
     else if (id.startsWith('orderFormat')) {
       let found = shop.orderForm.find(c => c === inter.user.id)
       if (found) {

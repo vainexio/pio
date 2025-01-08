@@ -922,6 +922,14 @@ module.exports = {
           autoDelete: true,
         },
         {
+          command: 'form',
+          response: null,
+          components: new MessageActionRow().addComponents(
+            new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
+          ),
+          autoDelete: true,
+        },
+        {
           command: 'rpremium',
           response: '• premium purchased:\n• subscription:\n• original email:\n• replacement email:\n• working pass:\n• shared/solo/fh:\n• date availed :\n• date reported:\n• days used:\n• remaining days:\n• price paid:\n• issue & screenshot of issue:\n• screenshot of vouch with proof of login:',
           autoDelete: false,

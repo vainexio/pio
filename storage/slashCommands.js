@@ -30,7 +30,7 @@ let types = [
 
 module.exports = {
   register: true,
-  deleteSlashes: ['1174898700338864138'],
+  deleteSlashes: ['1272095323275132990'],
   slashes: [
     {
       name: 'codes',

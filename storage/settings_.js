@@ -776,24 +776,6 @@ module.exports = {
         image: "https://media.discordapp.net/attachments/1093391705753002064/1094077237839532123/Logopit_1680918693719.png?width=1440&height=360",
         types: [
           //Types
-          /*{
-            parent: 'Via Group Payout',
-            children: [
-              //
-              { name: '100 robux', price: 30, rs: 0 },
-              { name: '200 robux', price: 60, rs: 0 },
-              { name: '300 robux', price: 90, rs: 0 },
-              { name: '400 robux', price: 120, rs: 0 },
-              { name: '500 robux', price: 150, rs: 0 },
-              { name: '600 robux', price: 180, rs: 0 },
-              { name: '700 robux', price: 210, rs: 0 },
-              { name: '800 robux', price: 240, rs: 0 },
-              { name: '900 robux', price: 270, rs: 0 },
-              { name: '1000 robux', price: 300, rs: 0 },
-              { name: '` [JOIN HERE] ` https://www.roblox.com/communities/6648268/Sloopies\n<:indent:1174738613330788512>must be in the group for 14 days!', price: 0, rs: 0 },
-              //
-            ],
-          },*/
           {
             parent: 'Via Gamepass',
             children: [
@@ -807,26 +789,8 @@ module.exports = {
               { name: '700 robux', price: 230, rs: 230 },
               { name: '800 robux', price: 260, rs: 260 },
               { name: '900 robux', price: 290, rs: 290 },
-              { name: '1000 robux', price: 330, rs: 325 },
-              { name: '*covered tax (hrs-2d process)*', price: 0, rs: 0 },
-              //
-            ],
-          },
-          {
-            parent: 'Via Gamepass',
-            children: [
-              //
-              { name: '100 robux', price: 45, rs: 39 },
-              { name: '200 robux', price: 79, rs: 70 },
-              { name: '300 robux', price: 110, rs: 99 },
-              { name: '400 robux', price: 140, rs: 135 },
-              { name: '500 robux', price: 168, rs: 165 },
-              { name: '600 robux', price: 201, rs: 198 },
-              { name: '700 robux', price: 235, rs: 231 },
-              { name: '800 robux', price: 268, rs: 264 },
-              { name: '900 robux', price: 301, rs: 297 },
-              { name: '1000 robux', price: 335, rs: 330 },
-              { name: '*covered tax (mins-hrs process)*', price: 0, rs: 0 },
+              { name: '1000 robux', price: 325, rs: 320 },
+              { name: '*covered tax (24h process)*', price: 0, rs: 0 },
               //
             ],
           },

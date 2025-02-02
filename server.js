@@ -1126,7 +1126,7 @@ client.on("messageCreate", async (message) => {
     } else {
       try {
         let total = eval(expression)
-        message.reply(total.toString())
+        message.reply(total.toFixed(2).toString())
         if (await getPerms(message.member,4)) shop.expected.push({channel: message.channel.id, amount: total, num: 'None'})
       } catch (err) { }
     }

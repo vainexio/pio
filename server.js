@@ -1120,17 +1120,24 @@ client.on("messageCreate", async (message) => {
     await message.channel.send({content: sticky.message})
   }
   if ((message.content.toLowerCase().startsWith('calcu') && !message.content.toLowerCase().includes('process')) || message.author.id === '497918770187075595') {
-    let expression = message.content.toLowerCase().replace('calcu','')
-    if (/[a-zA-Z]/.test(expression) && message.author.id != '497918770187075595') {
-      //
+    let expression = message.content.toLowerCase().replace('calcu', '');
+    
+    if (/[a-zA-Z]/.test(expression) && message.author.id !== '497918770187075595') {
+        // Handle invalid input
     } else {
-      try {
-        let total = eval(expression)
-        message.reply(total.toFixed(2).toString())
-        if (await getPerms(message.member,4)) shop.expected.push({channel: message.channel.id, amount: total, num: 'None'})
-      } catch (err) { }
+        try {
+            let total = eval(expression);
+            let result = Number.isInteger(total) ? total.toString() : total.toFixed(2);
+            message.reply(result);
+            
+            if (await getPerms(message.member, 4)) {
+                shop.expected.push({ channel: message.channel.id, amount: total, num: 'None' });
+            }
+        } catch (err) {
+            // Handle errors
+        }
     }
-  }
+}
   //Sticky
   let filter = filteredWords.find(w => message.content?.toLowerCase().includes(w))
   if (filter) message.delete();

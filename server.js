@@ -530,11 +530,10 @@ client2.on("messageCreate", async (message) => {
               const itemContainer = $('#item-social-container');
               if ($('.text-robux-lg').length > 0) {
                 price = $('.text-robux-lg').text().trim();
-              } else {
-                let itemId = itemContainer.attr('data-asset-id');
+              } else if (args[i].includes('catalog')) {
+                const itemId = (url) => commandType.match(/\/catalog\/(\d+)/)?.[1] || 0;
                 let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId + '/details?itemType=Asset');
                 res = await res.json();
-                console.log(res)
                 if (res.errors) {
                   price = "Can't scan catalog items";
                 } else {

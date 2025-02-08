@@ -527,13 +527,14 @@ client2.on("messageCreate", async (message) => {
               let $ = cheerio.load(htmlContent);
               let price = null;
 
-              const itemContainer = $('#item-container');
+              const itemContainer = $('#item-social-container');
               if ($('.text-robux-lg').length > 0) {
                 price = $('.text-robux-lg').text().trim();
               } else {
-                let itemId = itemContainer.attr('data-item-id');
+                let itemId = itemContainer.attr('data-asset-id');
                 let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId + '/details?itemType=Asset');
                 res = await res.json();
+                console.log(res)
                 if (res.errors) {
                   price = "Can't scan catalog items";
                 } else {

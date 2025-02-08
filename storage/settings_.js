@@ -362,7 +362,7 @@ module.exports = {
             parent: 'gamepass links scanner',
             children: [
               //
-              { name: 'server invite', price: 110, rs: 100 },
+              { name: 'server invite', price: 80, rs: 70 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ ` scan, nct, ct ` commands\n\u200b'}
               //
             ],

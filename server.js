@@ -531,9 +531,10 @@ client2.on("messageCreate", async (message) => {
               if ($('.text-robux-lg').length > 0) {
                 price = $('.text-robux-lg').text().trim();
               } else if (args[i].includes('catalog')) {
-                const itemId = (url) => commandType.match(/\/catalog\/(\d+)/)?.[1] || 0;
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId + '/details?itemType=Asset');
+                const itemId = (url) => url.match(/\/catalog\/(\d+)/)?.[1] || 0;
+                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId(args[i]) + '/details?itemType=Asset');
                 res = await res.json();
+                console.log(args[i],res,itemId)
                 if (res.errors) {
                   price = "Can't scan catalog items";
                 } else {
@@ -659,18 +660,19 @@ client2.on("messageCreate", async (message) => {
                 console.log(price);
               } 
               //If shirt
-              else {
-                let itemId = itemContainer.attr('data-item-id');
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/'+itemId+'/details?itemType=Asset')
+              else if (args[i].includes('catalog')) {
+                const itemId = (url) => url.match(/\/catalog\/(\d+)/)?.[1] || 0;
+                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId(args[i]) + '/details?itemType=Asset');
                 res = await res.json();
-                if (res.errors) price = "Can't scan catalog items"
-                  else {
-                  price = Math.floor(res.price)
-                  console.log(price);
+                console.log(args[i],res,itemId)
+                if (res.errors) {
+                  price = "Can't scan catalog items";
+                } else {
+                  price = res.price.toString();
                 }
               }
               //Handle prices
-              let raw = price !== "Can't scan catalog items" ? price : price
+              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g, '')) : price;
               let content =  raw+': '+args[i]
               prices.push({ price: raw, content: content})
             }

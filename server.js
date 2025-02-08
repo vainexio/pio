@@ -668,11 +668,11 @@ client2.on("messageCreate", async (message) => {
                 if (res.errors) {
                   price = "Can't scan catalog items";
                 } else {
-                  price = res.price.toString();
+                  price = res.price
                 }
               }
               //Handle prices
-              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g, '')) : price;
+              let raw = price !== "Can't scan catalog items" ? price : price;
               let content =  raw+': '+args[i]
               prices.push({ price: raw, content: content})
             }

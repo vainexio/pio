@@ -32,7 +32,7 @@ module.exports = {
   register: true,
   deleteSlashes: ['1272095323275132990'],
   slashes: [
-    {
+    /*{
       name: 'codes',
       type: 1,
       description: 'Get claimable links',
@@ -70,11 +70,19 @@ module.exports = {
         { name: 'type', type: 3, description: 'Type of link', choices: types, required: true },
         { name: 'amount', type: 4, description: 'Amount to generate', required: true },
       ]
-    },
+    },*/
     {
       name: 'eligible',
       type: 1,
       description: 'Check if a user is eligible on the group for payout!',
+      options: [
+        { name: 'username', type: 3, description: 'Roblox username', required: true },
+      ]
+    },
+    {
+      name: 'accept',
+      type: 1,
+      description: 'Accept user friend request',
       options: [
         { name: 'username', type: 3, description: 'Roblox username', required: true },
       ]

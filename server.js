@@ -1515,6 +1515,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'accept') {
+      if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission'});
       let options = inter.options._hoistedOptions
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
@@ -1543,6 +1544,7 @@ client.on('interactionCreate', async inter => {
       await inter.editReply({content: "Accepted friend request: **"+user.name+"**\nProfile: https://www.roblox.com/users/"+user.id+"/profile"})
     }
     else if (cname === 'unfriend') {
+      if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission'});
       let options = inter.options._hoistedOptions
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();

@@ -1570,7 +1570,7 @@ client.on('interactionCreate', async inter => {
         res = await fetch('https://friends.roblox.com/v1/users/'+user.id+'/unfriend', auth);
       }
       if (res.status !== 200) return await inter.editReply({content: "Cannot unfriend: `"+res.status+": "+res.statusText+"`"})
-      await inter.editReply({content: "Unfriended: **"+user.name+"**\nProfile: https://www.roblox.com/users/"+user.id+"/profile"})
+      await inter.editReply({content: "Successfully unfriended user: **"+user.name+"**"})
     }
     // regen
     else if (cname === 'regen') {

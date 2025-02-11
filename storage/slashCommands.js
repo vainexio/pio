@@ -88,6 +88,14 @@ module.exports = {
       ]
     },
     {
+      name: 'unfriend',
+      type: 1,
+      description: 'Unfriend user',
+      options: [
+        { name: 'username', type: 3, description: 'Roblox username', required: true },
+      ]
+    },
+    {
       name: 'setrank',
       type: 1,
       description: 'Set rank command',

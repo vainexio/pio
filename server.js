@@ -1488,12 +1488,9 @@ client.on('interactionCreate', async inter => {
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
       
-      let user = await fetch('https://users.roblox.com/v1/usernames/users',{method: "POST",body: JSON.stringify({usernames: [username.value], excludeBannedUsers: false})})
-      if (user.status !== 200) return inter.editReply({content: user.statusText})
-      user = await user.json()
-      user = user.data[0]
+      let user = await handler.getUser(username.value)
+      if (user.error) return inter.editReply({content: user.error})
       if (!user) return inter.editReply({content: "User not found."})
-      console.log("Designated user: ",user)
       
       let auth = {
         method: "GET",
@@ -1522,12 +1519,9 @@ client.on('interactionCreate', async inter => {
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
       
-      let user = await fetch('https://users.roblox.com/v1/usernames/users',{method: "POST",body: JSON.stringify({usernames: [username.value], excludeBannedUsers: false})})
-      if (user.status !== 200) return inter.editReply({content: user.statusText})
-      user = await user.json()
-      user = user.data[0]
+      let user = await handler.getUser(username.value)
+      if (user.error) return inter.editReply({content: user.error})
       if (!user) return inter.editReply({content: "User not found."})
-      console.log("Designated user: ",user)
       
       let auth = {
         method: "POST",
@@ -1547,6 +1541,34 @@ client.on('interactionCreate', async inter => {
       }
       if (res.status !== 200) return await inter.editReply({content: "Cannot accept friend request: `"+res.status+": "+res.statusText+"`"})
       await inter.editReply({content: "Accepted friend request: **"+user.name+"**\nProfile: https://www.roblox.com/users/"+user.id+"/profile"})
+    }
+    else if (cname === 'unfriend') {
+      let options = inter.options._hoistedOptions
+      let username = options.find(a => a.name === 'username')
+      await inter.deferReply();
+      
+      let user = await handler.getUser(username.value)
+      if (user.error) return inter.editReply({content: user.error})
+      if (!user) return inter.editReply({content: "User not found."})
+      
+      let auth = {
+        method: "POST",
+        headers: {
+          "Content-Type": 'application/json',
+          "Accept": "*/*",
+          "x-csrf-token": handler.cToken(),
+          "Cookie": process.env.Cookie,
+        },
+        //body: JSON.stringify({roleId: role.id})
+      }
+      let res = await fetch('https://friends.roblox.com/v1/users/'+user.id+'/unfriend',auth)
+      if (res.status === 403 || res.status === 401) {
+        let csrfToken = await handler.refreshToken(process.env.Cookie);
+        auth.headers["x-csrf-token"] = csrfToken;
+        res = await fetch('https://friends.roblox.com/v1/users/'+user.id+'/unfriend', auth);
+      }
+      if (res.status !== 200) return await inter.editReply({content: "Cannot unfriend: `"+res.status+": "+res.statusText+"`"})
+      await inter.editReply({content: "Unfriended: **"+user.name+"**\nProfile: https://www.roblox.com/users/"+user.id+"/profile"})
     }
     // regen
     else if (cname === 'regen') {

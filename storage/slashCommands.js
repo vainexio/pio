@@ -54,7 +54,6 @@ module.exports = {
           "description": 'Amount ordered',
           "type": 3,
           "required": true,
-        },],
         },
         {
           "name": 'mop',
@@ -308,9 +307,9 @@ module.exports = {
           "required": false,
         },
       ]
-    },
+    },*/
   ],
-};*/
+};
 
 /*
 {

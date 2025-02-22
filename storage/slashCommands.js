@@ -32,6 +32,58 @@ module.exports = {
   register: true,
   deleteSlashes: ['1272095323275132990'],
   slashes: [
+    {
+      "name": "order",
+      "type": 1,
+      "description": "Sends an order queue",
+      "options": [
+        {
+          "name": 'user',
+          "description": 'Recipient',
+          "type": 6,
+          "required": true,
+        },
+        {
+          "name": 'product',
+          "description": 'Product name',
+          "type": 3,
+          "required": true,
+        },
+        {
+          "name": 'quantity',
+          "description": 'Amount ordered',
+          "type": 3,
+          "required": true,
+        },],
+        },
+        {
+          "name": 'mop',
+          "description": 'Mode of Payment',
+          "type": 3,
+          "choices": [
+            {
+              name: 'GCash',
+              value: 'gcash'
+            },
+            {
+              name: 'Robux',
+              value: 'robux'
+            },
+            {
+              name: 'Paypal',
+              value: 'paypal'
+            },
+          ],
+          "required": true,
+        },
+        {
+          "name": 'price',
+          "description": 'Price paid',
+          "type": 3,
+          "required": true,
+        },
+      ]
+    }
     /*{
       name: 'codes',
       type: 1,
@@ -70,7 +122,7 @@ module.exports = {
         { name: 'type', type: 3, description: 'Type of link', choices: types, required: true },
         { name: 'amount', type: 4, description: 'Amount to generate', required: true },
       ]
-    },*/
+    },
     {
       name: 'eligible',
       type: 1,
@@ -257,59 +309,8 @@ module.exports = {
         },
       ]
     },
-    {
-      "name": "order",
-      "type": 1,
-      "description": "Sends an order queue",
-      "options": [
-        {
-          "name": 'user',
-          "description": 'Recipient',
-          "type": 6,
-          "required": true,
-        },
-        {
-          "name": 'product',
-          "description": 'Product name',
-          "type": 3,
-          "required": true,
-        },
-        {
-          "name": 'quantity',
-          "description": 'Amount ordered',
-          "type": 3,
-          "required": true,
-        },
-        {
-          "name": 'mop',
-          "description": 'Mode of Payment',
-          "type": 3,
-          "choices": [
-            {
-              name: 'GCash',
-              value: 'gcash'
-            },
-            {
-              name: 'Robux',
-              value: 'robux'
-            },
-            {
-              name: 'Paypal',
-              value: 'paypal'
-            },
-          ],
-          "required": true,
-        },
-        {
-          "name": 'price',
-          "description": 'Price paid',
-          "type": 4,
-          "required": true,
-        },
-      ]
-    },*/
   ],
-};
+};*/
 
 /*
 {

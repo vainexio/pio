@@ -28,8 +28,7 @@ const upload = multer({ dest: 'uploads/' });
 //
 //Discord
 const Discord = require('discord.js');
-const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord; 
-//const moment = require('moment');
+const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;
 const myIntents = new Intents();
 myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES);
 const client = new Client({ intents: myIntents , partials: ["CHANNEL"] });
@@ -92,7 +91,7 @@ client.on("ready", async () => {
   const connection = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
-      adapterCreator: channel.guild.voiceAdapterCreator // Should be referring to the correct client
+      adapterCreator: channel.guild.voiceAdapterCreator
   });
     client.guilds.cache.forEach(guild => {
      guildsID.push(guild.id)
@@ -153,7 +152,7 @@ client.on("ready", async () => {
     deviceId: {
         type: String,
         required: true,
-        unique: true  // Ensures that each device has a unique ID
+        unique: true
     },
     nickname: {
         type: String,
@@ -161,7 +160,7 @@ client.on("ready", async () => {
     },
     createdAt: {
         type: Date,
-        default: Date.now  // Automatically set the creation date
+        default: Date.now
     }
 });
 

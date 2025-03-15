@@ -2549,7 +2549,7 @@ client.on('interactionCreate', async inter => {
               let index = 0
               for (let i in attachments) {
                 console.log(attachments[i])
-                ticket.transcript = 'https://codebeautify.org/htmlviewer?url='+attachments[i].url.slice(0, -1)
+                ticket.transcript = 'https://valcore.glitch.me/preview?file='+attachments[i].url.slice(0, -1)//'https://codebeautify.org/htmlviewer?url='+attachments[i].url.slice(0, -1)
                 await doc.save();
               }
             }

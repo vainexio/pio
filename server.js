@@ -216,6 +216,7 @@ client.on("ready", async () => {
       }
   }
   console.log('Successfully logged in to discord bot.')
+  getPendingClosures()
   let statusInterval = 0
   setInterval(async function() {
     client.user.setPresence(shop.bot.status[statusInterval]);
@@ -3333,7 +3334,7 @@ const interval = setInterval(async function() {
   }
 },5000)
 
-setInterval(async function() {
+async function getPendingClosures() {
   let pendingTickets = await pendingClosure.find()
   for (let i in pendingTickets) {
     let data = pendingTickets[i]
@@ -3348,7 +3349,7 @@ setInterval(async function() {
         data.remainingTime--
         if (data.remainingTime == 0 && ticketData.status == "open")  {
           let botMsg = null
-          await ticket.SEND({content: 'Updating ticket... '+emojis.loading}).then(msg => botMsg = msg)
+          await ticket.send({content: 'Updating ticket... '+emojis.loading}).then(msg => botMsg = msg)
           //Modify channel
           for (let i in userData.tickets) {
             let ticket = userData.tickets[i]
@@ -3357,32 +3358,47 @@ setInterval(async function() {
               ticket.setParent(shop.tixSettings.closed)
               await ticket.permissionOverwrites.set([
               {
-                id: inter.guild.roles.everyone,
+                id: ticket.guild.roles.everyone,
                 deny: ['VIEW_CHANNEL'],
               },
               {
                 id: user.id,
-                deny: method === 'closed' || method === 'delete' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
-                allow: method === 'open' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
+                deny: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                allow: null,
               },
               {
-                id: inter.guild.roles.cache.find(r => r.id === shop.tixSettings.support), 
+                id: ticket.guild.roles.cache.find(r => r.id === shop.tixSettings.support), 
                 allow: ['VIEW_CHANNEL','SEND_MESSAGES','READ_MESSAGE_HISTORY'],
               },
               
             ]);
             }
           }
-          await doc.save()
+          await userData.save()
+          
+          await pendingClosure.deleteOne({ticketId: data.ticketId})
           let embed = new MessageEmbed()
-          .setDescription(text)
+          .setDescription('Status: `CLOSED`\nAuthor: Pio')
           .setColor(colors.none)
           .setFooter({text: "Sloopies Ticketing System"})
-          inter.channel.send({embeds: [embed], components: comp})
+          
+          let row = new MessageActionRow().addComponents(
+            new MessageButton().setCustomId('transcript-'+user.id).setStyle('SECONDARY').setLabel('Transcript').setEmoji('💾'),
+            new MessageButton().setCustomId('openTicket-'+user.id).setStyle('SECONDARY').setLabel('Open').setEmoji('🔓'),
+            new MessageButton().setCustomId('deleteTicket-'+user.id).setStyle('SECONDARY').setLabel('Delete').setEmoji('⛔'),
+          );
+          await ticket.send({embeds: [embed], components: [row]})
           botMsg.delete();
+          await user.send({content: emojis.warning+" Your ticket ("+ticket.name+") was closed"});
+        } 
+        else {
+          await data.save()
         }
       }
     }
   }
+}
+setInterval(async function() {
+  getPendingClosures()
 },
 3600000)

@@ -1337,18 +1337,36 @@ client.on("messageCreate", async (message) => {
         )
         await message.channel.send({components: [comp], content: 'Click the button below to create a ticket!\n\n<:y_seperator:1138707390657740870> Order — Availing products\n<:y_seperator:1138707390657740870> Support — General concerns and inquiries\n<:y_seperator:1138707390657740870> Report — Reporting revoked products',})
         }
-  else if (isCommand('autobuy',message)) {
-    let msgUrl
-    let row = new MessageActionRow().addComponents(
-      new MessageSelectMenu().setCustomId('autobuy-nitroboost').setPlaceholder('Auto Buy Nitro').addOptions([
-        {label: 'Nitro Boost',description: 'full warranty',value: 'nb-fw', emoji: emojis.nboost},
-        {label: 'Nitro Boost',description: 'no warranty',value: 'nb-nw', emoji: emojis.nboost},
-        {label: 'Robux',description: 'via gamepass',value: 'rbx-gp', emoji: '<:s_robux:1174546499087122464>'},
-        {label: 'Robux',description: 'via gamepass',value: 'rbx-gift', emoji: '<:s_robux:1174546499087122464>'},
-      ]),
-    )
+  else if (isCommand('test',message)) {
+    //Ticket closure
+    if (tixModel) {
+      let tickets = await tixModel.find()
+    for (let i in tickets) {
+      let user = tickets[i]
+      let userTickets = user.tickets
     
-    await message.reply({content: "<:hb_announce:1138706465046134805> **auto buy products**", components: [row]})
+      for (let j in userTickets) {
+        let ticket = userTickets[j]
+        //if (ticket.status == "open") {
+          console.log('found open ticket '+ticket.id)
+          let channel = await getChannel(ticket.id)
+          let pendingForClosure = pendingClosure.findOne({ ticketId: ticket.id })
+          if (channel && channel.name.includes('done。') && !pendingForClosure) {
+            console.log('added new')
+            let newDoc = new closureSchema()
+            newDoc.userId = user.id
+            newDoc.ticketId = ticket.id
+            newDoc.remainingTime = 12
+            await newDoc.save()
+          } else if (!channel) {
+            console.log('spliced 1 ticket')
+            userTickets.splice(j,1)
+          }
+        //}
+      }
+      await user.save()
+    }
+    }
   }
   //vouch
   if (message.channel.id === shop.channels.vouch) {
@@ -3281,31 +3299,6 @@ const interval = setInterval(async function() {
         ready = true;
       },60000)
     }
-    
-    //Ticket closure
-    if (tixModel) {
-      let tickets = await tixModel.find()
-    for (let i in tickets) {
-      let user = tickets[i]
-      let userTickets = user.tickets
-    
-      for (let j in userTickets) {
-        let ticket = userTickets[j]
-        if (ticket.status == "open") {
-          let channel = await getChannel(ticket.id)
-          let pendingForClosure = pendingClosure.findOne({ ticketId: String })
-          if (channel && channel.name.includes('done。') && !pendingForClosure) {
-            let newDoc = new closureSchema()
-            newDoc.userId = user.id
-            newDoc.ticketId = ticket.id
-            newDoc.remainingTime = 12
-            await newDoc.save()
-          }
-        }
-      }
-    }
-    }
-    
     
     //
     let template = await getChannel(shop.channels.templates)

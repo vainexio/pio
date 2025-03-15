@@ -2681,7 +2681,9 @@ client.on('interactionCreate', async inter => {
       }
     }
     else if (id == 'timedClosure') {
-      await inter.channel.setName('closing。'+inter.channel.name)
+      if (!inter.channel.name.includes('closing。')) {
+        await inter.channel.setName('closing。'+inter.channel.name)
+      }
       await inter.deferUpdate();
     }
     //

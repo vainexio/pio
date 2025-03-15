@@ -79,6 +79,9 @@ let Task
 let userSchema
 let User
 
+let closureSchema
+let pendingClosure
+
 let ticketId = 10
 
 client.on("debug", function(info) {
@@ -98,6 +101,12 @@ client.on("ready", async () => {
     });
   //Database
   await mongoose.connect(mongooseToken);
+  
+  closureSchema = new mongoose.Schema({
+    userId: String,
+    ticketId: String,
+    remainingTime: Number,
+  })
   taskSchema = new mongoose.Schema({
     description: String,
     createdBy: String,
@@ -164,14 +173,14 @@ client.on("ready", async () => {
     }
 });
 
-// Create the User model
-const User = mongoose.model('User', userSchema);
   phoneModel = mongoose.model("SloopiePhone", phoneSchema);
   tixModel = mongoose.model("SloopieTix", tixSchema);
   ticketModel = mongoose.model("SloopieTickets", ticketSchema);
   embedModel = mongoose.model('SloopiesEmbed', embedSchema);
   stickyModel = mongoose.model("Sloopies Sticky", stickySchema);
   Task = mongoose.model('Task2', taskSchema);
+  pendingClosure = mongoose.model("SloopiesPendingClosure", closureSchema);
+
   ///
   let doc = await ticketModel.findOne({id: ticketId})
   if (!doc) {
@@ -3272,6 +3281,33 @@ const interval = setInterval(async function() {
         ready = true;
       },60000)
     }
+    
+    //Ticket closure
+    if (tixModel) {
+      let tickets = await tixModel.find()
+    for (let i in tickets) {
+      let user = tickets[i]
+      let userTickets = user.tickets
+    
+      for (let j in userTickets) {
+        let ticket = userTickets[j]
+        if (ticket.status == "open") {
+          let channel = await getChannel(ticket.id)
+          let pendingForClosure = pendingClosure.findOne({ ticketId: String })
+          if (channel && channel.name.includes('done。') && !pendingForClosure) {
+            let newDoc = new closureSchema()
+            newDoc.userId = user.id
+            newDoc.ticketId = ticket.id
+            newDoc.remainingTime = 12
+            await newDoc.save()
+          }
+        }
+      }
+    }
+    }
+    
+    
+    //
     let template = await getChannel(shop.channels.templates)
     let annc = await getChannel(shop.channels.shopStatus)
     

@@ -2680,6 +2680,10 @@ client.on('interactionCreate', async inter => {
         });
       }
     }
+    else if (id == 'timedClosure') {
+      await inter.channel.setName('closing。'+inter.channel.name)
+      await inter.deferUpdate();
+    }
     //
     else if (id === 'orderStatus') {
       if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission', ephemeral: true});
@@ -3288,6 +3292,12 @@ const interval = setInterval(async function() {
             newDoc.ticketId = ticket.id
             newDoc.remainingTime = 12
             await newDoc.save()
+          } else if (channel && channel.name.includes('closing。') && !pendingForClosure) {
+            let newDoc = new pendingClosure(closureSchema)
+            newDoc.userId = user.id
+            newDoc.ticketId = ticket.id
+            newDoc.remainingTime = 5
+            await newDoc.save()
           }
         }
       }
@@ -3345,7 +3355,7 @@ async function getPendingClosures() {
       let userData = await tixModel.findOne({id: data.userId})
       let ticketData = userData.tickets.find(t => t.id == data.ticketId)
       if (userData && ticketData) {
-        if (data.remainingTime == 12) await user.send({content: emojis.warning+" Your ticket ("+ticket.toString()+") will be closed automatically in "+data.remainingTime+"hrs."});
+        if (data.remainingTime == 12) await user.send({content: emojis.warning+" Your ticket ("+ticket.toString()+") will be closed automatically in "+data.remainingTime+"hrs."}).catch(err => console.log(err));
         data.remainingTime--
         if (data.remainingTime == 0 && ticketData.status == "open")  {
           let botMsg = null
@@ -3370,7 +3380,6 @@ async function getPendingClosures() {
                 id: ticket.guild.roles.cache.find(r => r.id === shop.tixSettings.support), 
                 allow: ['VIEW_CHANNEL','SEND_MESSAGES','READ_MESSAGE_HISTORY'],
               },
-              
             ]);
             }
           }

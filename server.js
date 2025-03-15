@@ -3352,9 +3352,9 @@ async function getPendingClosures() {
           await ticket.send({content: 'Updating ticket... '+emojis.loading}).then(msg => botMsg = msg)
           //Modify channel
           for (let i in userData.tickets) {
-            let ticket = userData.tickets[i]
-            if (ticket.id === ticket.id) {
-              ticket.status = "closed"
+            let ticketTable = userData.tickets[i]
+            if (ticketTable.id === ticket.id) {
+              ticketTable.status = "closed"
               ticket.setParent(shop.tixSettings.closed)
               await ticket.permissionOverwrites.set([
               {
@@ -3375,10 +3375,9 @@ async function getPendingClosures() {
             }
           }
           await userData.save()
-          
           await pendingClosure.deleteOne({ticketId: data.ticketId})
           let embed = new MessageEmbed()
-          .setDescription('Status: `CLOSED`\nAuthor: Pio')
+          .setDescription('Status: `CLOSED`\nAuthor: '+client.user.toString())
           .setColor(colors.none)
           .setFooter({text: "Sloopies Ticketing System"})
           
@@ -3389,8 +3388,11 @@ async function getPendingClosures() {
           );
           await ticket.send({embeds: [embed], components: [row]})
           botMsg.delete();
-          await user.send({content: emojis.warning+" Your ticket ("+ticket.name+") was closed"});
-        } 
+          await user.send({content: emojis.warning+" Your ticket `("+ticket.name+")` was closed automatically. Transcript will be sent after the ticket is deleted.", files: ['https://media1.tenor.com/m/sNZ8BEp7di4AAAAd/cat-kitten.gif']});
+        }
+        else if (ticketData.status != "open") {
+          await pendingClosure.deleteOne({ticketId: data.ticketId})
+        }
         else {
           await data.save()
         }

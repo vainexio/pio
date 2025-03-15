@@ -65,7 +65,6 @@ module.exports = {
       
       let row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId('closedTicket-'+data.user.id).setStyle('SECONDARY').setLabel('Close').setEmoji('🔒'),
-        //new MessageButton().setCustomId('transcript-ticket').setStyle('SECONDARY').setLabel('Save Transcript').setEmoji('<:S_letter:1092606891240198154>'),
       );
       let BotMsg = channel.send({ content: "<a:S_whiteheart02:1138715896077090856> <@"+data.user.id+">\n<a:S_whiteheart02:1138715896077090856> <@&"+data.support+">\n\n<:S_letter:1138714993425125556> ticket opened ("+data.name.toLowerCase()+") *!*", embeds: [embed] , components: [row]})
       

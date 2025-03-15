@@ -1347,13 +1347,14 @@ client.on("messageCreate", async (message) => {
     
       for (let j in userTickets) {
         let ticket = userTickets[j]
-        //if (ticket.status == "open") {
+        if (ticket.status == "open") {
           console.log('found open ticket '+ticket.id)
           let channel = await getChannel(ticket.id)
-          let pendingForClosure = pendingClosure.findOne({ ticketId: ticket.id })
+          let pendingForClosure = await pendingClosure.findOne({ ticketId: ticket.id })
+          console.log(channel?.name,pendingForClosure)
           if (channel && channel.name.includes('done。') && !pendingForClosure) {
             console.log('added new')
-            let newDoc = new closureSchema()
+            let newDoc = new pendingClosure(closureSchema)
             newDoc.userId = user.id
             newDoc.ticketId = ticket.id
             newDoc.remainingTime = 12
@@ -1362,7 +1363,7 @@ client.on("messageCreate", async (message) => {
             console.log('spliced 1 ticket')
             userTickets.splice(j,1)
           }
-        //}
+        }
       }
       await user.save()
     }

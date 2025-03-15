@@ -2447,12 +2447,9 @@ client.on('interactionCreate', async inter => {
         newDoc.tickets = []
         await newDoc.save()
         doc = await tixModel.findOne({id: inter.user.id})
-      } 
-      /*else if (doc && doc.tickets.length >= 5) {
-        await inter.reply({content: `You have exceeded the maximum amount of tickets! (${doc.tickets.length})`, ephemeral: true})
-        return;
-      }*/
+      }
       let shard = foundData.count >= 1000 ? foundData.count : foundData.count >= 100 ? '0'+foundData.count : foundData.count >= 10 ? '00'+foundData.count : foundData.count >= 0 ? '000'+foundData.count : null
+      
       if (type === 'order') {
         data = {
           doc: doc,
@@ -2476,7 +2473,7 @@ client.on('interactionCreate', async inter => {
           category: '1109020434978054234',
           support: '1109020434554433548',
           context: '<:indent:1174738613330788512> please tell us your concern in advance.',
-          ticketName: 'ticket-'+shard //inter.user.username.replace(/ /g,'')+
+          ticketName: 'ticket-'+shard
         }
       }
       else if (type === 'report') {
@@ -2492,6 +2489,7 @@ client.on('interactionCreate', async inter => {
           ticketName: 'ticket-'+shard
         }
       }
+      
       await inter.reply({content: "creating your ticket <a:9h_Squirtle1:1138711304085971044>", ephemeral: true})
       let channel = await makeTicket(data)
       await inter.followUp({content: "<a:yl_exclamationan:1138705076395978802> ticket created *!*\nhead to : "+channel.toString(), ephemeral: true})
@@ -2529,7 +2527,6 @@ client.on('interactionCreate', async inter => {
           );
           comp = [row]
         }
-        //inter.message.edit({components: []})
         if (method === 'delete') {
           let log = await getChannel(shop.tixSettings.transcripts)
           await inter.reply({content: 'Saving transcript to '+log.toString()})
@@ -2539,9 +2536,10 @@ client.on('interactionCreate', async inter => {
           if (!ticket) {
             ticket = {}
             inter.message.reply({content: emojis.warning+' Invalid ticket data.'})
+            return;
           }
-          let attachment = await discordTranscripts.createTranscript(inter.channel);
-          
+          let attachment = await discordTranscripts.createTranscript(inter.channel, {saveImages: true});
+          console.log(attachment)
           await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
             let attachments = Array.from(msg.attachments.values())
             let stringFiles = ""
@@ -2571,6 +2569,7 @@ client.on('interactionCreate', async inter => {
             let row = new MessageActionRow().addComponents(
               new MessageButton().setURL(ticket.transcript).setStyle('LINK').setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
             );
+            
             await msg.edit({content: null, embeds: [embed], components: [row]})
             await inter.channel.send({content: emojis.check+' Transcript saved *!*'})
             user.send({content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row]}).catch(err => console.log(err))

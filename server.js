@@ -2539,7 +2539,6 @@ client.on('interactionCreate', async inter => {
             return;
           }
           let attachment = await discordTranscripts.createTranscript(inter.channel, {saveImages: true});
-          console.log(attachment)
           await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
             let attachments = Array.from(msg.attachments.values())
             let stringFiles = ""

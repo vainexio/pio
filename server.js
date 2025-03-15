@@ -1337,38 +1337,6 @@ client.on("messageCreate", async (message) => {
         )
         await message.channel.send({components: [comp], content: 'Click the button below to create a ticket!\n\n<:y_seperator:1138707390657740870> Order — Availing products\n<:y_seperator:1138707390657740870> Support — General concerns and inquiries\n<:y_seperator:1138707390657740870> Report — Reporting revoked products',})
         }
-  else if (isCommand('test',message)) {
-    //Ticket closure
-    if (tixModel) {
-      let tickets = await tixModel.find()
-    for (let i in tickets) {
-      let user = tickets[i]
-      let userTickets = user.tickets
-    
-      for (let j in userTickets) {
-        let ticket = userTickets[j]
-        if (ticket.status == "open") {
-          console.log('found open ticket '+ticket.id)
-          let channel = await getChannel(ticket.id)
-          let pendingForClosure = await pendingClosure.findOne({ ticketId: ticket.id })
-          console.log(channel?.name,pendingForClosure)
-          if (channel && channel.name.includes('done。') && !pendingForClosure) {
-            console.log('added new')
-            let newDoc = new pendingClosure(closureSchema)
-            newDoc.userId = user.id
-            newDoc.ticketId = ticket.id
-            newDoc.remainingTime = 12
-            await newDoc.save()
-          } else if (!channel) {
-            console.log('spliced 1 ticket')
-            userTickets.splice(j,1)
-          }
-        }
-      }
-      await user.save()
-    }
-    }
-  }
   //vouch
   if (message.channel.id === shop.channels.vouch) {
     let backup = await getChannel("1141338128494362646")
@@ -3301,6 +3269,31 @@ const interval = setInterval(async function() {
       },60000)
     }
     
+    if (tixModel) {
+      let tickets = await tixModel.find()
+    for (let i in tickets) {
+      let user = tickets[i]
+      let userTickets = user.tickets
+    
+      for (let j in userTickets) {
+        let ticket = userTickets[j]
+        if (ticket.status == "open") {
+          let channel = await getChannel(ticket.id)
+          let pendingForClosure = await pendingClosure.findOne({ ticketId: ticket.id })
+          
+          if (channel && channel.name.includes('done。') && !pendingForClosure) {
+            let newDoc = new pendingClosure(closureSchema)
+            newDoc.userId = user.id
+            newDoc.ticketId = ticket.id
+            newDoc.remainingTime = 12
+            await newDoc.save()
+          }
+        }
+      }
+      await user.save()
+    }
+    }
+    
     //
     let template = await getChannel(shop.channels.templates)
     let annc = await getChannel(shop.channels.shopStatus)
@@ -3339,3 +3332,57 @@ const interval = setInterval(async function() {
     }
   }
 },5000)
+
+setInterval(async function() {
+  let pendingTickets = await pendingClosure.find()
+  for (let i in pendingTickets) {
+    let data = pendingTickets[i]
+    let user = await getUser(data.userId)
+    let ticket = await getChannel(data.ticketId)
+    
+    if (ticket && user) {
+      let userData = await tixModel.findOne({id: data.userId})
+      let ticketData = userData.tickets.find(t => t.id == data.ticketId)
+      if (userData && ticketData) {
+        if (data.remainingTime == 12) await user.send({content: emojis.warning+" Your ticket ("+ticket.toString()+") will be closed automatically in "+data.remainingTime+"hrs."});
+        data.remainingTime--
+        if (data.remainingTime == 0 && ticketData.status == "open")  {
+          let botMsg = null
+          await ticket.SEND({content: 'Updating ticket... '+emojis.loading}).then(msg => botMsg = msg)
+          //Modify channel
+          for (let i in userData.tickets) {
+            let ticket = userData.tickets[i]
+            if (ticket.id === ticket.id) {
+              ticket.status = "closed"
+              ticket.setParent(shop.tixSettings.closed)
+              await ticket.permissionOverwrites.set([
+              {
+                id: inter.guild.roles.everyone,
+                deny: ['VIEW_CHANNEL'],
+              },
+              {
+                id: user.id,
+                deny: method === 'closed' || method === 'delete' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
+                allow: method === 'open' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
+              },
+              {
+                id: inter.guild.roles.cache.find(r => r.id === shop.tixSettings.support), 
+                allow: ['VIEW_CHANNEL','SEND_MESSAGES','READ_MESSAGE_HISTORY'],
+              },
+              
+            ]);
+            }
+          }
+          await doc.save()
+          let embed = new MessageEmbed()
+          .setDescription(text)
+          .setColor(colors.none)
+          .setFooter({text: "Sloopies Ticketing System"})
+          inter.channel.send({embeds: [embed], components: comp})
+          botMsg.delete();
+        }
+      }
+    }
+  }
+},
+3600000)

@@ -2682,9 +2682,19 @@ client.on('interactionCreate', async inter => {
     }
     else if (id == 'timedClosure') {
       if (!inter.channel.name.includes('closing。')) {
-        await inter.channel.setName('closing。'+inter.channel.name)
+        await inter.channel.setName('closing。'+inter.channel.name.replace('open。',''))
       }
       await inter.deferUpdate();
+    }
+    else if (id == 'cancelClosure') {
+      let doc = pendingClosure.findOne({channelId: inter.channel.id})
+      if (doc) {
+        await pendingClosure.deleteOne({channelid: inter.channel.id})
+        await inter.update({content: emojis.check+" Ticket closure was cancelled.", components: []});
+        await inter.channel.setName(inter.channel.name.replace(/closing。|done。/g,'open。'))
+      } else {
+        await inter.reply({content: emojis.x+" Ticket isn't scheduled for closure."});
+      }
     }
     //
     else if (id === 'orderStatus') {
@@ -3287,19 +3297,26 @@ const interval = setInterval(async function() {
         if (ticket.status == "open") {
           let channel = await getChannel(ticket.id)
           let pendingForClosure = await pendingClosure.findOne({ ticketId: ticket.id })
-          
+          let newDoc = null
           if (channel && channel.name.includes('done。') && !pendingForClosure) {
-            let newDoc = new pendingClosure(closureSchema)
+            newDoc = new pendingClosure(closureSchema)
             newDoc.userId = user.id
             newDoc.ticketId = ticket.id
             newDoc.remainingTime = 12
             await newDoc.save()
           } else if (channel && channel.name.includes('closing。') && !pendingForClosure) {
-            let newDoc = new pendingClosure(closureSchema)
+            newDoc = new pendingClosure(closureSchema)
             newDoc.userId = user.id
             newDoc.ticketId = ticket.id
             newDoc.remainingTime = 5
             await newDoc.save()
+          }
+          
+          if (newDoc) {
+            let row = new MessageActionRow().addComponents(
+              new MessageButton().setCustomId('cancelClosure').setStyle('DANGER').setLabel('Cancel').setEmoji('🔓'),
+            );
+            await channel.send({content: "This ticket is scheduled for closure.\n-# Click the button below to halt this process.", components: [row]})
           }
         }
       }
@@ -3357,7 +3374,7 @@ async function getPendingClosures() {
       let userData = await tixModel.findOne({id: data.userId})
       let ticketData = userData.tickets.find(t => t.id == data.ticketId)
       if (userData && ticketData) {
-        if (data.remainingTime == 12) await user.send({content: emojis.warning+" Your ticket ("+ticket.toString()+") will be closed automatically in "+data.remainingTime+"hrs."}).catch(err => console.log(err));
+        if (data.remainingTime == 12) await user.send({content: emojis.warning+" Your ticket ("+ticket.toString()+") will be closed automatically in "+data.remainingTime+" hours."}).catch(err => console.log(err));
         data.remainingTime--
         if (data.remainingTime == 0 && ticketData.status == "open")  {
           let botMsg = null

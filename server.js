@@ -2693,7 +2693,7 @@ client.on('interactionCreate', async inter => {
         await inter.update({content: emojis.check+" Ticket closure was cancelled.", components: []});
         await inter.channel.setName(inter.channel.name.replace(/closing。|done。/g,'open。'))
       } else {
-        await inter.reply({content: emojis.x+" Ticket isn't scheduled for closure."});
+        await inter.update({content: emojis.warning+" Ticket isn't scheduled for closure.", components: []});
       }
     }
     //

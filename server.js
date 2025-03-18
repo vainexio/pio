@@ -3289,7 +3289,7 @@ const interval = setInterval(async function() {
     if (tixModel) {
       let tickets = await tixModel.find()
     for (let i in tickets) {
-      let user = tickets[i]
+      let user = await tixModel.findOne({id: tickets[i].id})//tickets[i]
       let userTickets = user.tickets
     
       for (let j in userTickets) {
@@ -3416,7 +3416,7 @@ async function getPendingClosures() {
           );
           await ticket.send({embeds: [embed], components: [row]})
           botMsg.delete();
-          await user.send({content: emojis.warning+" Your ticket `("+ticket.name+")` was closed automatically. Transcript will be sent after the ticket is deleted.", files: ['https://media1.tenor.com/m/sNZ8BEp7di4AAAAd/cat-kitten.gif']});
+          await user.send({content: "<:hb_rule_book:1138712613769990254> Your ticket `("+ticket.name+")` was closed automatically.\nTranscript will be sent once the ticket is deleted."});
         }
         else if (ticketData.status != "open") {
           await pendingClosure.deleteOne({ticketId: data.ticketId})

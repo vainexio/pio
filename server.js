@@ -3425,6 +3425,8 @@ async function getPendingClosures() {
           await data.save()
         }
       }
+    } else {
+      await pendingClosure.deleteOne({ticketId: data.ticketId})
     }
   }
 }

@@ -2687,9 +2687,9 @@ client.on('interactionCreate', async inter => {
       await inter.deferUpdate();
     }
     else if (id == 'cancelClosure') {
-      let doc = await pendingClosure.findOne({channelId: inter.channel.id})
+      let doc = await pendingClosure.findOne({ticketId: inter.channel.id})
       if (doc) {
-        await pendingClosure.deleteOne({channelid: inter.channel.id})
+        await pendingClosure.deleteOne({ticketId: inter.channel.id})
         await inter.update({content: emojis.check+" Ticket closure was cancelled.", components: []});
         await inter.channel.setName(inter.channel.name.replace(/closing。|done。/g,'open。'))
       } else {

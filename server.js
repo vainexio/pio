@@ -89,6 +89,7 @@ client.on("debug", function(info) {
 });
 //When bot is ready
 client.on("ready", async () => {
+  console.log(await generateQr("222"))
   let guildsID = [];
   let channel = await getChannel('1109020434810294345')
   const connection = joinVoiceChannel({
@@ -253,6 +254,9 @@ const { slashes } = slashCmd;
 // Roblox
 const robloxJs = require("./functions/roblox.js");
 const { handler } = robloxJs;
+// QR
+const qrGen = require("./functions/qrGen.js");
+const { generateQr } = qrGen;
 /*
 ██████╗░███████╗██████╗░███╗░░░███╗░██████╗
 ██╔══██╗██╔════╝██╔══██╗████╗░████║██╔════╝
@@ -330,6 +334,7 @@ const { ai } = require('./functions/ai.js')
 let errors = 0
 let expCodes = []
 let nitroCodes = []
+
 client2.on("messageCreate", async (message) => {
   let checkerVersion = 'Checker version 2.9'
   if (message.author.bot) return;

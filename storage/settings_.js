@@ -271,7 +271,7 @@ module.exports = {
             parent: 'Permanent',
             children: [
               //
-              { name: 'Permanent', price: 80, rs: 60 },
+              { name: 'Permanent', price: 80, rs: 40 },
               { name: 'Lifetime warranty until patched', price: 0 },
               { name: 'Required 2FA', price: 0 },
               //
@@ -339,7 +339,7 @@ module.exports = {
             parent: '1m nitro checker',
             children: [
               //
-              { name: 'through bot dms', price: 70, rs: 60 },
+              { name: 'through bot dms', price: 30, rs: 25 },
               { name: 'through server channel', price: 200, rs: 150 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ Can scan 50 links per second\n+ Shows difference between valid, calimed and invalid links\n+ Shows accurate expiration (date & time) of links\n+ Fool proof (avoids scanning duplicated links)\n\u200b'}
               //
@@ -362,7 +362,7 @@ module.exports = {
             parent: 'gamepass links scanner',
             children: [
               //
-              { name: 'server invite', price: 80, rs: 70 },
+              { name: 'server invite', price: 50, rs: 40 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ ` scan, nct, ct ` commands\n\u200b'}
               //
             ],
@@ -384,7 +384,7 @@ module.exports = {
             parent: 'Server Backup Bot',
             children: [
               //
-              { name: 'Slot', price: 230, rs: 200 },
+              { name: 'Slot', price: 150, rs: 140 },
               { name: 'Features:\n+ Provided Bot\n+ Via Discord OAuth2\n+ Can join all verified users in an instant\n+ Can use in all sorts of servers\n\u200b'}
               //
             ],

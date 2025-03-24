@@ -425,14 +425,14 @@ module.exports = {
         types: [
           //Types
           {
-            parent: '1 month',
+            parent: '3 months',
             children: [
               //
-              { name: '2x server boosts', price: 65, rs: 60 },
-              { name: '4x server boosts', price: 85, rs: 80 },
-              { name: '6x server boosts', price: 120, rs: 115 },
-              { name: '8x server boosts', price: 140, rs: 135 },
-              { name: '14x server boosts', price: 215, rs: 205 },
+              { name: '2x server boosts', price: 90, rs: 85 },
+              { name: '4x server boosts', price: 155, rs: 150 },
+              { name: '6x server boosts', price: 230, rs: 225 },
+              { name: '8x server boosts', price: 275, rs: 270 },
+              { name: '14x server boosts', price: 470, rs: 465 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               //
             ],

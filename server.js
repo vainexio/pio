@@ -2540,7 +2540,7 @@ client.on('interactionCreate', async inter => {
             inter.message.reply({content: emojis.warning+' Invalid ticket data.'})
             return;
           }
-          let attachment = await discordTranscripts.createTranscript(inter.channel, {saveImages: true});
+          let attachment = await discordTranscripts.createTranscript(inter.channel); //, {saveImages: true}
           await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
             let attachments = Array.from(msg.attachments.values())
             let stringFiles = ""

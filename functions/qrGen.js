@@ -1,4 +1,10 @@
 const fetch = require('node-fetch');
+//Functions
+const get = require('../functions/get.js')
+const {getTime, chatAI2, getNth, getChannel, getGuild, getUser, getMember, getRandom, getColor} = get
+
+const Discord = require('discord.js');
+const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;
 
 function crc16Ccitt(data) {
   let crc = 0xFFFF;
@@ -36,14 +42,18 @@ module.exports = {
     
     let data = {
       method: 'POST',
-      body: JSON.stringify({"data":qrData,"config":{"body":"square","eye":"frame0","eyeBall":"ball0","erf1":[],"erf2":[],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#000000","bgColor":"#FFFFFF","eye1Color":"#000000","eye2Color":"#000000","eye3Color":"#000000","eyeBall1Color":"#000000","eyeBall2Color":"#000000","eyeBall3Color":"#000000","gradientColor1":"","gradientColor2":"","gradientType":"linear","gradientOnEyes":"true","logo":"","logoMode":"default"},"size":1000,"download":"imageUrl","file":"svg"}),
+      body: JSON.stringify({"data":qrData,"config":{"download": true,"body":"square","eye":"frame0","eyeBall":"ball0","erf1":[],"erf2":[],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#000000","bgColor":"#FFFFFF","eye1Color":"#000000","eye2Color":"#000000","eye3Color":"#000000","eyeBall1Color":"#000000","eyeBall2Color":"#000000","eyeBall3Color":"#000000","gradientColor1":"","gradientColor2":"","gradientType":"linear","gradientOnEyes":"true","logo":"","logoMode":"default"},"size":1000,"download":"imageUrl","file":"svg"}),
       headers: {
         'Content-Type': 'application/json'
       }
     }
-    let qrCode = await fetch("https://api.qrcode-monkey.com//qr/custom",data)
-    qrCode = await qrCode.json()
-    
+    let ch = await getChannel('1144778134667923476')
+    let qrCode = await fetch("https://api.qrcode-monkey.com//qr/custom", data);
+    qrCode = await qrCode.json();
+    let imageUrl = "https:" + qrCode.imageUrl; // Should now be a PNG
+    console.log(qrCode)
+    let embed = new MessageEmbed().setImage(imageUrl);
+    ch.send({ embeds: [embed] });
     return generatedQr;
   }
 };

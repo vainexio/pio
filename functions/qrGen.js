@@ -42,7 +42,7 @@ module.exports = {
     
     let data = {
       method: 'POST',
-      body: JSON.stringify({"data":"00020101021227830012com.p2pqrpay0111GXCHPHM2XXX02089996440303152170200000006560417DWQM4TK3JDO5YAWDV5204601653036085406231.005802PH5912I** PA**O I.6011San Antonio610412346304A591","config":{"body":"square","eye":"frame0","eyeBall":"ball0","erf1":[],"erf2":[],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#000000","bgColor":"#FFFFFF","eye1Color":"#000000","eye2Color":"#000000","eye3Color":"#000000","eyeBall1Color":"#000000","eyeBall2Color":"#000000","eyeBall3Color":"#000000","gradientColor1":null,"gradientColor2":null,"gradientType":"linear","gradientOnEyes":false,"logo":"172a893222def080bd5235c0e5029f1433a5269b.png","logoMode":"default"},"size":800,"download":"imageUrl","file":"png"}),
+      body: JSON.stringify({"data":generatedQr,"config":{"body":"square","eye":"frame0","eyeBall":"ball0","erf1":[],"erf2":[],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#000000","bgColor":"#FFFFFF","eye1Color":"#000000","eye2Color":"#000000","eye3Color":"#000000","eyeBall1Color":"#000000","eyeBall2Color":"#000000","eyeBall3Color":"#000000","gradientColor1":null,"gradientColor2":null,"gradientType":"linear","gradientOnEyes":false,"logo":"172a893222def080bd5235c0e5029f1433a5269b.png","logoMode":"default"},"size":800,"download":"imageUrl","file":"png"}),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -51,6 +51,6 @@ module.exports = {
     qrCode = await qrCode.json();
     let imageUrl = "https:" + qrCode.imageUrl;
     
-    return imageUrl;
+    return {imageUrl, raw: qrData};
   }
 };

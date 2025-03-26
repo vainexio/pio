@@ -3440,5 +3440,6 @@ setInterval(async function() {
 3600000)
 
 app.get('/qr', async function (req, res) {
-  console.log(await generateQr(req.query.amount))
+  let data = await generateQr(req.query.amount)
+  res.send(data).status(200)
 })

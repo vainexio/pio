@@ -89,7 +89,6 @@ client.on("debug", function(info) {
 });
 //When bot is ready
 client.on("ready", async () => {
-  console.log(await generateQr("543"))
   let guildsID = [];
   let channel = await getChannel('1109020434810294345')
   const connection = joinVoiceChannel({
@@ -3439,3 +3438,7 @@ setInterval(async function() {
   getPendingClosures()
 },
 3600000)
+
+app.get('/qr', async function (req, res) {
+  console.log(await generateQr(req.query.amount))
+})

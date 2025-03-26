@@ -42,18 +42,15 @@ module.exports = {
     
     let data = {
       method: 'POST',
-      body: JSON.stringify({"data":qrData,"config":{"download": true,"body":"square","eye":"frame0","eyeBall":"ball0","erf1":[],"erf2":[],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#000000","bgColor":"#FFFFFF","eye1Color":"#000000","eye2Color":"#000000","eye3Color":"#000000","eyeBall1Color":"#000000","eyeBall2Color":"#000000","eyeBall3Color":"#000000","gradientColor1":"","gradientColor2":"","gradientType":"linear","gradientOnEyes":"true","logo":"","logoMode":"default"},"size":1000,"download":"imageUrl","file":"svg"}),
+      body: JSON.stringify({"data":qrData,"config":{"body":"square","eye":"frame3","eyeBall":"ball0","erf1":["fv"],"erf2":["fv","fh"],"erf3":[],"brf1":[],"brf2":[],"brf3":[],"bodyColor":"#FFFFFF","bgColor":"#2A353C","eye1Color":"#FFC800","eye2Color":"#FFC800","eye3Color":"#FFC800","eyeBall1Color":"#FFFFFF","eyeBall2Color":"#FFFFFF","eyeBall3Color":"#FFFFFF","gradientColor1":null,"gradientColor2":null,"gradientType":"linear","gradientOnEyes":false,"logo":"172a893222def080bd5235c0e5029f1433a5269b.png","logoMode":"default"},"size":800,"download":"imageUrl","file":"png"}),
       headers: {
         'Content-Type': 'application/json'
       }
     }
-    let ch = await getChannel('1144778134667923476')
     let qrCode = await fetch("https://api.qrcode-monkey.com//qr/custom", data);
     qrCode = await qrCode.json();
-    let imageUrl = "https:" + qrCode.imageUrl; // Should now be a PNG
-    console.log(qrCode)
-    let embed = new MessageEmbed().setImage(imageUrl);
-    ch.send({ embeds: [embed] });
-    return generatedQr;
+    let imageUrl = "https:" + qrCode.imageUrl;
+    
+    return imageUrl;
   }
 };

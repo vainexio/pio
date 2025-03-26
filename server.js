@@ -745,6 +745,9 @@ client.on("messageCreate", async (message) => {
       } else if (await hasRole(member,['1109020434520887321'],message.guild)) {
         let row = new MessageActionRow().addComponents(
           new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
+          new MessageButton().setCustomId('itemSelect-gifting').setStyle('SECONDARY').setLabel('via gift').setEmoji('<:gifting:1354408536834310204>'),
+          new MessageButton().setCustomId('itemSelect-gp-slow').setStyle('SECONDARY').setLabel('gamepass (hrs-2d)').setEmoji('<:hrs_2d:1354408577665732784>'),
+          new MessageButton().setCustomId('itemSelect-gp-fast').setStyle('SECONDARY').setLabel('gamepass (instant)').setEmoji('<:instant:1354408594602332271>'),
         );
         message.channel.send({components: [row]})
       }
@@ -2430,6 +2433,15 @@ client.on('interactionCreate', async inter => {
       );
       inter.channel.send({components: [row2]})
       inter.channel.setName(inter.channel.name.replace('ticket',inter.user.username.replace(/ /g,'')))
+    }
+    //Item Selection
+    else if (id.startsWith('itemSelect-')) {
+      let item = id.replace('itemSelect-','').replace(/_/g,' ')
+      let items = [
+        {name: "gifting", },
+        {name: "gp-slow", },
+        {name: "gp-fast", },
+      ]
     }
     //tickets
     else if (id.startsWith('createTicket-')) {

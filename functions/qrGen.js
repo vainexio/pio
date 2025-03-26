@@ -51,6 +51,6 @@ module.exports = {
     qrCode = await qrCode.json();
     let imageUrl = "https:" + qrCode.imageUrl;
     
-    return {imageUrl, raw: qrData};
+    return {imageUrl, raw: generatedQr};
   }
 };

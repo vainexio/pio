@@ -3062,11 +3062,11 @@ client.on('interactionCreate', async inter => {
       let count = 0
       let thread = [
         {
-          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# '+emojis.check+" please include keywords: gamepass, gifting, decor, etc...",
+          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# please include keywords: **gamepass, gifting, decor, etc..**',
           answer: '',
         },
         {
-          question: '>>> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# '+emojis.check+" please only supply a numerical value (e.g. 100)",
+          question: '>>> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# please only supply a numerical value **(e.g. 100)**',
           answer: '',
         },
         {
@@ -3157,16 +3157,17 @@ client.on('interactionCreate', async inter => {
         new MessageButton().setCustomId('confirmOrder-'+(price == 'none' ? price : price.toFixed(2))).setStyle('SUCCESS').setLabel('Yes'),
         new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
       );
-      
-      await inter.channel.send({content: "<a:yl_flowerspin:1138705226082304020> is this your order *?*", embeds: [embed], components: [row]})
       console.log(itemsUsed)
       if (itemsUsed.length > 0) {
         let itemsFound = ""
         for (let i in itemsUsed) {
           let item = itemsUsed[i]
-          itemsFound += "**"+item.count+"x** "+item.name+" — ` ₱"+item.unitPrice+" `\n"
+          itemsFound += item.name+" — ` ₱"+item.unitPrice+" ` **x"+item.count+"** → ` ₱"+item.total+" `\n"
         }
-        await inter.channel.send({content: "<a:S_whiteheart02:1138715896077090856> items found :\n>>> "+itemsFound})
+        itemsFound += "\ntotal price: ` ₱"+price+" `"
+        await inter.channel.send({content: "<a:S_whiteheart02:1138715896077090856> is this your order *?*\n>>> "+itemsFound, components: [row]})
+      } else {
+        await inter.channel.send({content: "<a:yl_flowerspin:1138705226082304020> is this your order *?*", embeds: [embed], components: [row]})
       }
       shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
     }

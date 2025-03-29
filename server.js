@@ -3162,7 +3162,7 @@ client.on('interactionCreate', async inter => {
         let itemsFound = ""
         for (let i in itemsUsed) {
           let item = itemsUsed[i]
-          itemsFound += item.name+" — ` ₱"+item.unitPrice+" ` **x"+item.count+"** → ` ₱"+item.total+" `\n"
+          itemsFound += item.name+" — ` ₱"+item.unitPrice+" ` **x"+item.count+"**"+(item.total > item.unitPrice ? " → ` ₱"+item.total+" `" : "")+"\n"
         }
         itemsFound += "\ntotal price: ` ₱"+price+" `"
         await inter.channel.send({content: "<a:S_whiteheart02:1138715896077090856> is this your order *?*\n>>> "+itemsFound, components: [row]})

@@ -3062,11 +3062,11 @@ client.on('interactionCreate', async inter => {
       let count = 0
       let thread = [
         {
-          question: '> <a:y_starroll:1138704563529076786> which product do you want to avail?',
+          question: '> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# '+emojis.warning+" Please include specific keywords: gamepass, gifting, decor, etc...",
           answer: '',
         },
         {
-          question: '> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?',
+          question: '> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# '+emojis.warning+" Please only supply numerical value",
           answer: '',
         },
         {
@@ -3094,6 +3094,7 @@ client.on('interactionCreate', async inter => {
       .setFooter({text: 'order confirmation'})
       
       let price = "none"
+      let itemsUsed = [];
       let amount = Number(thread[1].answer)
       let item = thread[0].answer.toLowerCase()
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
@@ -3103,10 +3104,53 @@ client.on('interactionCreate', async inter => {
         else price = amount*.245
       } 
       else if (item.includes('gamepass') && !isNaN(amount)) {
-        let category = shop.pricelists.find(ctg => ctg.name == 'Robux')
-        let gamepasses = category.types.find(type => type.parent = 'Via Gamepass')
-        let pricelist = gamepasses.children
-        
+        let category = shop.pricelists.find(ctg => ctg.name === 'Robux');
+        let gamepasses = category.types.find(type => type.parent === 'Via Gamepass');
+        let pricelist = gamepasses.children;
+
+        if (amount <= 1000) {
+          let entry = pricelist.find(entry => {
+            let val = parseInt(entry.name);
+            return val === amount;
+          });
+          if (entry) {
+            let selectedPrice = booster ? entry.rs : entry.price;
+            price = selectedPrice;
+            itemsUsed.push({
+              name: entry.name,
+              count: 1,
+              unitPrice: selectedPrice,
+              total: selectedPrice
+            });
+          }
+        } 
+        else {
+          let remaining = amount;
+          let totalPrice = 0;
+          let sorted = pricelist
+          .filter(entry => !isNaN(parseInt(entry.name)))
+          .sort((a, b) => parseInt(b.name) - parseInt(a.name));
+
+          for (let coin of sorted) {
+            let coinValue = parseInt(coin.name);
+            if (remaining >= coinValue) {
+              let count = Math.floor(remaining / coinValue);
+              let unitPrice = booster ? coin.rs : coin.price;
+              let subtotal = count * unitPrice;
+              totalPrice += subtotal;
+              itemsUsed.push({
+                name: coin.name,
+                count: count,
+                unitPrice: unitPrice,
+                total: subtotal
+              });
+              remaining -= count * coinValue;
+            }
+          }
+          if (remaining === 0) {
+            price = totalPrice;
+          }
+        }
       }
       
       let row = new MessageActionRow().addComponents(
@@ -3115,6 +3159,8 @@ client.on('interactionCreate', async inter => {
       );
       
       await inter.channel.send({content: "<a:yl_flowerspin:1138705226082304020> is this your order *?*", embeds: [embed], components: [row]})
+      console.log(itemsUsed)
+      if (itemsUsed.length > 0) await inter.channel.send({content: "<a:S_whiteheart02:1138715896077090856> items selected : "+itemsUsed.length})
       shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
     }
     else if (id.startsWith('confirmOrder')) {

@@ -2,7 +2,7 @@ const client = require('../server.js').client;
 const Discord = require('discord.js');
 const {Client, Intents, MessageEmbed, MessageActionRow, MessageButton} = Discord;
 
-function hasRole (member, roles) {
+function hasRole(member, roles) {
   for (let i in roles) {
     let foundRole = false
     member.roles.cache.some(role => role.name.toLowerCase() === roles[i].toLowerCase() || role.id === roles[i] ? foundRole = role : false)

@@ -3096,14 +3096,21 @@ client.on('interactionCreate', async inter => {
       let price = "none"
       let amount = Number(thread[1].answer)
       let item = thread[0].answer.toLowerCase()
-      let booster = await hasRole(member,['1138634227169112165'],inter.guild)
+      let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       
       if (item.includes('gift') && !isNaN(amount)) {
         if (booster) price = amount*.240
         else price = amount*.245
+      } 
+      else if (item.includes('gamepass') && !isNaN(amount)) {
+        let category = shop.pricelists.find(ctg => ctg.name == 'Robux')
+        let gamepasses = category.types.find(type => type.parent = 'Via Gamepass')
+        let pricelist = gamepasses.children
+        
       }
+      
       let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('confirmOrder-'+price).setStyle('SUCCESS').setLabel('Yes'),
+        new MessageButton().setCustomId('confirmOrder-'+(price == 'none' ? price : price.toFixed(2))).setStyle('SUCCESS').setLabel('Yes'),
         new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
       );
       
@@ -3111,6 +3118,7 @@ client.on('interactionCreate', async inter => {
       shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
     }
     else if (id.startsWith('confirmOrder')) {
+      let price = id.replace('confirmOrder-','')
       await inter.update({components: []})
       let booster = await hasRole(inter.member,['1138634227169112165'],inter.guild) ? emojis.check : emojis.x
       
@@ -3118,7 +3126,9 @@ client.on('interactionCreate', async inter => {
       let msg = await temp.messages.fetch('1258055219355586600')
       await inter.channel.send({content: msg.content.replace('{status}',booster)})
       
-      //await inter.channel.send({content: ".autopay"})
+      if (price !== 'none') {
+        await inter.channel.send({content: ".pay "+price})
+      }
       /*let phone = await phoneModel.findOne({userId: inter.member.id})
       if (phone) {
         let responder = shop.ar.responders.find(res => '.gcash' === shop.ar.prefix+res.command)

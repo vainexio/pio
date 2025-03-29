@@ -3050,7 +3050,8 @@ client.on('interactionCreate', async inter => {
         inter.reply({content: emojis.warning+' You already have an existing order form *!*', ephemeral: true})
         return;
       }
-      if (!await hasRole(inter.member,['1109020434520887321'])) return inter.reply({content: emojis.warning+' please accept the terms before requesting the order form *!*', ephemeral: true});
+      let member = inter.member
+      if (!await hasRole(member,['1109020434520887321'])) return inter.reply({content: emojis.warning+' please accept the terms before requesting the order form *!*', ephemeral: true});
       shop.orderForm.push(inter.user.id)
       let comp = inter.message.components[0]
         for (let i in comp.components) {
@@ -3086,16 +3087,27 @@ client.on('interactionCreate', async inter => {
         count++
         await getResponse(data,count)
       }
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('confirmOrder').setStyle('SUCCESS').setLabel('Yes'),
-        new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
-      );
+      
       let embed = new MessageEmbed()
       .setDescription('item : **'+thread[0].answer+'**\namount : **'+thread[1].answer+'**\npayment : **'+thread[2].answer+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       
-      inter.channel.send({content: "<a:yl_flowerspin:1138705226082304020> is this your order *?*", embeds: [embed], components: [row]})
+      let price = "none"
+      let amount = Number(thread[1].answer)
+      let item = thread[0].answer.toLowerCase()
+      let booster = await hasRole(member,['1138634227169112165'],inter.guild)
+      
+      if (item.includes('gift') && !isNaN(amount)) {
+        if (booster) price = amount*.240
+        else price = amount*.245
+      }
+      let row = new MessageActionRow().addComponents(
+        new MessageButton().setCustomId('confirmOrder-'+price).setStyle('SUCCESS').setLabel('Yes'),
+        new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
+      );
+      
+      await inter.channel.send({content: "<a:yl_flowerspin:1138705226082304020> is this your order *?*", embeds: [embed], components: [row]})
       shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
     }
     else if (id.startsWith('confirmOrder')) {

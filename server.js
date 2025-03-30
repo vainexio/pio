@@ -3089,7 +3089,7 @@ client.on('interactionCreate', async inter => {
       }
       
       let embed = new MessageEmbed()
-      .setDescription('item : **'+thread[0].answer+'**\namount : **'+thread[1].answer+'**\npayment : **'+thread[2].answer+'**')
+      .setDescription('item : **'+thread[0].answer+'**\namount : **'+parseInt(thread[1].answer)+'**\npayment : **'+thread[2].answer+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       

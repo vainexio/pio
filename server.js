@@ -3525,5 +3525,6 @@ app.get('/qr', async function (req, res) {
     }
   }
   let response = await fetch('https://mcs-sg.tiktokv.com/v1/list',auth)
+  response = await response.json()
   console.log(response)
 })

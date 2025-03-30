@@ -3095,7 +3095,7 @@ client.on('interactionCreate', async inter => {
       
       let price = "none"
       let itemsUsed = [];
-      let amount = Number(thread[1].answer)
+      let amount = parseInt(thread[1].answer)
       let item = thread[0].answer.toLowerCase()
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       

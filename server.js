@@ -3066,7 +3066,7 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
         {
-          question: '>>> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# please only supply a numerical value **(e.g. 100)**',
+          question: '>>> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
           answer: '',
         },
         {

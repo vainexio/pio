@@ -311,7 +311,7 @@ const cmdHandler = require('./functions/commands.js')
 const {checkCommand, isCommand, isMessage, getTemplate} = cmdHandler
 //Others
 const others = require('./functions/others.js')
-const {makeCode, stringJSON, fetchKey, ghostPing, moderate, getPercentage, sleep, getPercentageEmoji, randomTable, scanString, requireArgs, getArgs, makeButton, makeRow} = others
+const {parseAmounts, makeCode, stringJSON, fetchKey, ghostPing, moderate, getPercentage, sleep, getPercentageEmoji, randomTable, scanString, requireArgs, getArgs, makeButton, makeRow} = others
 //Roles Handler
 const roles = require('./functions/roles.js')
 const {getRole, addRole, removeRole, hasRole} = roles
@@ -3066,7 +3066,7 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
         {
-          question: '>>> <a:y_starroll:1138704563529076786> What\'s the amount of {item} do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
+          question: '>>> <a:y_starroll:1138704563529076786> How many **{item}** do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
           answer: '',
         },
       ]
@@ -3083,15 +3083,20 @@ client.on('interactionCreate', async inter => {
         count++
         await getResponse(data,count)
       }
-      
+      let amounts = parseAmounts(thread[1].answer)
+      let totalAmount = 0
+      for (let i in amounts) {
+        let amt = amounts[i]
+        totalAmount += amt.total
+      }
       let embed = new MessageEmbed()
-      .setDescription('item : **'+thread[0].answer+'**\namount : **'+parseInt(thread[1].answer)+'**\npayment : **'+thread[2].answer+'**')
+      .setDescription('item : **'+thread[0].answer+'**\namount : **'+totalAmount+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       
       let price = "none"
       let itemsUsed = [];
-      let amount = parseInt(thread[1].answer)
+      let amount = totalAmount
       let item = thread[0].answer.toLowerCase()
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       

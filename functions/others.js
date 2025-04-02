@@ -68,6 +68,31 @@ const makeRow = async function (id, label, style, emoji) {
   return row;
 }
 module.exports = {
+  parseAmounts: function (input) {
+  // The regex explanation:
+  // - (?:(\d+(?:\.\d+)?)[xX]\s*(?:of\s*)?)?
+  //    Optionally matches a multiplier like "2x" or "1.5x" (ignoring case) and optionally the word "of".
+  // - \b(\d+(?:\.\d+)?)
+  //    Matches the actual numeric part (e.g., "2", "300", "1.4") with word boundaries.
+  // - ([kK])?\b
+  //    Optionally matches the letter "k" (or "K"). If present, it indicates the number is in thousands.
+  const regex = /(?:(\d+(?:\.\d+)?)[xX]\s*(?:of\s*)?)?\b(\d+(?:\.\d+)?)([kK])?\b/gi;
+  const results = [];
+  let match;
+
+  while ((match = regex.exec(input)) !== null) {
+    const multiplier = match[1] ? parseFloat(match[1]) : 1;
+    const number = parseFloat(match[2]);
+    const isK = !!match[3];
+    
+    // Multiply by 1000 if the "k" suffix is present
+    const value = multiplier * number * (isK ? 1000 : 1);
+    
+    results.push({ multiplier, number, isK, value });
+  }
+
+  return results;
+},
   makeCode: function (length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -3066,7 +3066,7 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
         {
-          question: '>>> <a:y_starroll:1138704563529076786> How many **{item}** do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
+          question: '>>> <a:y_starroll:1138704563529076786> How many **{item}** do you wish to buy?\n-# Provide how many robux or item you wish to buy.',
           answer: '',
         },
       ]
@@ -3087,7 +3087,7 @@ client.on('interactionCreate', async inter => {
       let totalAmount = 0
       for (let i in amounts) {
         let amt = amounts[i]
-        totalAmount += amt.total
+        totalAmount += amt.value
       }
       let embed = new MessageEmbed()
       .setDescription('item : **'+thread[0].answer+'**\namount : **'+totalAmount+'**')
@@ -3159,7 +3159,7 @@ client.on('interactionCreate', async inter => {
         new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
       );
       console.log(itemsUsed)
-      if (itemsUsed.length > 0) {
+      if (itemsUsed.length > 0 && price != "none") {
         let itemsFound = ""
         for (let i in itemsUsed) {
           let item = itemsUsed[i]

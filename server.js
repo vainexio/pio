@@ -3066,17 +3066,13 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
         {
-          question: '>>> <a:y_starroll:1138704563529076786> how many of this item do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
-          answer: '',
-        },
-        {
-          question: ">>> <a:y_starroll:1138704563529076786> what's your mode of payment?",
+          question: '>>> <a:y_starroll:1138704563529076786> What\'s the amount of {item} do you wish to buy?\n-# please only send a number. NO LETTERS. **(e.g. 100,1500,231)**',
           answer: '',
         },
       ]
       const filter = m => m.author.id === inter.user.id;
       async function getResponse(data) {
-        await inter.channel.send(data.question)
+        await inter.channel.send(data.question.replace('{item}',thread[0].answer))
         let msg = await inter.channel.awaitMessages({ filter, max: 1,time: 900000 ,errors: ['time'] })
         if (!msg) shop.orderForm.splice(shop.orderForm.indexOf(inter.user.id),1)
         msg = msg?.first()
@@ -3102,8 +3098,8 @@ client.on('interactionCreate', async inter => {
       if (item.includes('gift') && !isNaN(amount)) {
         if (booster) price = amount*.240
         else price = amount*.245
-      } 
-      else if (item.includes('gamepass') && !isNaN(amount)) {
+      }
+      else if ((item.includes('gamepass') || item.includes('gpass')) && !isNaN(amount)) {
         let category = shop.pricelists.find(ctg => ctg.name === 'Robux');
         let gamepasses = category.types.find(type => type.parent === 'Via Gamepass');
         let pricelist = gamepasses.children;

@@ -25,7 +25,6 @@ const ttsClient = new TextToSpeechClient();
 
 const upload = multer({ dest: 'uploads/' });
 
-//
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;

@@ -3065,7 +3065,7 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
         {
-          question: '> <a:y_starroll:1138704563529076786> How many of this product do you wish to buy?\n> -# correct formats:\n> -# <a:CHECK:1138778694983356450> 1k and 500\n> -# <a:CHECK:1138778694983356450> 1500\n> -# <a:CHECK:1138778694983356450> 1k, 1.5k, 500\n> -# <a:Xmark:1138778760628424735> 1,500',
+          question: '> <a:y_starroll:1138704563529076786> How many of this product do you wish to buy?\n> -# correct formats:\n> -# <a:CHECK:1138778694983356450> 1k and 500\n> -# <a:CHECK:1138778694983356450> 1500\n> -# <a:CHECK:1138778694983356450> 1k, 1.5k, 500\n> -# <a:CHECK:1138778694983356450> 2x 799\n> -# <a:Xmark:1138778760628424735> 1,500',
           answer: '',
         },
       ]

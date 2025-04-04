@@ -784,6 +784,24 @@ module.exports = {
             parent: 'Via Gamepass',
             children: [
               //
+              { name: '100 robux', price: 45, rs: 45 },
+              { name: '200 robux', price: 75, rs: 75 },
+              { name: '300 robux', price: 115, rs: 115 },
+              { name: '400 robux', price: 155, rs: 155 },
+              { name: '500 robux', price: 175, rs: 175 },
+              { name: '600 robux', price: 210, rs: 210 },
+              { name: '700 robux', price: 245, rs: 245 },
+              { name: '800 robux', price: 280, rs: 280 },
+              { name: '900 robux', price: 315, rs: 315 },
+              { name: '1000 robux', price: 350, rs: 345 },
+              { name: '*covered tax (instant process)*', price: 0, rs: 0 },
+              //
+            ],
+          },
+          /*{
+            parent: 'Via Gamepass',
+            children: [
+              //
               { name: '100 robux', price: 40, rs: 35 },
               { name: '200 robux', price: 69, rs: 67 },
               { name: '300 robux', price: 105, rs: 97 },
@@ -797,7 +815,7 @@ module.exports = {
               { name: '*covered tax (hrs-2d process)*', price: 0, rs: 0 },
               //
             ],
-          },
+          },*/
           /*{
             parent: 'Via Gifting',
             children: [

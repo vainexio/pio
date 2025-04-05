@@ -3103,7 +3103,7 @@ client.on('interactionCreate', async inter => {
         if (booster) price = amount*.240
         else price = amount*.245
       }
-      else if ((item.includes('gamepass') || item.includes('gpass')) && !isNaN(amount)) {
+      else if (item.includes('robux') || (item.includes('gamepass') || item.includes('gpass')) && !isNaN(amount)) {
         let category = shop.pricelists.find(ctg => ctg.name === 'Robux');
         let gamepasses = category.types.find(type => type.parent === 'Via Gamepass');
         let pricelist = gamepasses.children;

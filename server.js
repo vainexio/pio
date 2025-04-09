@@ -1519,7 +1519,31 @@ client.on('interactionCreate', async inter => {
       let link = options.find(a => a.name === 'link')
       await inter.deferReply();
       
-      let response = await fetch('')
+      let auth = {
+        method: "GET",
+        headers: {
+          "Content-Type": 'application/json',
+          "Accept": "*/*",
+          "x-csrf-token": handler.cToken(),
+          "Cookie": process.env.Cookie,
+        },
+      }
+      
+      let gamepass = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/1146679823/product-info',auth)
+      if (gamepass.status == 200) {
+        gamepass = await gamepass.json();
+        let productId = gamepass.ProductId
+        let price = gamepass.PriceInRobux
+        let sellerId = gamepass.Creator.Id
+        
+        auth.method = "POST"
+        auth.body = JSON.stringify({"expectedCurrency":1,"expectedPrice":price,"expectedSellerId":sellerId})
+        
+        let buy = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/'+productId+'/purchase',auth)
+        if (buy.status == 200) {
+          await inter.editReply({content: emojis.check+" Successfully bought **"+price+"** robux gamepass.\nLink: "+link.value})
+        }
+      }
     }
     //
     else if (cname === 'accept') {

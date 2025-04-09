@@ -1513,6 +1513,15 @@ client.on('interactionCreate', async inter => {
       await inter.editReply({content: "**"+user.name+"**: "+data})
     }
     //
+    else if (cname === 'buy') {
+      if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission'});
+      let options = inter.options._hoistedOptions
+      let link = options.find(a => a.name === 'link')
+      await inter.deferReply();
+      
+      let response = await fetch('')
+    }
+    //
     else if (cname === 'accept') {
       if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission'});
       let options = inter.options._hoistedOptions

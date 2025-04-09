@@ -1529,20 +1529,36 @@ client.on('interactionCreate', async inter => {
         },
       }
       
-      let gamepass = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/1146679823/product-info',auth)
+      function getId(url) {
+        const regex = /\/game-pass\/(\d+)/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+      }
+      let gamepassId = getId(link.value)
+      if (!gamepassId) {
+        await inter.editReply({content: emojis.warning+" Invalid gamepass ID"})
+        return;
+      }
+      
+      let gamepass = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/'+gamepassId+'/product-info',auth)
       if (gamepass.status == 200) {
         gamepass = await gamepass.json();
+        console.log(gamepass)
         let productId = gamepass.ProductId
         let price = gamepass.PriceInRobux
         let sellerId = gamepass.Creator.Id
         
         auth.method = "POST"
         auth.body = JSON.stringify({"expectedCurrency":1,"expectedPrice":price,"expectedSellerId":sellerId})
-        
+        console.log(auth)
         let buy = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/'+productId+'/purchase',auth)
-        if (buy.status == 200) {
-          await inter.editReply({content: emojis.check+" Successfully bought **"+price+"** robux gamepass.\nLink: "+link.value})
+        if (buy.status === 403) {
+          let csrfToken = await handler.refreshToken(process.env.Cookie);
+          auth.headers["x-csrf-token"] = csrfToken;
+          buy = await fetch('https://apis.roblox.com/game-passes/v1/game-passes/'+productId+'/purchase',auth)
         }
+        if (buy.status !== 200) return await inter.editReply({content: emojis.warning+" Failed to buy gamepass\n```diff\n- "+buy.status+": "+buy.statusText+'```'})
+        await inter.editReply({content: emojis.check+" Successfully bought **"+price+"** ("+Math.floor(price*0.7)+") robux gamepass.\nLink: "+link.value})
       }
     }
     //

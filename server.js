@@ -2587,7 +2587,9 @@ client.on('interactionCreate', async inter => {
             inter.message.reply({content: emojis.warning+' Invalid ticket data.'})
             return;
           }
-          let attachment = await discordTranscripts.createTranscript(inter.channel); //, {saveImages: true}
+          
+          try {
+            let attachment = await discordTranscripts.createTranscript(inter.channel); //, {saveImages: true}
           await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
             let attachments = Array.from(msg.attachments.values())
             let stringFiles = ""
@@ -2634,6 +2636,9 @@ client.on('interactionCreate', async inter => {
             }
             await inter.channel.delete();
           },8000)
+          } catch (err) {
+            await inter.channel.delete();
+          }
         }
         else if (method !== 'delete') {
           let botMsg = null

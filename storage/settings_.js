@@ -433,10 +433,10 @@ module.exports = {
             children: [
               //
               { name: '2x server boosts', price: 90, rs: 85 },
-              { name: '4x server boosts', price: 155, rs: 150 },
+              { name: '4x server boosts', price: 175, rs: 170 },
               { name: '6x server boosts', price: 230, rs: 225 },
-              { name: '8x server boosts', price: 275, rs: 270 },
-              { name: '14x server boosts', price: 470, rs: 465 },
+              { name: '8x server boosts', price: 310, rs: 305 },
+              { name: '14x server boosts', price: 535, rs: 530 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               //
             ],
@@ -807,12 +807,12 @@ module.exports = {
               { name: '200 robux', price: 69, rs: 67 },
               { name: '300 robux', price: 105, rs: 97 },
               { name: '400 robux', price: 140, rs: 132 },
-              { name: '500 robux', price: 165, rs: 160 },
+              { name: '500 robux', price: 170, rs: 165 },
               { name: '600 robux', price: 198, rs: 195 },
               { name: '700 robux', price: 231, rs: 228 },
               { name: '800 robux', price: 264, rs: 260 },
               { name: '900 robux', price: 297, rs: 293 },
-              { name: '1000 robux', price: 325, rs: 320 },
+              { name: '1000 robux', price: 330, rs: 325 },
               { name: '*covered tax (hrs-2d process)*', price: 0, rs: 0 },
               //
             ],

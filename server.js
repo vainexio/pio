@@ -3154,8 +3154,8 @@ client.on('interactionCreate', async inter => {
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       
       if (item.includes('gift') && !isNaN(amount)) {
-        if (booster) price = amount*.240
-        else price = amount*.245
+        if (booster) price = amount*.245
+        else price = amount*.250
       }
       else if (item.includes('robux') || (item.includes('gamepass') || item.includes('gpass')) && !isNaN(amount)) {
         let category = shop.pricelists.find(ctg => ctg.name === 'Robux');

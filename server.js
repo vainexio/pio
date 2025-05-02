@@ -3154,31 +3154,51 @@ client.on('interactionCreate', async inter => {
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       
       function parseRobuxAmounts(input) {
-  // split on commas or "x" (multiplier) or whitespace
-  let parts = input
-    .toLowerCase()
-    .split(/[,x×\s]+/)    // commas, "x" or "×", or spaces
-    .filter(s => s !== "");
-  
   let result = [];
-  for (let part of parts) {
-    // detect 'k' suffix
-    let isK = part.endsWith("k");
-    // strip non-numeric except dot
-    let num = parseFloat(part.replace(/k$/, ""));
-    if (isNaN(num)) continue;
-    let value = isK ? Math.round(num * 1000) : Math.round(num);
-    
-    // if this chunk is ≥1000 and not a neat package, break it greedily into 1000s + remainder
-    if (value > 1000) {
-      let thousands = Math.floor(value / 1000);
-      for (let i = 0; i < thousands; i++) result.push(1000);
-      let rem = value - thousands * 1000;
-      if (rem > 0) result.push(rem);
-    } else {
-      result.push(value);
+  let segments = input
+    .toLowerCase()
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s !== '');
+  
+  for (let seg of segments) {
+    // multiplier form: "2x600" or "2 x 600" or "2×600"
+    let m = seg.match(/^(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)(k?)$/);
+    if (m) {
+      let count = parseInt(m[1], 10);
+      let num   = parseFloat(m[2]);
+      let isK   = m[3] === 'k';
+      let value = isK ? Math.round(num * 1000) : Math.round(num);
+      // if the package itself >1000, break into 1000s+remainder
+      if (value > 1000) {
+        let thousands = Math.floor(value / 1000);
+        let rem       = value - thousands * 1000;
+        for (let i = 0; i < count * thousands; i++) result.push(1000);
+        if (rem > 0) for (let i = 0; i < count; i++) result.push(rem);
+      } else {
+        for (let i = 0; i < count; i++) result.push(value);
+      }
+      continue;
     }
+    
+    // single-value form: "2500", "2.5k", "600"
+    let s = seg.match(/^(\d+(?:\.\d+)?)(k?)$/);
+    if (s) {
+      let num = parseFloat(s[1]);
+      let isK = s[2] === 'k';
+      let value = isK ? Math.round(num * 1000) : Math.round(num);
+      if (value > 1000) {
+        let thousands = Math.floor(value / 1000);
+        let rem       = value - thousands * 1000;
+        for (let i = 0; i < thousands; i++) result.push(1000);
+        if (rem > 0) result.push(rem);
+      } else {
+        result.push(value);
+      }
+    }
+    // anything else is ignored
   }
+  
   return result;
 }
       
@@ -3240,7 +3260,19 @@ client.on('interactionCreate', async inter => {
   // finally set your price
   price = totalPrice;
 }
-      
+      {
+  let map = {};
+  for (let it of itemsUsed) {
+    let key = `${it.name}|${it.unitPrice}`;
+    if (!map[key]) {
+      map[key] = { ...it };
+    } else {
+      map[key].count += it.count;
+      map[key].total += it.total;
+    }
+  }
+  itemsUsed = Object.values(map);
+}
       let row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId('confirmOrder-'+(price == 'none' ? price : price.toFixed(2))).setStyle('SUCCESS').setLabel('Yes'),
         new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),

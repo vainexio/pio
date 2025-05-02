@@ -3143,69 +3143,103 @@ client.on('interactionCreate', async inter => {
         totalAmount += amt.value
       }
       let embed = new MessageEmbed()
-      .setDescription('item : **'+thread[0].answer+'**\namount : **'+totalAmount+'**')
+      .setDescription('item : **'+thread[0].answer+'**\namount : **'+thread[1].answer+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       
       let price = "none"
       let itemsUsed = [];
-      let amount = totalAmount
+      let amount = thread[1].answer
       let item = thread[0].answer.toLowerCase()
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       
-      if (item.includes('gift') && !isNaN(amount)) {
-        if (booster) price = amount*.245
-        else price = amount*.250
+      function parseRobuxAmounts(input) {
+  // split on commas or "x" (multiplier) or whitespace
+  let parts = input
+    .toLowerCase()
+    .split(/[,x×\s]+/)    // commas, "x" or "×", or spaces
+    .filter(s => s !== "");
+  
+  let result = [];
+  for (let part of parts) {
+    // detect 'k' suffix
+    let isK = part.endsWith("k");
+    // strip non-numeric except dot
+    let num = parseFloat(part.replace(/k$/, ""));
+    if (isNaN(num)) continue;
+    let value = isK ? Math.round(num * 1000) : Math.round(num);
+    
+    // if this chunk is ≥1000 and not a neat package, break it greedily into 1000s + remainder
+    if (value > 1000) {
+      let thousands = Math.floor(value / 1000);
+      for (let i = 0; i < thousands; i++) result.push(1000);
+      let rem = value - thousands * 1000;
+      if (rem > 0) result.push(rem);
+    } else {
+      result.push(value);
+    }
+  }
+  return result;
+}
+      
+      if (item.includes('gift') && !isNaN(totalAmount)) {
+        if (booster) price = totalAmount*.245
+        else price = totalAmount*.250
       }
-      else if (item.includes('robux') || (item.includes('gamepass') || item.includes('gpass')) && !isNaN(amount)) {
-        let category = shop.pricelists.find(ctg => ctg.name === 'Robux');
-        let gamepasses = category.types.find(type => type.parent === 'Via Gamepass');
-        let pricelist = gamepasses.children;
-
-        if (amount <= 1000) {
-          let entry = pricelist.find(entry => {
-            let val = parseInt(entry.name);
-            return val === amount;
+      else if (
+  (item.includes("robux") || item.includes("gamepass") || item.includes("gpass"))
+  && typeof amount === "string"
+) {
+  // 1) parse the string into an array of numeric amounts:
+  let amounts = parseRobuxAmounts(amount);
+  
+  // 2) for each numeric amount, run your existing logic:
+  let category = shop.pricelists.find(ctg => ctg.name === "Robux");
+  let gamepasses = category.types.find(t => t.parent === "Via Gamepass");
+  let pricelist = gamepasses.children;
+  let totalPrice = 0;
+  
+  for (let amt of amounts) {
+    if (amt <= 1000) {
+      let entry = pricelist.find(e => parseInt(e.name) === amt);
+      if (entry) {
+        let unit = booster ? entry.rs : entry.price;
+        itemsUsed.push({
+          name: entry.name,
+          count: 1,
+          unitPrice: unit,
+          total: unit
+        });
+        totalPrice += unit;
+      }
+    } else {
+      // greedy-split already done in parser, so this branch only happens if amt >1000 and you
+      // want to re-split by other denominations— you can actually skip it if parser covered it.
+      let rem = amt;
+      let sorted = pricelist
+        .filter(e => !isNaN(parseInt(e.name)))
+        .sort((a, b) => parseInt(b.name) - parseInt(a.name));
+      for (let coin of sorted) {
+        let cv = parseInt(coin.name);
+        if (rem >= cv) {
+          let cnt = Math.floor(rem / cv);
+          let unit = booster ? coin.rs : coin.price;
+          itemsUsed.push({
+            name: coin.name,
+            count: cnt,
+            unitPrice: unit,
+            total: cnt * unit
           });
-          if (entry) {
-            let selectedPrice = booster ? entry.rs : entry.price;
-            price = selectedPrice;
-            itemsUsed.push({
-              name: entry.name,
-              count: 1,
-              unitPrice: selectedPrice,
-              total: selectedPrice
-            });
-          }
-        } 
-        else {
-          let remaining = amount;
-          let totalPrice = 0;
-          let sorted = pricelist
-          .filter(entry => !isNaN(parseInt(entry.name)))
-          .sort((a, b) => parseInt(b.name) - parseInt(a.name));
-
-          for (let coin of sorted) {
-            let coinValue = parseInt(coin.name);
-            if (remaining >= coinValue) {
-              let count = Math.floor(remaining / coinValue);
-              let unitPrice = booster ? coin.rs : coin.price;
-              let subtotal = count * unitPrice;
-              totalPrice += subtotal;
-              itemsUsed.push({
-                name: coin.name,
-                count: count,
-                unitPrice: unitPrice,
-                total: subtotal
-              });
-              remaining -= count * coinValue;
-            }
-          }
-          if (remaining === 0) {
-            price = totalPrice;
-          }
+          totalPrice += cnt * unit;
+          rem -= cnt * cv;
         }
       }
+    }
+  }
+  
+  // finally set your price
+  price = totalPrice;
+}
       
       let row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId('confirmOrder-'+(price == 'none' ? price : price.toFixed(2))).setStyle('SUCCESS').setLabel('Yes'),

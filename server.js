@@ -12,18 +12,6 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { exec } = require('node:child_process'); 
-//////////////////////////////////
-const { SpeechClient } = require('@google-cloud/speech');
-const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
-const fs = require('fs');
-const multer = require('multer');
-const util = require('util');
-
-////
-const speechClient = new SpeechClient();
-const ttsClient = new TextToSpeechClient();
-
-const upload = multer({ dest: 'uploads/' });
 
 //Discord
 const Discord = require('discord.js');
@@ -1041,18 +1029,11 @@ client.on("messageCreate", async (message) => {
     if (message.content.toLowerCase().includes('onhand')) message.reply("Hello, there! Please check our most recent <#1278165540841459713> to know about the availability of our products!")
     }
   
-});//END MESSAGE CREATE
-
-let ondutyChannel = '977736253908848711'
-let vrDebounce = false
-let claimer = null
-let animation = false
+}); //END MESSAGE CREATE
 
 let yay = true
 let cStocks = 0
 let tStocks = 0
-const tunnel = require('tunnel');
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Disable SSL validation
 
 client.on('interactionCreate', async inter => {
   if (inter.isCommand()) {
@@ -3242,30 +3223,3 @@ setInterval(async function() {
   getPendingClosures()
 },
 3600000)
-
-app.get('/qr', async function (req, res) {
-  const accountNumber = '443711';
-const apiUrl = 'https://autosweeprfidapps.com/balanceinquiry/CheckBalance?account='+accountNumber;
-
-fetch(apiUrl, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ account: accountNumber })
-})
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Network response was not ok (${response.status})`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Balance Data:', data);
-    // Process the balance data here
-  })
-  .catch(error => {
-    console.error('Error fetching the balance:', error);
-  });
-
-})

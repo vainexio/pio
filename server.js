@@ -593,15 +593,15 @@ client2.on("messageCreate", async (message) => {
               priceNoAuth = jsonNoAuth.errors ? "Can't scan catalog items" : jsonNoAuth.price.toString();
             }
 
-            let regionalFlag = priceNoAuth !== priceAuth ? emojis.warning+' **Regional pricing detected**' : '';
+            let regionalFlag = priceNoAuth !== priceAuth ? '-# '+emojis.warning+' **Regional pricing detected**' : '';
 
             content += `${count}. ${args[i]}\n`;
             if (regionalFlag) {
               content += `Default Price: ${priceNoAuth}\n`;
             }
-            content += `Price: ${priceAuth}\n`;
+            content += `Price${regionalFlag?' (PH)':''}: ${priceAuth}\n`;
             if (!isNaN(rawAuth)) {
-              content += `You will receive: **${ctValue}** ${emojis.robux}\n-# ${regionalFlag}`;
+              content += `You will receive${regionalFlag?' (PH)':''}: **${ctValue}** ${emojis.robux}\n${regionalFlag}`;
             }
             content += `\n`;
           }

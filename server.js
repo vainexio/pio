@@ -530,11 +530,26 @@ client2.on("messageCreate", async (message) => {
           let count = 0;
           let total = 0;
           let commandType = message.content.toLowerCase();
-
+          
+          let auth = {
+            method: "GET",
+            headers: {
+              "Content-Type": 'application/json',
+              "Accept": "*/*",
+              "x-csrf-token": handler.cToken(),
+              "Cookie": process.env.Cookie,
+            },
+          }
+          
           for (let i in args) {
             if (args[i].includes('roblox.com')) {
               count++;
-              let response = await fetch(args[i].replace(',', '') + '?nl=true');
+              let response = await fetch(args[i].replace(',', '') + '?nl=true',auth);
+              if (response.status === 403 || response.status === 401) {
+                let csrfToken = await handler.refreshToken(process.env.Cookie);
+                auth.headers["x-csrf-token"] = csrfToken;
+                response = await fetch(args[i].replace(',', '') + '?nl=true',auth);
+              }
               let htmlContent = await response.text();
               let $ = cheerio.load(htmlContent);
               let price = null;

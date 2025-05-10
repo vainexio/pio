@@ -515,95 +515,113 @@ client2.on("messageCreate", async (message) => {
     }
   }
   if ((['scan', 'nct', 'ct'].includes(message.content.toLowerCase())) && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
-    if (message.type === 'REPLY') {
-      let msg = await message.channel.messages.fetch(message.reference.messageId);
-      if (msg) {
-        try {
-          let args = getArgs(msg.content);
-          if (args.length < 1 || !msg.content.includes('roblox.com')) {
-            return message.reply('⚠️ No roblox links were found!');
-          }
+  if (message.type === 'REPLY') {
+    let msg = await message.channel.messages.fetch(message.reference.messageId);
+    if (msg) {
+      try {
+        let args = getArgs(msg.content);
+        if (args.length < 1 || !msg.content.includes('roblox.com')) {
+          return message.reply('⚠️ No roblox links were found!');
+        }
 
-          await message.react(emojis.loading);
+        await message.react(emojis.loading);
 
-          let content = '';
-          let count = 0;
-          let total = 0;
-          let commandType = message.content.toLowerCase();
-          
-          let auth = {
-            method: "GET",
-            headers: {
-              "Content-Type": 'application/json',
-              "Accept": "*/*",
-              "x-csrf-token": handler.cToken(),
-              "Cookie": process.env.Cookie,
-            },
-          }
-          
-          for (let i in args) {
-            if (args[i].includes('roblox.com')) {
-              count++;
-              let response = await fetch(args[i].replace(',', '') + '?nl=true',auth);
-              if (response.status === 403 || response.status === 401) {
-                let csrfToken = await handler.refreshToken(process.env.Cookie);
-                auth.headers["x-csrf-token"] = csrfToken;
-                response = await fetch(args[i].replace(',', '') + '?nl=true',auth);
-              }
-              let htmlContent = await response.text();
-              let $ = cheerio.load(htmlContent);
-              let price = null;
+        let content = '';
+        let count = 0;
+        let total = 0;
+        let commandType = message.content.toLowerCase();
 
-              const itemContainer = $('#item-social-container');
-              if ($('.text-robux-lg').length > 0) {
-                price = $('.text-robux-lg').text().trim();
-              } else if (args[i].includes('catalog')) {
-                const itemId = (url) => url.match(/\/catalog\/(\d+)/)?.[1] || 0;
-                let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId(args[i]) + '/details?itemType=Asset');
-                res = await res.json();
-                console.log(args[i],res,itemId)
-                if (res.errors) {
-                  price = "Can't scan catalog items";
-                } else {
-                  price = res.price.toString();
-                }
-              }
+        let auth = {
+          method: "GET",
+          headers: {
+            "Content-Type": 'application/json',
+            "Accept": "*/*",
+            "x-csrf-token": handler.cToken(),
+            "Cookie": process.env.Cookie,
+          },
+        };
 
-              let raw = price !== "Can't scan catalog items" ? Number(price.replace(/,|Price: /g, '')) : price;
-            
-              if (commandType === 'scan') {
-                let ct = !isNaN(raw) ? '\nYou will receive: **' + Math.floor(raw * 0.7) + '** ' + emojis.robux : '';
-                content += count + '. ' + args[i] + '\nPrice: ' + price + ' ' + emojis.robux + ct + '\n\n';
-              }
-              
-              else if (commandType === 'nct') {
-                if (!isNaN(raw)) total += raw;
-                content += price + ': ' + args[i] + '\n';
-              }
-              
-              else if (commandType === 'ct') {
-                let adjustedPrice = !isNaN(raw) ? Math.floor(raw * 0.7) : raw;
-                if (!isNaN(adjustedPrice)) total += adjustedPrice;
-                content += adjustedPrice + ': ' + args[i] + '\n';
-              }
-              
+        for (let i in args) {
+          if (args[i].includes('roblox.com')) {
+            count++;
+
+            // fetch with auth (existing)
+            let response = await fetch(args[i].replace(',', '') + '?nl=true', auth);
+            if (response.status === 403 || response.status === 401) {
+              let csrfToken = await handler.refreshToken(process.env.Cookie);
+              auth.headers["x-csrf-token"] = csrfToken;
+              response = await fetch(args[i].replace(',', '') + '?nl=true', auth);
+            }
+            let htmlContent = await response.text();
+            let $ = cheerio.load(htmlContent);
+
+            // parse auth price
+            let priceAuth = null;
+            if ($('.text-robux-lg').length > 0) {
+              priceAuth = $('.text-robux-lg').text().trim();
+            } else if (args[i].includes('catalog')) {
+              const itemId = (url) => url.match(/\/catalog\/(\d+)/)?.[1] || 0;
+              let res = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId(args[i]) + '/details?itemType=Asset');
+              let json = await res.json();
+              priceAuth = json.errors ? "Can't scan catalog items" : json.price.toString();
+            }
+
+            // calculate CT value
+            let rawAuth = priceAuth !== "Can't scan catalog items" ? Number(priceAuth.replace(/,|Price: /g, '')) : priceAuth;
+            let ctValue = !isNaN(rawAuth) ? Math.floor(rawAuth * 0.7) : rawAuth;
+
+            // for scan: detect regional by comparing auth vs CT-adjusted?
+            // Instead, use the fact that regional pricing alters auth vs ctValue?
+            // Actually we need to compare auth fetch vs no-auth fetch:
+            // perform a quick no-auth fetch here
+            let respNoAuth = await fetch(args[i].replace(',', '') + '?nl=true');
+            let htmlNoAuth = await respNoAuth.text();
+            let $noAuth = cheerio.load(htmlNoAuth);
+            let priceNoAuth = $('.text-robux-lg').text().trim() || null;
+            if (!priceNoAuth && args[i].includes('catalog')) {
+              const itemId = (url) => url.match(/\/catalog\/(\d+)/)?.[1] || 0;
+              let resNoAuth = await fetch('https://catalog.roblox.com/v1/catalog/items/' + itemId(args[i]) + '/details?itemType=Asset');
+              let jsonNoAuth = await resNoAuth.json();
+              priceNoAuth = jsonNoAuth.errors ? "Can't scan catalog items" : jsonNoAuth.price.toString();
+            }
+
+            let regionalFlag = (priceNoAuth !== priceAuth) ? ' **Regional pricing detected**' : '';
+
+            if (commandType === 'scan') {
+              content += 
+                `${count}. ${args[i]}\n` +
+                `Price (no auth): ${priceNoAuth} ${emojis.robux}\n` +
+                `Price (auth): ${priceAuth} ${emojis.robux}${regionalFlag}\n` +
+                (isNaN(rawAuth) ? '' : `You will receive: **${ctValue}** ${emojis.robux}`) +
+                `\n\n`;
+            }
+
+            else if (commandType === 'nct') {
+              if (!isNaN(rawAuth)) total += rawAuth;
+              content += priceAuth + ': ' + args[i] + '\n';
+            }
+
+            else if (commandType === 'ct') {
+              if (!isNaN(ctValue)) total += ctValue;
+              content += ctValue + ': ' + args[i] + '\n';
             }
           }
-
-          let err = content.includes('NaN') ? '\n' + emojis.warning + ' A link resulted in an invalid price. Rescan is recommended.' : '';
-          if (commandType === 'nct') {
-            content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (NCT): ' + total + err;
-          } else if (commandType === 'ct') {
-            content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (CT): ' + total + err;
-          }
-
-          await message.channel.send(content);
-        } catch (err) {
-          message.reply(err.message);
         }
+
+        let err = content.includes('NaN') ? '\n' + emojis.warning + ' A link resulted in an invalid price. Rescan is recommended.' : '';
+        if (commandType === 'nct') {
+          content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (NCT): ' + total + err;
+        } else if (commandType === 'ct') {
+          content += '\n\n'+count+' gamepass link'+(count > 1 ? 's' : '')+' (CT): ' + total + err;
+        }
+
+        await message.channel.send(content);
+      } catch (err) {
+        message.reply(err.message);
       }
     }
   }
+}
   if (message.content.toLowerCase().startsWith('max:') && shop.scannerWhitelist.find(g => g === message.guild?.id)) {
     if (message.type === 'REPLY') {
       let msg = await message.channel.messages.fetch(message.reference.messageId)

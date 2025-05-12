@@ -518,7 +518,7 @@ module.exports = {
           //
         ],
       },
-      {
+      /*{
         //Category
         name: 'Discord Nitro',
         lowest: 100,
@@ -550,7 +550,7 @@ module.exports = {
           },
           //
         ],
-      },
+      },*/
       {
         //Category
         name: 'Profile Effects',

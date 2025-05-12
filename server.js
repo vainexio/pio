@@ -802,7 +802,7 @@ client.on("messageCreate", async (message) => {
             '<:hb_announce:1138706465046134805> not available *!!!*' //4
           ]
         embed = new MessageEmbed(embed)
-          .addFields({name: 'status',value: productStatus[data.status]+''})
+          .addFields({name: 'Availability',value: "[**check here**](https://discord.com/channels/1109020434449575936/1109020435754000423/1361284984618618901)"}) //productStatus[data.status]+''
           
           await channel.send({embeds: [embed]}).then(msg => foundBulked.messages.push({name: data.name, url: msg.url, emoji: data.status === 4 ? '<:red_dot:1141281924208414781>' : data.status === 3 ? emojis.loading : method === 'rs' ? '<a:y_starroll:1138704563529076786>' : '<a:y_starroll:1138704563529076786>'}))
         }
@@ -2889,7 +2889,7 @@ client.on('interactionCreate', async inter => {
       let msg = await temp.messages.fetch('1258055219355586600')
       await inter.channel.send({content: msg.content.replace('{status}',booster)})
       
-      if (price !== 'none') {
+      if (price !== 'none' && price <= 0) {
         await inter.channel.send({content: ".pay "+price})
       }
       /*let phone = await phoneModel.findOne({userId: inter.member.id})

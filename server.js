@@ -3019,28 +3019,42 @@ const WATCH_CHANNEL_ID = '1109020435754000423';
 const WATCH_MESSAGE_ID = '1371730993609969694';
 const TIMER_EMOJI   = '<:Timer:1351861429954936893>';
 
-client.ws.on('MESSAGE_UPDATE', async (packet) => {
-  // packet is the raw payload for MESSAGE_UPDATE
-  const { id: msgId, channel_id: channelId } = packet;
-  if (msgId !== WATCH_MESSAGE_ID || channelId !== WATCH_CHANNEL_ID) return;
-
+client.ws.on('MESSAGE_UPDATE', async packet => {
+  // destructure the fields we need
+  const { id: msgId, channel_id: channelId, edited_timestamp } = packet;
+  
+  if (msgId !== WATCH_MESSAGE_ID || channelId !== WATCH_CHANNEL_ID) {
+    return;
+  }
+  
   try {
+    // 1) Get the channel
     const channel = await client.channels.fetch(channelId);
     if (!channel || !channel.isText()) return;
-
-    // 1) Remove any old “updated” notices
+    
+    // 2) Remove any old “updated” notices
     const fetched = await channel.messages.fetch({ limit: 100 });
     const toDelete = fetched.filter(m => /updated/i.test(m.content));
-    if (toDelete.size) await channel.bulkDelete(toDelete, true);
-
-    // 2) Send the new timestamp
-    const epochSec = Math.floor(Date.now() / 1000);
-    await channel.send(`${TIMER_EMOJI} Updated <t:${epochSec}:R>`);
+    if (toDelete.size) {
+      await channel.bulkDelete(toDelete, true);
+    }
+    
+    // 3) Compute the exact epoch from the edit time
+    const epochSec = Math.floor(new Date(edited_timestamp).getTime() / 1000);
+    const replyContent = `${TIMER_EMOJI} Updated <t:${getTime(new Date().getTime())}:R>`;
+    
+    // 4) Fetch the watched message and reply to it
+    const watchedMsg = await channel.messages.fetch(msgId);
+    await watchedMsg.reply({
+      content: replyContent,
+      // optional: disable the ping on reply
+      allowedMentions: { repliedUser: false }
+    });
+    
   } catch (err) {
     console.error('Error handling MESSAGE_UPDATE:', err);
   }
 });
-
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
   await moderate(newMember,await getPerms(newMember,3))
     if(newMember.nickname && oldMember.nickname !== newMember.nickname) {

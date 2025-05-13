@@ -3015,6 +3015,50 @@ client.on('interactionCreate', async inter => {
     }
     }
 });
+const WATCH_CHANNEL_ID = '1109020435754000423';
+const WATCH_MESSAGE_ID = '1361284984618618901';
+const TIMER_EMOJI   = '<:Timer:1351861429954936893>';
+
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+  console.log(newMessage)
+  // Ensure we have full Message objects
+  if (newMessage.partial) {
+    try {
+      await newMessage.fetch();
+    } catch (err) {
+      console.error('Error fetching partial message:', err);
+      return;
+    }
+  }
+
+  // Only act on the one message in the one channel
+  if (
+    newMessage.id === WATCH_MESSAGE_ID &&
+    newMessage.channelId === WATCH_CHANNEL_ID
+  ) {
+    const channel = newMessage.channel;
+
+    // 1) Bulk-delete any messages containing "updated" (case-insensitive)
+    try {
+      // Fetch up to last 100 messages
+      const fetched = await channel.messages.fetch({ limit: 100 });
+      const toDelete = fetched.filter(msg =>
+        /updated/i.test(msg.content)
+      );
+
+      if (toDelete.size > 0) {
+        // bulkDelete only works on messages younger than 14 days
+        await channel.bulkDelete(toDelete, true);
+      }
+    } catch (err) {
+      console.error('Error bulk-deleting old update messages:', err);
+    }
+
+    // 2) Send the new “Updated” notice with the current epoch-seconds timestamp
+    const epochSec = Math.floor(Date.now() / 1000);
+    channel.send(`${TIMER_EMOJI} Updated <t:${epochSec}:R>`);
+  }
+});
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
   await moderate(newMember,await getPerms(newMember,3))
     if(newMember.nickname && oldMember.nickname !== newMember.nickname) {

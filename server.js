@@ -2895,8 +2895,7 @@ client.on('interactionCreate', async inter => {
       let temp = await getChannel(shop.channels.templates)
       let msg = await temp.messages.fetch('1258055219355586600')
       await inter.channel.send({content: msg.content.replace('{status}',booster)})
-      
-      if (price !== 'none' && price <= 0) {
+      if (price !== 'none' && Number(price) > 0) {
         await inter.channel.send({content: ".pay "+price})
       }
       /*let phone = await phoneModel.findOne({userId: inter.member.id})

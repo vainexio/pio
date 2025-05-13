@@ -2743,51 +2743,57 @@ client.on('interactionCreate', async inter => {
       let booster = await hasRole(member,['1138634227169112165','1109020434520887325'],inter.guild)
       
       function parseRobuxAmounts(input) {
-  let result = [];
-  let segments = input
+  const result = [];
+  if (!input) return result;
+
+  // normalize “and” → commas, then split on commas
+  const segments = input
     .toLowerCase()
+    .replace(/\band\b/g, ',')
     .split(',')
     .map(s => s.trim())
-    .filter(s => s !== '');
-  
-  for (let seg of segments) {
-    // multiplier form: "2x600" or "2 x 600" or "2×600"
+    .filter(s => s);
+
+  for (const seg of segments) {
+    // a) multiplier form: "2x600", "2 x 600", "2×600"
     let m = seg.match(/^(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)(k?)$/);
     if (m) {
-      let count = parseInt(m[1], 10);
-      let num   = parseFloat(m[2]);
-      let isK   = m[3] === 'k';
-      let value = isK ? Math.round(num * 1000) : Math.round(num);
-      // if the package itself >1000, break into 1000s+remainder
-      if (value > 1000) {
-        let thousands = Math.floor(value / 1000);
-        let rem       = value - thousands * 1000;
-        for (let i = 0; i < count * thousands; i++) result.push(1000);
-        if (rem > 0) for (let i = 0; i < count; i++) result.push(rem);
-      } else {
-        for (let i = 0; i < count; i++) result.push(value);
+      const count = parseInt(m[1], 10);
+      const num   = parseFloat(m[2]);
+      const isK   = m[3] === 'k';
+      const value = isK ? Math.round(num * 1000) : Math.round(num);
+
+      // push `value` count times
+      for (let i = 0; i < count; i++) {
+        result.push(value);
       }
       continue;
     }
-    
-    // single-value form: "2500", "2.5k", "600"
+
+    // b) single‐value form: "2500", "2.5k", "600"
     let s = seg.match(/^(\d+(?:\.\d+)?)(k?)$/);
     if (s) {
-      let num = parseFloat(s[1]);
-      let isK = s[2] === 'k';
-      let value = isK ? Math.round(num * 1000) : Math.round(num);
+      const num   = parseFloat(s[1]);
+      const isK   = s[2] === 'k';
+      let value   = isK ? Math.round(num * 1000) : Math.round(num);
+
+      // if >1000, split into 1000-chunks + remainder
       if (value > 1000) {
-        let thousands = Math.floor(value / 1000);
-        let rem       = value - thousands * 1000;
-        for (let i = 0; i < thousands; i++) result.push(1000);
-        if (rem > 0) result.push(rem);
+        const thousands = Math.floor(value / 1000);
+        const rem       = value - thousands * 1000;
+        for (let i = 0; i < thousands; i++) {
+          result.push(1000);
+        }
+        if (rem > 0) {
+          result.push(rem);
+        }
       } else {
         result.push(value);
       }
     }
     // anything else is ignored
   }
-  
+
   return result;
 }
       
@@ -2800,7 +2806,8 @@ client.on('interactionCreate', async inter => {
   && typeof amount === "string"
 ) {
   // 1) parse the string into an array of numeric amounts:
-  let amounts = parseRobuxAmounts(amount);
+  let amounts     = parseRobuxAmounts(thread[1].answer);
+        let totalAmount = amounts.reduce((sum, a) => sum + a, 0);
   
   // 2) for each numeric amount, run your existing logic:
   let category = shop.pricelists.find(ctg => ctg.name === "Robux");

@@ -794,7 +794,7 @@ module.exports = {
               { name: '700 robux (instant)', price: 248, rs: 248 },
               { name: '800 robux (instant)', price: 285, rs: 285 },
               { name: '900 robux (instant)', price: 319, rs: 319 },
-              { name: '1000 robux (instant)', price: 355, rs: 350 },
+              { name: '1000 robux (instant)', price: 350, rs: 345 },
               { name: '*covered tax (instant process)*', price: 0, rs: 0 },
               //
             ],

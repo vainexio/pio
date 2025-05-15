@@ -786,7 +786,7 @@ module.exports = {
             children: [
               //
               { name: '100 robux (instant)', price: 45, rs: 45 },
-              { name: '200 robux (instant)', price: 79, rs: 79 },
+              { name: '200 robux (instant)', price: 79, rs: 75 },
               { name: '300 robux (instant)', price: 115, rs: 115 },
               { name: '400 robux (instant)', price: 155, rs: 155 },
               { name: '500 robux (instant)', price: 177, rs: 177 },

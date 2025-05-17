@@ -2732,7 +2732,7 @@ client.on('interactionCreate', async inter => {
         totalAmount += amt.value
       }
       let embed = new MessageEmbed()
-      .setDescription('item : **'+thread[0].answer+'**\namount : **'+thread[1].answer+'**')
+      .setDescription('item : **'+thread[0].answer+'**\namount : **'+totalAmount > 0 ? totalAmount : thread[1].answer+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       
@@ -2798,7 +2798,7 @@ client.on('interactionCreate', async inter => {
 }
       
       if (item.includes('gift') && !isNaN(totalAmount)) {
-        if (booster) price = totalAmount*.245
+        if (booster && totalAmount >= 1000) price = totalAmount*.245
         else price = totalAmount*.250
       }
       else if (

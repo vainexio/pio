@@ -2732,7 +2732,7 @@ client.on('interactionCreate', async inter => {
         totalAmount += amt.value
       }
       let embed = new MessageEmbed()
-      .setDescription('item : **'+thread[0].answer+'**\namount : **'+totalAmount > 0 ? totalAmount : thread[1].answer+'**')
+      .setDescription('item : **'+thread[0].answer+'**\namount : **'+(totalAmount > 0 ? totalAmount : thread[1].answer)+'**')
       .setColor(colors.none)
       .setFooter({text: 'order confirmation'})
       

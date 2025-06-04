@@ -33,6 +33,25 @@ module.exports = {
   deleteSlashes: ['1272095323275132990'],
   slashes: [
     {
+      "name": "bid",
+      "type": 1,
+      "description": "Start bid",
+      "options": [
+        {
+          "name": 'item',
+          "description": 'Item name',
+          "type": 3,
+          "required": true,
+        },
+        {
+          "name": 'starting_price',
+          "description": 'Starting price',
+          "type": 10,
+          "required": true,
+        },
+      ]
+    },
+    {
       "name": "buy",
       "type": 1,
       "description": "Buy a gamepass link",

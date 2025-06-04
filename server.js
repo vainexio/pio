@@ -1053,16 +1053,19 @@ client.on('interactionCreate', async inter => {
     let cname = inter.commandName
     const { commandName, options, channelId } = inter;
   if (commandName === 'bid') {
-    const item      = options.getString('item');
-    const startPrice = options.getNumber('starting_price');
-
+    let options = inter.options._hoistedOptions
+    let item      = options.find(a => a.name === 'item')
+    let startPrice = options.find(a => a.name === 'starting_price')
+    item = item.value
+    startPrice = startPrice.value
     // 1) Create a new auction in Mongo with highestBid = startingPrice
     const auction = new auctionModel({
       item,
       startingPrice: startPrice,
       highestBid: startPrice,
       channelId: channelId,
-      highestBidderId: null
+      highestBidderId: null,
+      messageId: "None",
     });
 
     await auction.save();
@@ -1076,14 +1079,14 @@ client.on('interactionCreate', async inter => {
     const row = new MessageActionRow().addComponents(bidButton);
 
     const content = `**Auction Started!**\n• Item: **${item}**\n• Starting Price: **\$${startPrice.toFixed(2)}**\n\n_Current highest bid: \$${startPrice.toFixed(2)}_\nNo bids yet.`;
+    await inter.reply({content: emojis.check+" Bid started!",ephemeral: true})
     
-    const sentMsg = await inter.reply({
+    const sentMsg = await inter.channel.send({
       content,
       components: [row],
       fetchReply: true
     });
 
-    // 3) Store the messageId in Mongo so we can edit it later
     auction.messageId = sentMsg.id;
     await auction.save();
   }
@@ -2104,8 +2107,111 @@ client.on('interactionCreate', async inter => {
   else if (inter.isButton() || inter.isSelectMenu()) {
     let id = inter.customId
     console.log(id)
-    if (if (!customId.startsWith('auction_bid_'))) {
-      
+    if (id.startsWith('auction_bid_')) {
+      const { user } = inter;
+      await inter.reply({
+      content: 'Please check your DMs to place a bid.',
+      ephemeral: true
+    });
+
+    // Extract the auctionId from the customId
+    const auctionId = id.replace('auction_bid_', '');
+
+    // 1) Fetch auction from DB
+    const auction = await auctionModel.findById(auctionId);
+    if (!auction || auction.ended) {
+      // Auction not found or already ended
+      return user.send(' Sorry, this auction no longer exists or has ended.');
+    }
+
+    // 2) Send a DM asking for the bid
+    let dmChannel;
+    try {
+      dmChannel = await user.createDM();
+    } catch (err) {
+      return console.error('Could not open DM with user:', err);
+    }
+
+    await dmChannel.send(
+      `You are placing a bid on **${auction.item}**.\n` +
+      `Current highest bid is \$${auction.highestBid.toFixed(2)}.\n` +
+      `Please reply with a number strictly greater than \$${auction.highestBid.toFixed(2)}.`
+    );
+
+    // 3) Set up a message collector in DM (timeout after e.g. 60 seconds)
+    const filter = (m) => m.author.id === user.id;
+    const collector = dmChannel.createMessageCollector({
+      filter,
+      max: 1,
+      time: 60000 // 60 seconds to reply
+    });
+
+    collector.on('collect', async (msg) => {
+      const content = msg.content.trim();
+      const bidAmount = parseFloat(content);
+      if (isNaN(bidAmount)) {
+        return dmChannel.send('❌ That doesn’t look like a valid number. Please try again by clicking the “Bid” button in the auction channel.');
+      }
+
+      // 4) Attempt to update the auction in MongoDB *atomically*
+      // Only set new highest if bidAmount > current. Return the old doc in one step.
+      const updated = await auctionModel.findOneAndUpdate(
+        {
+          _id: auctionId,
+          ended: false,
+          highestBid: { $lt: bidAmount }
+        },
+        {
+          $set: {
+            highestBid: bidAmount,
+            highestBidderId: user.id
+          }
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        // The update-query returned null => either auction ended or someone outbid in the meantime
+        const fresh = await auctionModel.findById(auctionId);
+        if (!fresh || fresh.ended) {
+          return dmChannel.send('❌ Sorry, this auction has ended.');
+        } else {
+          return dmChannel.send(
+            `❌ Your bid of \$${bidAmount.toFixed(2)} wasn’t high enough. ` +
+            `The current highest bid is \$${fresh.highestBid.toFixed(2)}.\n` +
+            `Feel free to try again by clicking the “Bid” button in the auction channel.`
+          );
+        }
+      }
+
+      // 5) If we get here, updated is the auction document with highestBid = bidAmount
+      await dmChannel.send(
+        `✅ Your bid of \$${bidAmount.toFixed(2)} is now the highest! 🎉`
+      );
+
+      // 6) Edit the original auction message in the guild channel
+      try {
+        const auctionChannel = await client.channels.fetch(updated.channelId);
+        const auctionMessage = await auctionChannel.messages.fetch(updated.messageId);
+
+        const newContent =
+          `**Auction Ongoing!**\n` +
+          `• Item: **${updated.item}**\n` +
+          `• Starting Price: \$${updated.startingPrice.toFixed(2)}\n\n` +
+          `_Current highest bid: \$${updated.highestBid.toFixed(2)}_\n` +
+          `Leading bidder: <@${updated.highestBidderId}>`;
+
+        await auctionMessage.edit({ content: newContent, components: auctionMessage.components });
+      } catch (err) {
+        console.error('Failed to edit auction message:', err);
+      }
+    });
+
+    collector.on('end', (collected, reason) => {
+      if (reason === 'time' && collected.size === 0) {
+        dmChannel.send('⌛ You took too long to respond. If you still want to bid, please click the “Bid” button again in the auction channel.');
+      }
+    });
     }
     else if (id === 'terms') {
       let member = inter.member;

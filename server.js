@@ -60,6 +60,9 @@ let User
 let closureSchema
 let pendingClosure
 
+let AuctionSchema
+let auctionModel
+
 let ticketId = 10
 
 client.on("debug", function(info) {
@@ -79,7 +82,17 @@ client.on("ready", async () => {
     });
   //Database
   await mongoose.connect(mongooseToken);
-  
+  AuctionSchema = new mongoose.Schema({
+  item:            { type: String, required: true },
+  startingPrice:   { type: Number, required: true },
+  channelId:       { type: String, required: true },
+  messageId:       { type: String, required: true },
+  highestBid:      { type: Number, required: true },
+  highestBidderId: { type: String, default: null },
+  createdAt:       { type: Date, default: Date.now },
+  ended:           { type: Boolean, default: false }
+});
+
   closureSchema = new mongoose.Schema({
     userId: String,
     ticketId: String,
@@ -158,7 +171,7 @@ client.on("ready", async () => {
   stickyModel = mongoose.model("Sloopies Sticky", stickySchema);
   Task = mongoose.model('Task2', taskSchema);
   pendingClosure = mongoose.model("SloopiesPendingClosure", closureSchema);
-
+  auctionModel = mongoose.model('Auction', AuctionSchema);
   ///
   let doc = await ticketModel.findOne({id: ticketId})
   if (!doc) {
@@ -1038,6 +1051,42 @@ let tStocks = 0
 client.on('interactionCreate', async inter => {
   if (inter.isCommand()) {
     let cname = inter.commandName
+    const { commandName, options, channelId } = inter;
+  if (commandName === 'bid') {
+    const item      = options.getString('item');
+    const startPrice = options.getNumber('starting_price');
+
+    // 1) Create a new auction in Mongo with highestBid = startingPrice
+    const auction = new auctionModel({
+      item,
+      startingPrice: startPrice,
+      highestBid: startPrice,
+      channelId: channelId,
+      highestBidderId: null
+    });
+
+    await auction.save();
+
+    // 2) Send a message in the same channel with a “Bid” button
+    const bidButton = new MessageButton()
+      .setCustomId(`auction_bid_${auction._id}`)
+      .setLabel('Bid')
+      .setStyle('PRIMARY');
+
+    const row = new MessageActionRow().addComponents(bidButton);
+
+    const content = `**Auction Started!**\n• Item: **${item}**\n• Starting Price: **\$${startPrice.toFixed(2)}**\n\n_Current highest bid: \$${startPrice.toFixed(2)}_\nNo bids yet.`;
+    
+    const sentMsg = await inter.reply({
+      content,
+      components: [row],
+      fetchReply: true
+    });
+
+    // 3) Store the messageId in Mongo so we can edit it later
+    auction.messageId = sentMsg.id;
+    await auction.save();
+  }
     if (cname === 'setrank') {
       let options = inter.options._hoistedOptions
       let username = options.find(a => a.name === 'username')
@@ -2055,7 +2104,10 @@ client.on('interactionCreate', async inter => {
   else if (inter.isButton() || inter.isSelectMenu()) {
     let id = inter.customId
     console.log(id)
-    if (id === 'terms') {
+    if (if (!customId.startsWith('auction_bid_'))) {
+      
+    }
+    else if (id === 'terms') {
       let member = inter.member;
       await addRole(member,['1109020434520887321'],inter.message.guild)
       let row = new MessageActionRow().addComponents(

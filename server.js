@@ -2123,7 +2123,7 @@ client.on('interactionCreate', async inter => {
     const auction = await auctionModel.findById(auctionId);
     if (!auction || auction.ended) {
       // Auction not found or already ended
-      return user.send(' Sorry, this auction no longer exists or has ended.');
+      return user.send(emojis.x+' Sorry, this auction no longer exists or has ended.');
     }
 
     // 2) Send a DM asking for the bid
@@ -2134,7 +2134,7 @@ client.on('interactionCreate', async inter => {
       return console.error('Could not open DM with user:', err);
     }
 
-    await dmChannel.send(
+    await user.send(
       `You are placing a bid on **${auction.item}**.\n` +
       `Current highest bid is ₱${auction.highestBid.toFixed(2)}.\n` +
       `Please reply with a number strictly greater than ₱${auction.highestBid.toFixed(2)}.`

@@ -1077,8 +1077,10 @@ client.on('interactionCreate', async inter => {
       .setStyle('PRIMARY');
 
     const row = new MessageActionRow().addComponents(bidButton);
-
-    const content = `**Auction Started!**\n• Item: **${item}**\n• Starting Price: **\$${startPrice.toFixed(2)}**\n\n_Current highest bid: \$${startPrice.toFixed(2)}_\nNo bids yet.`;
+    
+    let templates = await getChannel('1109020434810294344')
+    let tempMsg = await templates.messages.fetch('1379678865294626828')
+    const content = tempMsg.content.replace('{item}',item).replace('{starting_price}',startPrice.toFixed(2)).replace('{highest_bid}',startPrice.toFixed(2)).replace('{bidder}','N/A');
     await inter.reply({content: emojis.check+" Bid started!",ephemeral: true})
     
     const sentMsg = await inter.channel.send({
@@ -2134,8 +2136,8 @@ client.on('interactionCreate', async inter => {
 
     await dmChannel.send(
       `You are placing a bid on **${auction.item}**.\n` +
-      `Current highest bid is \$${auction.highestBid.toFixed(2)}.\n` +
-      `Please reply with a number strictly greater than \$${auction.highestBid.toFixed(2)}.`
+      `Current highest bid is ₱${auction.highestBid.toFixed(2)}.\n` +
+      `Please reply with a number strictly greater than ₱${auction.highestBid.toFixed(2)}.`
     );
 
     // 3) Set up a message collector in DM (timeout after e.g. 60 seconds)
@@ -2143,7 +2145,7 @@ client.on('interactionCreate', async inter => {
     const collector = dmChannel.createMessageCollector({
       filter,
       max: 1,
-      time: 60000 // 60 seconds to reply
+      time: 60000
     });
 
     collector.on('collect', async (msg) => {
@@ -2153,8 +2155,6 @@ client.on('interactionCreate', async inter => {
         return dmChannel.send('❌ That doesn’t look like a valid number. Please try again by clicking the “Bid” button in the auction channel.');
       }
 
-      // 4) Attempt to update the auction in MongoDB *atomically*
-      // Only set new highest if bidAmount > current. Return the old doc in one step.
       const updated = await auctionModel.findOneAndUpdate(
         {
           _id: auctionId,
@@ -2171,36 +2171,32 @@ client.on('interactionCreate', async inter => {
       );
 
       if (!updated) {
-        // The update-query returned null => either auction ended or someone outbid in the meantime
         const fresh = await auctionModel.findById(auctionId);
         if (!fresh || fresh.ended) {
-          return dmChannel.send('❌ Sorry, this auction has ended.');
+          return dmChannel.send(emojis.x+' Sorry, this auction has ended.');
         } else {
           return dmChannel.send(
-            `❌ Your bid of \$${bidAmount.toFixed(2)} wasn’t high enough. ` +
-            `The current highest bid is \$${fresh.highestBid.toFixed(2)}.\n` +
-            `Feel free to try again by clicking the “Bid” button in the auction channel.`
+            `${emojis.x} Your bid of ₱${bidAmount.toFixed(2)} wasn’t high enough. ` +
+            `The current highest bid is ₱${fresh.highestBid.toFixed(2)}.\n` +
+            `-# Feel free to try again by clicking the “Bid” button in the auction channel.`
           );
         }
       }
 
       // 5) If we get here, updated is the auction document with highestBid = bidAmount
       await dmChannel.send(
-        `✅ Your bid of \$${bidAmount.toFixed(2)} is now the highest! 🎉`
+        emojis.check+` Your bid of ₱${bidAmount.toFixed(2)} is now the highest! 🎉`
       );
 
       // 6) Edit the original auction message in the guild channel
       try {
         const auctionChannel = await client.channels.fetch(updated.channelId);
         const auctionMessage = await auctionChannel.messages.fetch(updated.messageId);
-
-        const newContent =
-          `**Auction Ongoing!**\n` +
-          `• Item: **${updated.item}**\n` +
-          `• Starting Price: \$${updated.startingPrice.toFixed(2)}\n\n` +
-          `_Current highest bid: \$${updated.highestBid.toFixed(2)}_\n` +
-          `Leading bidder: <@${updated.highestBidderId}>`;
-
+        
+        let templates = await getChannel('1109020434810294344')
+        let tempMsg = await templates.messages.fetch('1379678865294626828')
+        const newContent = tempMsg.content.replace('{item}',updated.item).replace('{starting_price}',updated.startingPrice.toFixed(2)).replace('{highest_bid}',updated.highestBid.toFixed(2)).replace('{bidder}','<@'+updated.highestBidderId+'>');
+        
         await auctionMessage.edit({ content: newContent, components: auctionMessage.components });
       } catch (err) {
         console.error('Failed to edit auction message:', err);

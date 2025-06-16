@@ -2198,6 +2198,7 @@ client.on('interactionCreate', async inter => {
         const newContent = tempMsg.content.replace('{item}',updated.item).replace('{starting_price}',updated.startingPrice.toFixed(2)).replace('{highest_bid}',updated.highestBid.toFixed(2)).replace('{bidder}','<@'+updated.highestBidderId+'>');
         
         await auctionMessage.edit({ content: newContent, components: auctionMessage.components });
+        await auctionChannel.send(`> <@${updated.highestBidderId}>'s bid of ₱${bidAmount.toFixed(2)} is now the highest! 🎉`);
       } catch (err) {
         console.error('Failed to edit auction message:', err);
       }

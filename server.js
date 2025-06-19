@@ -381,7 +381,7 @@ client.on("messageCreate", async (message) => {
   }
   //
   if (message.author.bot) return;
-  if (message.channel.id === "1144778134667923476") {
+  if (message.channel.id === "1385126005659799552") {
     let attachments = Array.from(message.attachments.values())
     let files = []
     for (let i in attachments) { files.push(attachments[i].url) }
@@ -400,7 +400,7 @@ client.on("messageCreate", async (message) => {
       let data = response.data
       let percent = data.type.ai_generated * 100
       if (data.status == "success") {
-        message.reply("Analysis: Image provided is **"+percent+"% AI generated.")
+        message.reply("**Analysis Result:** "+percent+"% likely AI edited/synthesized")
       }
   })
       .catch(function (error) {

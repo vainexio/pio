@@ -22,9 +22,16 @@ async function metadataCheck(filePath) {
 // 2) Error-Level Analysis (ELA)
 async function computeELAScore(filePath) {
   const img = await Jimp.read(filePath);
-  const compressed = img.clone().quality(60);
-  const bufOrig = await img.getBufferAsync(Jimp.MIME_JPEG);
-  const bufComp = await compressed.getBufferAsync(Jimp.MIME_JPEG);
+  const compressed = img.clone();
+
+  // promisify getBuffer callback-based API
+  const bufOrig = await new Promise((resolve, reject) => {
+    img.getBuffer(Jimp.MIME_JPEG, (err, buf) => err ? reject(err) : resolve(buf));
+  });
+  const bufComp = await new Promise((resolve, reject) => {
+    compressed.getBuffer(Jimp.MIME_JPEG, (err, buf) => err ? reject(err) : resolve(buf));
+  });
+
   const orig = await Jimp.read(bufOrig);
   const comp = await Jimp.read(bufComp);
 
@@ -43,7 +50,7 @@ async function computeELAScore(filePath) {
 async function analyzeNoisePattern(filePath) {
   const img = await Jimp.read(filePath);
   let sum = 0, sumSq = 0, n = 0;
-  img.grayscale().scan(0, 0, img.bitmap.width, img.bitmap.height, (_x, _y, idx) => {
+  img.greyscale().scan(0, 0, img.bitmap.width, img.bitmap.height, (_x, _y, idx) => {
     const v = img.bitmap.data[idx]; sum += v; sumSq += v*v; n++;
   });
   const mean = sum / n;
@@ -53,10 +60,8 @@ async function analyzeNoisePattern(filePath) {
 
 // 4) OCR-template mismatch
 async function templateOCRMismatch(filePath, templateKeywords = ['TOTAL', 'AMOUNT', 'ITEM']) {
-  // Use the CJS export of tesseract.js
-  const Tesseract = require('tesseract.js');
-  const worker = Tesseract.createWorker({ logger: () => {} });
-  // initialize the worker pipeline
+  const { createWorker } = require('tesseract.js');
+  const worker = await createWorker({ logger: () => {} });
   await worker.load();
   await worker.loadLanguage('eng');
   await worker.initialize('eng');
@@ -65,6 +70,7 @@ async function templateOCRMismatch(filePath, templateKeywords = ['TOTAL', 'AMOUN
   const up = text.toUpperCase();
   return !templateKeywords.some(k => up.includes(k));
 }
+
 // 5) Quantization-tables check
 async function detectQuantTables(filePath) {
   const buf = await fs.readFile(filePath);

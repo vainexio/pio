@@ -325,18 +325,6 @@ const { ai } = require('./functions/ai.js')
 ██║░░██╗██║░░░░░██║██╔══╝░░██║╚████║░░░██║░░░  ██║╚██╔╝██║██╔══╝░░░╚═══██╗░╚═══██╗██╔══██║██║░░╚██╗██╔══╝░░
 ╚█████╔╝███████╗██║███████╗██║░╚███║░░░██║░░░  ██║░╚═╝░██║███████╗██████╔╝██████╔╝██║░░██║╚██████╔╝███████╗
 ░╚════╝░╚══════╝╚═╝╚══════╝╚═╝░░╚══╝░░░╚═╝░░░  ╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝*/
-const { isLikelyAIFake } = require('./functions/receipt‑auth.js');
-async function metadataCheck(filePath) {
-  try {
-    const metadata = await exiftool.read(filePath);
-    const suspiciousTools = ['Photoshop', 'GIMP', 'libpng', 'sharp'];
-    const toolInfo = ((metadata.Software || metadata.Creator) ?? '').toString();
-    return suspiciousTools.some(tag => toolInfo.includes(tag));
-  } catch (err) {
-    console.warn('Exif read failed:', err);
-    return false;
-  }
-}
 
 //ON CLIENT MESSAGE
 let errors = 0
@@ -405,37 +393,6 @@ client.on("messageCreate", async (message) => {
   const fileName = `receipt_${message.id}${ext}`;
   const dir = path.join(process.cwd(), 'tmp');
   const filePath = path.join(dir, fileName);
-
-  try {
-    const res = await fetch(attachment.url);
-    if (!res.ok) throw new Error(`Download failed: ${res.statusText}`);
-    const buffer = await res.buffer();
-
-    fsSync.mkdirSync(dir, { recursive: true });
-    fsSync.writeFileSync(filePath, buffer);
-
-    const { score, isFake, breakdown } = await isLikelyAIFake(filePath);
-
-    const report = [
-      '🔍 **Analysis complete**',
-      `• **Fake score:** ${score.toFixed(3)} (thr: 0.5)`,
-      `• **Result:** ${isFake ? '⚠️ Likely edited/synthesized' : '✅ Appears genuine'}`,
-      '',
-      '**Breakdown:**',
-      `– Metadata tampered: ${breakdown.md}`,
-      `– ELA score: ${breakdown.ela.toFixed(3)}`,
-      `– Noise variance: ${breakdown.noise.toFixed(3)}`,
-      `– OCR mismatch: ${breakdown.ocrBad}`,
-      `– Quant-table anomaly: ${breakdown.quantBad}`
-    ].join('\n');
-
-    await message.reply({ content: report });
-  } catch (err) {
-    console.error('Error analyzing image:', err);
-    await message.reply({ content: '❌ Something went wrong.' });
-  } finally {
-    if (fsSync.existsSync(filePath)) fsSync.unlinkSync(filePath);
-  }
   }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'

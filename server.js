@@ -1875,11 +1875,10 @@ client.on('interactionCreate', async inter => {
           let msg = await inter.channel.messages.fetch(id)
           if (msg) {
             let attachments = Array.from(msg.attachments.values())
-            let comp = msg.components
             let files = []
 
             for (let i in attachments) { files.push(attachments[i].url) }
-            await inter.channel.send({content: msg.content, files: files, components: comp})
+            await inter.channel.send({content: msg.content, files: files})
             await msg.delete();
             data.success++
           }

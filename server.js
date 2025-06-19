@@ -18,8 +18,8 @@ const { exiftool } = require('exiftool-vendored');
 
 const jsQR = require('jsqr');
 
-const JimpModule = require('jimp');
-const Jimp = JimpModule.default || JimpModule;
+
+const Jimp = require('jimp');
 const path = require('path');
 //Discord
 const Discord = require('discord.js');
@@ -325,34 +325,19 @@ const { ai } = require('./functions/ai.js')
 ██║░░██╗██║░░░░░██║██╔══╝░░██║╚████║░░░██║░░░  ██║╚██╔╝██║██╔══╝░░░╚═══██╗░╚═══██╗██╔══██║██║░░╚██╗██╔══╝░░
 ╚█████╔╝███████╗██║███████╗██║░╚███║░░░██║░░░  ██║░╚═╝░██║███████╗██████╔╝██████╔╝██║░░██║╚██████╔╝███████╗
 ░╚════╝░╚══════╝╚═╝╚══════╝╚═╝░░╚══╝░░░╚═╝░░░  ╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝*/
-// 1) Metadata Check (lightweight)
+const { isLikelyAIFake } = require('./functions/receipt‑auth.js');
 async function metadataCheck(filePath) {
   try {
     const metadata = await exiftool.read(filePath);
     const suspiciousTools = ['Photoshop', 'GIMP', 'libpng', 'sharp'];
     const toolInfo = ((metadata.Software || metadata.Creator) ?? '').toString();
-    return suspiciousTools.some(tag => toolInfo.includes(tag)) || !metadata.Make || !metadata.Model;
+    return suspiciousTools.some(tag => toolInfo.includes(tag));
   } catch (err) {
     console.warn('Exif read failed:', err);
-    return false; // fail-safe: assume not flagged if metadata is unavailable
+    return false;
   }
 }
 
-// 2) QR Code Extraction using Jimp + jsQR
-async function qrExtract(filePath) {
-  try {
-    const image = await Jimp.read(filePath);
-    const { data, width, height } = image.bitmap; // data is Buffer of RGBA
-    const code = jsQR(new Uint8ClampedArray(data), width, height);
-    if (code) {
-      const parts = code.data.split('|'); // expected TXID|amount|date
-      return { transactionId: parts[0], amount: parts[1], date: parts[2] };
-    }
-  } catch (err) {
-    console.warn('QR extraction failed:', err);
-  }
-  return null;
-}
 //ON CLIENT MESSAGE
 let errors = 0
 let expCodes = []
@@ -413,29 +398,46 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (message.channel.id == "1144778134667923476") {
     const attachment = message.attachments.first();
-  if (!attachment.contentType?.startsWith('image')) return;
+  if (!attachment || !attachment.contentType?.startsWith('image')) return;
 
-  const tmpDir = './tmp';
-  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
-  const filePath = path.join(tmpDir, `${Date.now()}_${attachment.name}`);
-  const buffer = await (await fetch(attachment.url)).buffer();
-  fs.writeFileSync(filePath, buffer);
+  // create a temp filename
+  const fileName = `receipt_${message.id}${path.extname(attachment.url)}`;
+  const filePath = path.join(__dirname, 'tmp', fileName);
 
-  const flagged = await metadataCheck(filePath);
-  const qr = await qrExtract(filePath);
+  try {
+    // 1) Download the image
+    const res = await fetch(attachment.url);
+    if (!res.ok) throw new Error(`Failed to download image: ${res.statusText}`);
+    const buffer = await res.buffer();
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, buffer);
 
-  let report = '';
-  if (flagged) report += '📌 Warning: Metadata suggests potential editing.\n';
-  if (qr) {
-    report += `✅ QR detected – TXID: ${qr.transactionId}, Amount: ${qr.amount}, Date: ${qr.date}`;
-  } else {
-    report += '❗ No QR code found. Please ask user to scan the receipt QR or manually verify details.';
+    // 2) Run AI‑fake detection
+    const { score, isFake, breakdown } = await isLikelyAIFake(filePath);
+
+    // 3) Build a human‑friendly report
+    const reportLines = [
+      `🔍 **Analysis complete**`,
+      `• **Fake score:** ${score.toFixed(3)} (threshold: 0.5)`,
+      `• **Result:** ${isFake ? '⚠️ Likely edited/synthesized' : '✅ Appears genuine'}`,
+      `\n**Breakdown:**`,
+      `– Metadata tampered: ${breakdown.md}`,
+      `– ELA score: ${breakdown.ela.toFixed(3)}`,
+      `– Noise variance: ${breakdown.noise.toFixed(3)}`,
+      `– OCR mismatch: ${breakdown.ocrBad}`,
+      `– Quant‑table anomaly: ${breakdown.quantBad}`,
+    ];
+    const report = reportLines.join('\n');
+
+    // 4) Reply back
+    await message.reply({ content: report });
+  } catch (err) {
+    console.error('Error analyzing image:', err);
+    await message.reply({ content: '❌ Something went wrong during analysis.' });
+  } finally {
+    // 5) Cleanup
+    fs.existsSync(filePath) && fs.unlinkSync(filePath);
   }
-
-  await message.reply({ content: report });
-
-  // Cleanup (optional)
-  fs.unlinkSync(filePath);
   }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'

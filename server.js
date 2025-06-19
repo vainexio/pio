@@ -384,16 +384,6 @@ client.on("messageCreate", async (message) => {
   }
   //
   if (message.author.bot) return;
-  if (message.channel.id == "1144778134667923476") {
-    const attachment = message.attachments.first();
-  if (!attachment || !attachment.contentType?.startsWith('image')) return;
-
-  const urlObj = new URL(attachment.url);
-  const ext = path.extname(urlObj.pathname);
-  const fileName = `receipt_${message.id}${ext}`;
-  const dir = path.join(process.cwd(), 'tmp');
-  const filePath = path.join(dir, fileName);
-  }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'
   if (message.channel.name?.includes('nitro-checker') || (message.channel.type === 'DM' && shop.checkerWhitelist.find(u => u === message.author.id))) {

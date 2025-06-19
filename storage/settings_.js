@@ -432,11 +432,11 @@ module.exports = {
             parent: '1 month',
             children: [
               //
-              { name: '2x server boosts', price: 50, rs: 45 },
-              { name: '4x server boosts', price: 70, rs: 60 },
-              { name: '6x server boosts', price: 90, rs: 80 },
-              { name: '8x server boosts', price: 110, rs: 95 },
-              { name: '14x server boosts', price: 150, rs: 140 },
+              { name: '2x server boosts', price: 60, rs: 50 },
+              { name: '4x server boosts', price: 90, rs: 80 },
+              { name: '6x server boosts', price: 100, rs: 90 },
+              { name: '8x server boosts', price: 140, rs: 130 },
+              { name: '14x server boosts', price: 200, rs: 190 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               //
             ],
@@ -744,7 +744,7 @@ module.exports = {
           //
         ],
       },
-      {
+      /*{
         //Category
         name: 'Valorant',
         keywords: ['vp','valorant','balo'],
@@ -769,7 +769,7 @@ module.exports = {
           },
           //
         ],
-      },
+      },*/
       {
         //Category
         name: 'Robux',

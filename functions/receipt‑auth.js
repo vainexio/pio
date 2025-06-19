@@ -24,12 +24,13 @@ async function computeELAScore(filePath) {
   const img = await Jimp.read(filePath);
   const compressed = img.clone();
 
-  // promisify getBuffer callback-based API
+  const JPEG_MIME = 'image/jpeg';
+  // promisify getBuffer callback-based API to JPEG
   const bufOrig = await new Promise((resolve, reject) => {
-    img.getBuffer(Jimp.MIME_JPEG, (err, buf) => err ? reject(err) : resolve(buf));
+    img.getBuffer(JPEG_MIME, (err, buf) => err ? reject(err) : resolve(buf));
   });
   const bufComp = await new Promise((resolve, reject) => {
-    compressed.getBuffer(Jimp.MIME_JPEG, (err, buf) => err ? reject(err) : resolve(buf));
+    compressed.getBuffer(JPEG_MIME, (err, buf) => err ? reject(err) : resolve(buf));
   });
 
   const orig = await Jimp.read(bufOrig);
@@ -71,10 +72,14 @@ async function templateOCRMismatch(filePath, templateKeywords = ['TOTAL', 'AMOUN
   return !templateKeywords.some(k => up.includes(k));
 }
 
-// 5) Quantization-tables check
 async function detectQuantTables(filePath) {
-  const buf = await fs.readFile(filePath);
-  const decoded = jpeg.decode(buf, true);
+  // Ensure we have JPEG data: re-encode via Jimp if needed
+  const img = await Jimp.read(filePath);
+  const bufJpeg = await new Promise((resolve, reject) => {
+    img.getBuffer('image/jpeg', (err, buf) => err ? reject(err) : resolve(buf));
+  });
+  // decode quant tables
+  const decoded = jpeg.decode(bufJpeg, true);
   return Object.keys(decoded.quantizationTables || {}).length > 2;
 }
 

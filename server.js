@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const moment = require('moment')
 const {HttpsProxyAgent } = require('https-proxy-agent');
 const url = require('url');
-const fs = require('fs');
+const fsSync = require('fs');
 const discordTranscripts = require('discord-html-transcripts');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const cheerio = require('cheerio');
@@ -400,43 +400,41 @@ client.on("messageCreate", async (message) => {
     const attachment = message.attachments.first();
   if (!attachment || !attachment.contentType?.startsWith('image')) return;
 
-  // create a temp filename
-  const fileName = `receipt_${message.id}${path.extname(attachment.url)}`;
-  const filePath = path.join(__dirname, 'tmp', fileName);
+  const urlObj = new URL(attachment.url);
+  const ext = path.extname(urlObj.pathname);
+  const fileName = `receipt_${message.id}${ext}`;
+  const dir = path.join(process.cwd(), 'tmp');
+  const filePath = path.join(dir, fileName);
 
   try {
-    // 1) Download the image
     const res = await fetch(attachment.url);
-    if (!res.ok) throw new Error(`Failed to download image: ${res.statusText}`);
+    if (!res.ok) throw new Error(`Download failed: ${res.statusText}`);
     const buffer = await res.buffer();
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, buffer);
 
-    // 2) Run AI‑fake detection
+    fsSync.mkdirSync(dir, { recursive: true });
+    fsSync.writeFileSync(filePath, buffer);
+
     const { score, isFake, breakdown } = await isLikelyAIFake(filePath);
 
-    // 3) Build a human‑friendly report
-    const reportLines = [
-      `🔍 **Analysis complete**`,
-      `• **Fake score:** ${score.toFixed(3)} (threshold: 0.5)`,
+    const report = [
+      '🔍 **Analysis complete**',
+      `• **Fake score:** ${score.toFixed(3)} (thr: 0.5)`,
       `• **Result:** ${isFake ? '⚠️ Likely edited/synthesized' : '✅ Appears genuine'}`,
-      `\n**Breakdown:**`,
+      '',
+      '**Breakdown:**',
       `– Metadata tampered: ${breakdown.md}`,
       `– ELA score: ${breakdown.ela.toFixed(3)}`,
       `– Noise variance: ${breakdown.noise.toFixed(3)}`,
       `– OCR mismatch: ${breakdown.ocrBad}`,
-      `– Quant‑table anomaly: ${breakdown.quantBad}`,
-    ];
-    const report = reportLines.join('\n');
+      `– Quant-table anomaly: ${breakdown.quantBad}`
+    ].join('\n');
 
-    // 4) Reply back
     await message.reply({ content: report });
   } catch (err) {
     console.error('Error analyzing image:', err);
-    await message.reply({ content: '❌ Something went wrong during analysis.' });
+    await message.reply({ content: '❌ Something went wrong.' });
   } finally {
-    // 5) Cleanup
-    fs.existsSync(filePath) && fs.unlinkSync(filePath);
+    if (fsSync.existsSync(filePath)) fsSync.unlinkSync(filePath);
   }
   }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }

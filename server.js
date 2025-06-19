@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const moment = require('moment')
 const {HttpsProxyAgent } = require('https-proxy-agent');
 const url = require('url');
+const fs = require('fs');
 const discordTranscripts = require('discord-html-transcripts');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const cheerio = require('cheerio');
@@ -13,6 +14,13 @@ const cors = require('cors');
 const body_parser = require('body-parser');
 const { exec } = require('node:child_process'); 
 
+const { exiftool } = require('exiftool-vendored');
+
+const jsQR = require('jsqr');
+
+const JimpModule = require('jimp');
+const Jimp = JimpModule.default || JimpModule;
+const path = require('path');
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;
@@ -317,6 +325,34 @@ const { ai } = require('./functions/ai.js')
 ██║░░██╗██║░░░░░██║██╔══╝░░██║╚████║░░░██║░░░  ██║╚██╔╝██║██╔══╝░░░╚═══██╗░╚═══██╗██╔══██║██║░░╚██╗██╔══╝░░
 ╚█████╔╝███████╗██║███████╗██║░╚███║░░░██║░░░  ██║░╚═╝░██║███████╗██████╔╝██████╔╝██║░░██║╚██████╔╝███████╗
 ░╚════╝░╚══════╝╚═╝╚══════╝╚═╝░░╚══╝░░░╚═╝░░░  ╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝*/
+// 1) Metadata Check (lightweight)
+async function metadataCheck(filePath) {
+  try {
+    const metadata = await exiftool.read(filePath);
+    const suspiciousTools = ['Photoshop', 'GIMP', 'libpng', 'sharp'];
+    const toolInfo = ((metadata.Software || metadata.Creator) ?? '').toString();
+    return suspiciousTools.some(tag => toolInfo.includes(tag)) || !metadata.Make || !metadata.Model;
+  } catch (err) {
+    console.warn('Exif read failed:', err);
+    return false; // fail-safe: assume not flagged if metadata is unavailable
+  }
+}
+
+// 2) QR Code Extraction using Jimp + jsQR
+async function qrExtract(filePath) {
+  try {
+    const image = await Jimp.read(filePath);
+    const { data, width, height } = image.bitmap; // data is Buffer of RGBA
+    const code = jsQR(new Uint8ClampedArray(data), width, height);
+    if (code) {
+      const parts = code.data.split('|'); // expected TXID|amount|date
+      return { transactionId: parts[0], amount: parts[1], date: parts[2] };
+    }
+  } catch (err) {
+    console.warn('QR extraction failed:', err);
+  }
+  return null;
+}
 //ON CLIENT MESSAGE
 let errors = 0
 let expCodes = []
@@ -375,6 +411,32 @@ client.on("messageCreate", async (message) => {
   }
   //
   if (message.author.bot) return;
+  if (message.channel.id == "1144778134667923476") {
+    const attachment = message.attachments.first();
+  if (!attachment.contentType?.startsWith('image')) return;
+
+  const tmpDir = './tmp';
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+  const filePath = path.join(tmpDir, `${Date.now()}_${attachment.name}`);
+  const buffer = await (await fetch(attachment.url)).buffer();
+  fs.writeFileSync(filePath, buffer);
+
+  const flagged = await metadataCheck(filePath);
+  const qr = await qrExtract(filePath);
+
+  let report = '';
+  if (flagged) report += '📌 Warning: Metadata suggests potential editing.\n';
+  if (qr) {
+    report += `✅ QR detected – TXID: ${qr.transactionId}, Amount: ${qr.amount}, Date: ${qr.date}`;
+  } else {
+    report += '❗ No QR code found. Please ask user to scan the receipt QR or manually verify details.';
+  }
+
+  await message.reply({ content: report });
+
+  // Cleanup (optional)
+  fs.unlinkSync(filePath);
+  }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'
   if (message.channel.name?.includes('nitro-checker') || (message.channel.type === 'DM' && shop.checkerWhitelist.find(u => u === message.author.id))) {

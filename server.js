@@ -16,11 +16,8 @@ const { exec } = require('node:child_process');
 
 const { exiftool } = require('exiftool-vendored');
 
-const jsQR = require('jsqr');
 
-
-const Jimp = require('jimp');
-const path = require('path');
+const axios = require('axios');
 //Discord
 const Discord = require('discord.js');
 const {MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;
@@ -384,6 +381,34 @@ client.on("messageCreate", async (message) => {
   }
   //
   if (message.author.bot) return;
+  if (message.channel.id === "1144778134667923476") {
+    let attachments = Array.from(message.attachments.values())
+    let files = []
+    for (let i in attachments) { files.push(attachments[i].url) }
+    if (files.length == 0) return;
+    await message.react(emojis.loading)
+    axios.get('https://api.sightengine.com/1.0/check.json', {
+      params: {
+        'url': files[0],
+        'models': 'genai',
+        'api_user': '46892566',
+        'api_secret': 'NgsykrMB25Wj5vqn5PkXsqp8MrD6hAdW',
+      }
+    })
+      .then(function (response) {
+      console.log(response.data);
+      let data = response.data
+      let percent = data.type.ai_generated * 100
+      if (data.status == "success") {
+        message.reply("Analysis: Image provided is **"+percent+"% AI generated.")
+      }
+  })
+      .catch(function (error) {
+      // handle error
+      if (error.response) console.log(error.response.data);
+      else console.log(error.message);
+    });
+  }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'
   if (message.channel.name?.includes('nitro-checker') || (message.channel.type === 'DM' && shop.checkerWhitelist.find(u => u === message.author.id))) {

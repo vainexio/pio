@@ -37,7 +37,8 @@
     "jsqr": "^1.4.0",
     "jimp": "^1.6.0",
     "path": "^0.12.7",
-    "tesseract.js": "^6.0.1"
+    "tesseract.js": "^6.0.1",
+    "axios": "^1.10.0"
   },
   "engines": {
     "node": "16.x"

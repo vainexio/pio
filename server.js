@@ -390,16 +390,19 @@ client.on("messageCreate", async (message) => {
     axios.get('https://api.sightengine.com/1.0/check.json', {
       params: {
         'url': files[0],
-        'models': 'deepfake',
+        'models': 'genai,deepfake',
         'api_user': '46892566',
         'api_secret': 'NgsykrMB25Wj5vqn5PkXsqp8MrD6hAdW',
       }
     })
-      .then(function (response) {
+      .then(async function (response) {
       console.log(response.data);
       let data = response.data
       let percent = data.type.deepfake * 100
       if (data.status == "success") {
+        let templates = await getChannel(shop.channels.templates)
+        let msg = await templates.messages.fetch('1385893430319779850')
+        let content = msg.content.replace('{id}',data.request.id).replace('{ai}',(data.type.ai_generated*100)+"%").replace('{deepfake}',(data.type.deepfake*100)+"%")
         message.reply("**Analysis Result:** "+percent+"% likely AI edited/synthesized")
       }
   })

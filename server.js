@@ -390,7 +390,7 @@ client.on("messageCreate", async (message) => {
     axios.get('https://api.sightengine.com/1.0/check.json', {
       params: {
         'url': files[0],
-        'models': 'genai,deepfake',
+        'models': 'genai',
         'api_user': '46892566',
         'api_secret': 'NgsykrMB25Wj5vqn5PkXsqp8MrD6hAdW',
       }
@@ -403,7 +403,7 @@ client.on("messageCreate", async (message) => {
       if (data.status == "success") {
         let templates = await getChannel(shop.channels.templates)
         let msg = await templates.messages.fetch('1385893430319779850')
-        let content = msg.content.replace('{id}',data.request.id).replace('{ai}',getPercentageEmoji(ai,100)+" "+ai+"%").replace('{deepfake}',getPercentageEmoji(deepfake,100)+" "+deepfake+"%")
+        let content = msg.content.replace('{id}',data.request.id).replace('{ai}',getPercentageEmoji(ai,100)+" "+ai+"%")//.replace('{deepfake}',getPercentageEmoji(deepfake,100)+" "+deepfake+"%")
         message.reply(content)
       }
   })

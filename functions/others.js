@@ -183,6 +183,7 @@ module.exports = {
     value = Number(value)
     totalValue = Number(totalValue)
     let percentage = Math.round((value/totalValue)*100)
+    console.log(percentage,value,totalValue)
     let emojiFormat = percentage >= 100 ? emojis.full1+emojis.full2+emojis.full2+emojis.full2+emojis.full3 : 
     percentage >= 90 ? emojis.full1+emojis.full2+emojis.full2+emojis.full2+emojis.half3 :  
     percentage >= 80 ? emojis.full1+emojis.full2+emojis.full2+emojis.full2+emojis.empty3 : 

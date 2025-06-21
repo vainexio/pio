@@ -398,12 +398,13 @@ client.on("messageCreate", async (message) => {
       .then(async function (response) {
       console.log(response.data);
       let data = response.data
-      let percent = data.type.deepfake * 100
+      let ai = data.type.ai_generated*100
+      let deepfake = data.type.deepfake*100
       if (data.status == "success") {
         let templates = await getChannel(shop.channels.templates)
         let msg = await templates.messages.fetch('1385893430319779850')
-        let content = msg.content.replace('{id}',data.request.id).replace('{ai}',(data.type.ai_generated*100)+"%").replace('{deepfake}',(data.type.deepfake*100)+"%")
-        message.reply("**Analysis Result:** "+percent+"% likely AI edited/synthesized")
+        let content = msg.content.replace('{id}',data.request.id).replace('{ai}',getPercentageEmoji(ai,100)).replace('{deepfake}',getPercentageEmoji(deepfake,100)+" "+deepfake+"%")
+        message.reply(content)
       }
   })
       .catch(function (error) {

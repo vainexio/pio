@@ -443,9 +443,9 @@ module.exports = {
             parent: '1 month',
             children: [
               //
-              { name: '2x server boosts', price: 60, rs: 50 },
-              { name: '4x server boosts', price: 90, rs: 80 },
-              { name: '6x server boosts', price: 125, rs: 90 },
+              { name: '2x server boosts', price: 70, rs: 60 },
+              { name: '4x server boosts', price: 90, rs: 85 },
+              { name: '6x server boosts', price: 130, rs: 120 },
               { name: '8x server boosts', price: 160, rs: 150 },
               { name: '14x server boosts', price: 250, rs: 240 },
               { name: 'mins-hours process', price: 0, rs: 0 },

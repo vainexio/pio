@@ -989,13 +989,13 @@ module.exports = {
           autoDelete: true,
         },
         {
-          command: 'gcashold',
+          command: 'gcash',
           response: '<a:yl_exclamationan:1138705076395978802> **gcash**\n<:indent:1174738613330788512> 0994 064 5043 [ **I. P. I.** ]\n\n<a:S_whiteheart02:1138715896077090856>  send a screenshot of your receipt *!*',
           components: new MessageActionRow().addComponents(new MessageButton().setCustomId('reply-09940645043').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")),
           autoDelete: true,
         },
         {
-          command: 'gcash',
+          command: 'gcash2',
           response: '<a:yl_exclamationan:1138705076395978802> **gcash**\n<:indent:1174738613330788512> 0952 441 4852 [ **I. P. I.** ]\n\n<a:S_whiteheart02:1138715896077090856>  send a screenshot of your receipt *!*',
           components: new MessageActionRow().addComponents(new MessageButton().setCustomId('reply-09524414852').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")),
           autoDelete: true,

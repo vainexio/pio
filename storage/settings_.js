@@ -443,11 +443,11 @@ module.exports = {
             parent: '1 month',
             children: [
               //
-              { name: '2x server boosts', price: 70, rs: 60 },
-              { name: '4x server boosts', price: 90, rs: 85 },
-              { name: '6x server boosts', price: 130, rs: 120 },
-              { name: '8x server boosts', price: 160, rs: 150 },
-              { name: '14x server boosts', price: 250, rs: 240 },
+              { name: '2x server boosts', price: 80, rs: 70 },
+              { name: '4x server boosts', price: 120, rs: 110 },
+              { name: '6x server boosts', price: 170, rs: 160 },
+              { name: '8x server boosts', price: 200, rs: 190 },
+              { name: '14x server boosts', price: 310, rs: 300 },
               { name: 'mins-hours process', price: 0, rs: 0 },
               //
             ],

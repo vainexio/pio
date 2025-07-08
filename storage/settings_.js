@@ -225,53 +225,6 @@ module.exports = {
       drops: '1138638129054633984',
     },
     pricelists: [
-      /*{
-        //Category
-        name: 'Crunchyroll',
-        keywords: ['crunchy','crunchyroll'],
-        channel: '1054989652416798750',
-        status: 2,
-        id: '1096319567866904646',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077236161818664/Logopit_1680918569709.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Mega Fan',
-            children: [
-              //
-              { name: '1 month', price: 60 },
-              { name: '3 months', price: 100 },
-              { name: '6 months', price: 140 },
-              { name: '8 months', price: 170 },
-              { name: '12 months', price: 200 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'HBO GO',
-        keywords: ['hbo','hbo go'],
-        channel: '1054989652416798750',
-        status: 2,
-        id: '',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1105784399028559933/Logopit_1683709776330.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Monthly',
-            children: [
-              //
-              { name: '1 month shared', price: 80 },
-              { name: '1 month solo acc', price: 350 },
-              //
-            ],
-          },
-          //
-        ],
-      },*/
       {
         //Category
         name: 'Developer Badge',
@@ -298,53 +251,9 @@ module.exports = {
       },
       {
         //Category
-        name: 'E-Wallet Exchange',
-        keywords: ['exchange','paypal to gcash'],
-        channel: '1138621401381740554',
-        status: 4,
-        id: '1096319572614860810',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077237348794368/Logopit_1680918656290.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Paypal to GCash',
-            children: [
-              //
-              { name: '₱499 below — 10% deduction', price: 0 },
-              { name: '₱500 above — 5% deduction', price: 0 },
-              { name: '₱1,000 above — 3% deduction', price: 0 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Nitro Stocks Dropper',
-        keywords: ['nsd','stocks dropper','dropper'],
-        channel: '1138621480440188940',
-        status: 2,
-        id: '1096319574284193842',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077237592076389/Logopit_1680918672598.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Nitro Stocks Dropper',
-            children: [
-              //
-              { name: 'Covered hosting', price: 299 },
-              { name: 'Features:\n+ </drop:1102423261914091530> command\n+ </stocks:1102433613116616734> command\n+ nitro checker (50 links/sec)\n\u200b'}
-              //
-            ],
-          },
-        ],
-      },
-      {
-        //Category
         name: 'Nitro Links Checker',
         keywords: ['nitro checker','checker'],
-        channel: '1138621480440188940',
+        channel: '1392107651495628810',
         status: 2,
         id: '1096319574284193842',
         rs: '1258243478744334469',
@@ -355,9 +264,8 @@ module.exports = {
             parent: '1m nitro checker',
             children: [
               //
-              { name: 'through bot dms', price: 30, rs: 25 },
-              { name: 'through server channel', price: 200, rs: 150 },
-              { name: 'Features:\n+ Provided Bot (assistant)\n+ Can scan 50 links per second\n+ Shows difference between valid, calimed and invalid links\n+ Shows accurate expiration (date & time) of links\n+ Fool proof (avoids scanning duplicated links)\n\u200b'}
+              { name: 'monthly (bot dms)', price: 30, rs: 25 },
+              { name: 'Features:\n+ Provided Bot (assistant)\n+ Can scan 50 links per second\n+ Shows difference between valid, calimed and invalid links\n+ Shows accurate expiration (date & time) of links\n+ Foolproof (avoids scanning duplicated links)\n\u200b'}
               //
             ],
           },
@@ -367,7 +275,7 @@ module.exports = {
         //Category
         name: 'Gamepass Scanner',
         keywords: ['scanner','gp scanner'],
-        channel: '1138621480440188940',
+        channel: '1392107651495628810',
         status: 2,
         id: '1096319574284193842',
         rs: '1258243478744334469',
@@ -378,8 +286,8 @@ module.exports = {
             parent: 'gamepass links scanner',
             children: [
               //
-              { name: 'server invite', price: 50, rs: 40 },
-              { name: 'Features:\n+ Provided Bot (assistant)\n+ ` scan, nct, ct ` commands\n\u200b'}
+              { name: 'monthly', price: 40, rs: 0 },
+              { name: 'Features:\n+ Provided Bot (assistant)\n</getlink:1391279636708855839> command\n+ ` scan, nct, ct ` commands\n\u200b'}
               //
             ],
           },
@@ -389,7 +297,7 @@ module.exports = {
         //Category
         name: 'Server Backup Bot',
         keywords: ['backup','server backup'],
-        channel: '1138621480440188940',
+        channel: '1392107651495628810',
         status: 2,
         rs: '1258243478744334469',
         id: '1096319574284193842',
@@ -401,31 +309,10 @@ module.exports = {
             children: [
               //
               { name: 'Slot', price: 150, rs: 140 },
-              { name: 'Features:\n+ Provided Bot\n+ Via Discord OAuth2\n+ Can join all verified users in an instant\n+ Can use in all sorts of servers\n\u200b'}
+              { name: 'Features:\n+ Provided Bot\n+ Via Discord OAuth2\n+ Can join all verified users in other serverss\n\u200b'}
               //
             ],
           },
-        ],
-      },
-      {
-        //Category
-        name: 'Custom Comms',
-        keywords: ['backup','server backup'],
-        channel: '1138621480440188940',
-        status: 2,
-        id: '1096319574284193842',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077237592076389/Logopit_1680918672598.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Custom Commission',
-            children: [
-              //
-              { name: 'We accept custom commissions! The **PRICE** may range depending on the proposed functionality.', price: 0 },
-              //
-            ],
-          },
-          //
         ],
       },
       {
@@ -458,79 +345,6 @@ module.exports = {
       },
       /*{
         //Category
-        name: 'Disney+',
-        keywords: ['disney'],
-        channel: '1054989652416798750',
-        status: 4,
-        id: '1096319578482671646',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077236413468672/Logopit_1680918581099.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Shared Acc',
-            children: [
-              //
-              { name: '1 month', price: 90, rs: 0 },
-              //
-            ],
-          },
-          {
-            parent: 'Solo Profile',
-            children: [
-              //
-              { name: '1 month', price: 120, rs: 0 },
-              //
-            ],
-          },
-          //
-        ],
-      },*/
-      {
-        //Category
-        name: 'Canva',
-        keywords: ['canva'],
-        channel: '',
-        status: 2,
-        id: '1109020436764827699',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1104012111346151494/Logopit_1683287379481.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Via Invite',
-            children: [
-              //
-              { name: '1 month', price: 25, rs: 0 },
-              { name: '2 months', price: 30, rs: 0 },
-              { name: '3 months', price: 35, rs: 0 },
-              //
-            ],
-          },
-          {
-            parent: 'Provided Account',
-            children: [
-              //
-              { name: '1 month', price: 35, rs: 0 },
-              { name: '2 months', price: 40, rs: 0 },
-              { name: '3 months', price: 45, rs: 0 },
-              { name: '6 months', price: 55, rs: 0 },
-              { name: '12 months', price: 80, rs: 0 },
-              //
-            ],
-          },
-          {
-            parent: 'Notes',
-            children: [
-              //
-              { name: '1 month is a straight subscription', price: 0 },
-              { name: '+10 if own email (for 1 month only)', price: 0},
-              //
-            ],
-          },
-          //
-        ],
-      },
-      /*{
-        //Category
         name: 'Discord Nitro',
         lowest: 100,
         keywords: ['nitro','nitor','nb','basic','classic'],
@@ -556,225 +370,6 @@ module.exports = {
               //
               { name: 'Nitro Basic (Not avail)', price: 0 },
               { name: 'Nitro Boost (Not avail)', price: 0, rs: 0},
-              //
-            ],
-          },
-          //
-        ],
-      },*/
-      {
-        //Category
-        name: 'Profile Effects',
-        lowest: 100,
-        keywords: ['decos'],
-        channel: '12982191517013156143',
-        rs: '',
-        status: 2,
-        id: '',
-        image: 'https://media.discordapp.net/attachments/1142625548800098424/1205388569183526942/Logopit_1707457364718.png?ex=65d83095&is=65c5bb95&hm=413beb7dd01f093d3238901f104fb79ff417ed78cb539e428a82f39f1d62fdcf&=&format=webp&quality=lossless',
-        types: [
-          //Types
-          {
-            parent: 'Avatar Decorations',
-            children: [
-              //
-              { name: 'Lunar New Year Deco', price: 190, rs: 0 },
-              { name: 'Fantasy Avatar Deco', price: 255, rs: 0 },
-              { name: 'Anime Avatar Deco', price: 220, rs: 0 },
-              { name: 'Cyberpunk Avatar Deco', price: 199, rs: 0 },
-              //
-            ],
-          },
-          {
-            parent: 'Profile Effects',
-            children: [
-              //
-              { name: 'Lunar New Year', price: 199 },
-              { name: 'Fantasy', price: 325 },
-              { name: 'Anime ', price: 325 },
-              { name: 'Cyberpunk ', price: 199 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      /*{
-        //Category
-        name: 'Steam',
-        keywords: ['swc','steam'],
-        channel: '1109020436764827700',
-        status: 4,
-        id: '1096319581393535036',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077185125535844/Logopit_1680918431372.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Steam Wallet Codes',
-            children: [
-              //
-              { name: '50 swc', price: 50 },
-              { name: '100 swc', price: 100 },
-              { name: '200 swc', price: 200 },
-              { name: '300 swc', price: 297 },
-              { name: '500 swc', price: 495 },
-              { name: '1000 swc', price: 985 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Genshin Impact',
-        keywords: ['genesis crystals','genshin','welkin'],
-        channel: '1109020436764827700',
-        status: 4,
-        id: '1096319582240788490',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077185406550136/Logopit_1680918406428.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Genesis Crystals',
-            children: [
-              //
-              { name: '60 gc', price: 47 },
-              { name: '330 gc', price: 230 },
-              { name: '1090 gc', price: 695 },
-              { name: '2240 gc', price: 1365 },
-              { name: '3880 gc', price: 2375 },
-              //
-            ],
-          },
-          //
-        ],
-      },*/
-      {
-        //Category
-        name: 'Spotify',
-        keywords: ['spoti','spotify'],
-        channel: '',
-        status: 4,
-        id: '1096319564662448198',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077186379624478/Logopit_1680918508558.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Solo',
-            children: [
-              //
-              { name: '1 month', price: 30 },
-              { name: '2 months', price: 40 },
-              { name: '3 months', price: 50 },
-              { name: '4 months', price: 70 },
-              { name: '6 months', price: 110 },
-              { name: '12 months', price: 130 },
-              //
-            ],
-          },
-          {
-            parent: '\u200b',
-            children: [
-              //
-              { name: '+₱15 if own account', price: 0 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Youtube',
-        keywords: ['yt','youtube'],
-        channel: '',
-        status: 4,
-        id: '1096319565606174800',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077235713028126/Logopit_1680918525501.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Via Invite',
-            children: [
-              //
-              { name: '1 month', price: 15 },
-              //
-            ],
-          },
-          {
-            parent: 'Solo',
-            children: [
-              //
-              { name: '1 month', price: 30 },
-              { name: '4 months', price: 60 },
-              { name: '6 months', price: 99 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Netflix',
-        keywords: ['nf','netflix','netplix'],
-        channel: '',
-        status: 4,
-        id: '1096319566902218813',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077235939512320/Logopit_1680918539369.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Shared Profile',
-            children: [
-              //
-              { name: '1 month', price: 90 },
-              { name: '3 months', price: 180 },
-              //
-            ],
-          },
-          {
-            parent: 'Solo Profile',
-            children: [
-              //
-              { name: '1 month', price: 120 },
-              { name: '3 months', price: 230 },
-              //
-            ],
-          },
-          {
-            parent: 'Solo Account',
-            children: [
-              //
-              { name: '1 month', price: 410 },
-              { name: '3 months', price: 1200 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      /*{
-        //Category
-        name: 'Valorant',
-        keywords: ['vp','valorant','balo'],
-        channel: '1310804789046808636',
-        status: 4,
-        id: '1310804789046808636',
-        rs: '1277916151199825971',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077185666592768/Logopit_1680918349259.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Valorant Points',
-            children: [
-              //
-              { name: '475 vp', price: 185, rs: 0 },
-              { name: '1000 vp', price: 370, rs: 0 },
-              { name: '2050 vp', price: 735, rs: 0 },
-              { name: '3650 vp', price: 1287, rs: 0 },
-              { name: '5350 vp', price: 1839, rs: 0 },
               //
             ],
           },
@@ -828,103 +423,8 @@ module.exports = {
               //
             ],
           },
-          /*{
-            parent: 'Via Gifting',
-            children: [
-              //
-              { name: '100 robux', price: 22, rs: 0 },
-              { name: '200 robux', price: 44, rs: 0 },
-              { name: '300 robux', price: 66, rs: 0 },
-              { name: '400 robux', price: 88, rs: 0 },
-              { name: '500 robux', price: 110, rs: 0 },
-              { name: '600 robux', price: 132, rs: 0 },
-              { name: '700 robux', price: 154, rs: 0 },
-              { name: '800 robux', price: 176, rs: 0 },
-              { name: '900 robux', price: 198, rs: 0 },
-              { name: '1000 robux', price: 205, rs: 0 },
-              { name: '*or via gamepass not covered tax*', price: 0, rs: 0 },
-              //
-            ],
-          },*/
-          //
         ],
       },
-      {
-        //Category
-        name: 'Vyper VPN',
-        keywords: ['vyper'],
-        channel: '1138621712221610034',
-        status: 2,
-        id: '1096319586640609280',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077236648345710/Logopit_1680918601382.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Shared',
-            children: [
-              //
-              { name: '1 month', price: 40 },
-              { name: '2 months', price: 55 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Windscribe VPN',
-        keywords: ['windscribe','wind'],
-        channel: '1138621712221610034',
-        status: 4,
-        id: '',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1105784399875813496/Logopit_1683709883410.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Solo',
-            children: [
-              //
-              { name: '1 month', price: 240 },
-              { name: '3 months', price: 310 },
-              { name: '12 months', price: 680 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
-        name: 'Express VPN',
-        keywords: ['express'],
-        channel: '1138621712221610034',
-        status: 2,
-        id: '',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1105784399636733982/Logopit_1683709898945.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Shared',
-            children: [
-              //
-              { name: '1 month', price: 65 },
-              //
-            ],
-          },
-          //
-          {
-            parent: 'Solo',
-            children: [
-              //
-              { name: '1 month', price: 95 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      //
     ],
     ar: {
       prefix: '.',

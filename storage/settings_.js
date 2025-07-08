@@ -815,14 +815,14 @@ module.exports = {
             children: [
               //
               { name: '100 robux (0-2d)', price: 48, rs: 45 },
-              { name: '200 robux (0-2d)', price: 85, rs: 75 },
-              { name: '300 robux (0-2d)', price: 115, rs: 110 },
-              { name: '400 robux (0-2d)', price: 150, rs: 145 },
-              { name: '500 robux (0-2d)', price: 170, rs: 165 },
-              { name: '600 robux (0-2d)', price: 210, rs: 205 },
-              { name: '700 robux (0-2d)', price: 240, rs: 235 },
-              { name: '800 robux (0-2d)', price: 275, rs: 270 },
-              { name: '900 robux (0-2d)', price: 305, rs: 300 },
+              { name: '200 robux', price: 85, rs: 75 },
+              { name: '300 robux', price: 115, rs: 110 },
+              { name: '400 robux', price: 150, rs: 145 },
+              { name: '500 robux', price: 170, rs: 165 },
+              { name: '600 robux', price: 210, rs: 205 },
+              { name: '700 robux', price: 240, rs: 235 },
+              { name: '800 robux', price: 275, rs: 270 },
+              { name: '900 robux', price: 305, rs: 300 },
               { name: '1000 robux', price: 335, rs: 330 },
               { name: '*covered tax (0-2d process)*', price: 0, rs: 0 },
               //

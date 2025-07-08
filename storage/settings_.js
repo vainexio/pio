@@ -287,7 +287,7 @@ module.exports = {
             children: [
               //
               { name: 'monthly', price: 40, rs: 0 },
-              { name: 'Features:\n+ Provided Bot (assistant)\n</getlink:1391279636708855839> command\n+ ` scan, nct, ct ` commands\n\u200b'}
+              { name: 'Features:\n+ Provided Bot (assistant)\n+ ` /getlink ` command\n+ ` scan, nct, ct ` commands\n\u200b'}
               //
             ],
           },

@@ -33,6 +33,57 @@ module.exports = {
   deleteSlashes: ['1272095323275132990'],
   slashes: [
     {
+      "name": "create_stock",
+      "type": 1,
+      "description": "Create stock record",
+      "options": [
+        {
+          "name": 'stock_name',
+          "description": 'Stock record name',
+          "type": 3,
+          "required": true,
+        },
+        {
+          "name": 'amount',
+          "description": 'Stock record amount',
+          "type": 4,
+          "required": true,
+        },
+      ]
+    },
+    {
+      "name": "edit_stock",
+      "type": 1,
+      "description": "Edit stock record",
+      "options": [
+        {
+          "name": 'stock_name',
+          "description": 'Stock record name',
+          "type": 3,
+          "required": true,
+        },
+        {
+          "name": 'amount',
+          "description": 'Stock record amount',
+          "type": 4,
+          "required": true,
+        },
+      ]
+    },
+    {
+      "name": "delete_stock",
+      "type": 1,
+      "description": "Delete stock record",
+      "options": [
+        {
+          "name": 'stock_name',
+          "description": 'Stock record name',
+          "type": 3,
+          "required": true,
+        },
+      ]
+    },
+    {
       "name": "bid",
       "type": 1,
       "description": "Start bid",

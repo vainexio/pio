@@ -2133,7 +2133,7 @@ client.on('interactionCreate', async inter => {
 
         let stock = await stockModel.findOne({category: product.value.toLowerCase()})
         if (stock) {
-          stock.amount -= price.value
+          stock.amount -= quan.value
           await stock.save()
           updateStocks()
         }

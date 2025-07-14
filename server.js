@@ -1136,6 +1136,7 @@ client.on('interactionCreate', async inter => {
     const { commandName, options, channelId } = inter;
 
     if (cname == "create_stock") {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
       let options = inter.options._hoistedOptions
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
@@ -1148,6 +1149,7 @@ client.on('interactionCreate', async inter => {
       updateStocks()
     }
     else if (cname == "edit_stock") {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
       let options = inter.options._hoistedOptions
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
@@ -1161,6 +1163,7 @@ client.on('interactionCreate', async inter => {
       updateStocks()
     }
     else if (cname == "delete_stock") {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
       let options = inter.options._hoistedOptions
       let stockName = options.find(a => a.name === 'stock_name')
 

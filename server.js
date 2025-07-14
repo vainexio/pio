@@ -3083,8 +3083,8 @@ client.on('interactionCreate', async inter => {
       }
 
       if (item.includes('gift') && !isNaN(totalAmount)) {
-        if (booster) price = totalAmount * .250
-        else price = totalAmount * .255
+        if (booster) price = totalAmount * .255
+        else price = totalAmount * .260
       }
       else if (
         (item.includes("robux") || item.includes("gamepass") || item.includes("gpass"))

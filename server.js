@@ -3087,16 +3087,16 @@ client.on('interactionCreate', async inter => {
         else price = totalAmount * .260
       }
       else if (
-        (item.includes("robux") || item.includes("gamepass") || item.includes("gpass"))
+        (item.includes("robux") || item.includes("payout"))
         && typeof amount === "string"
-      ) {
+      ) { //item.includes("gpass"))
         // 1) parse the string into an array of numeric amounts:
         let amounts = parseRobuxAmounts(thread[1].answer);
         let totalAmount = amounts.reduce((sum, a) => sum + a, 0);
 
         // 2) for each numeric amount, run your existing logic:
         let category = shop.pricelists.find(ctg => ctg.name === "Robux");
-        let gamepasses = category.types.find(t => t.parent === "Via Gamepass");
+        let gamepasses = category.types.find(t => t.parent === "Via Payout");
         let pricelist = gamepasses.children;
         let totalPrice = 0;
 

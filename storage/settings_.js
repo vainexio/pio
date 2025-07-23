@@ -386,7 +386,7 @@ module.exports = {
         id: '1096319583121584208',
         image: "https://media.discordapp.net/attachments/1093391705753002064/1094077237839532123/Logopit_1680918693719.png?width=1440&height=360",
         types: [
-          {
+          /*{
             parent: 'Via Payout',
             children: [
               //
@@ -403,9 +403,9 @@ module.exports = {
               { name: '*covered tax*', price: 0, rs: 0 },
               //
             ],
-          },
+          },*/
           //Types
-          /*{
+          {
             parent: 'Via Gamepass',
             children: [
               //
@@ -414,16 +414,16 @@ module.exports = {
               { name: '300 robux (mins)', price: 120, rs: 115 },
               { name: '400 robux (mins)', price: 160, rs: 155 },
               { name: '500 robux (mins)', price: 183, rs: 177 },
-              { name: '600 robux (mins)', price: 217, rs: 213 },
-              { name: '700 robux (mins)', price: 255, rs: 248 },
-              { name: '800 robux (mins)', price: 290, rs: 285 },
-              { name: '900 robux (mins)', price: 323, rs: 319 },
+              { name: '600 robux (mins)', price: 222, rs: 219 },
+              { name: '700 robux (mins)', price: 260, rs: 255 },
+              { name: '800 robux (mins)', price: 296, rs: 292 },
+              { name: '900 robux (mins)', price: 333, rs: 328 },
               { name: '1000 robux (mins)', price: 360, rs: 355 },
               { name: '*covered tax (mins process)*', price: 0, rs: 0 },
               //
             ],
           },
-          {
+          /*{
             parent: 'Via Gamepass',
             children: [
               //

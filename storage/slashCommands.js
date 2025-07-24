@@ -30,8 +30,19 @@ let types = [
 
 module.exports = {
   register: true,
-  deleteSlashes: ['1272095323275132990'],
+  deleteSlashes: ['1272095323275132990','1102544436480720976'],
   slashes: [
+    {
+      name: "gamepass",
+      type: 1,
+      description: "Calculate expected gamepass price based on amount",
+      options: [
+        { 
+          name: 'amount', type: 10, required: true,
+          description: 'Amount to calculate',
+        },
+      ]
+    },
     {
       "name": "create_stock",
       "type": 1,

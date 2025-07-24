@@ -3096,7 +3096,7 @@ client.on('interactionCreate', async inter => {
 
         // 2) for each numeric amount, run your existing logic:
         let category = shop.pricelists.find(ctg => ctg.name === "Robux");
-        let gamepasses = category.types.find(t => t.parent === "Via Gamepass") || category.types.find(t => t.parent === "Via Payout");
+        let gamepasses = category.types.find(t => t.parent === "Via Gamepass"); // || category.types.find(t => t.parent === "Via Payout")
         let pricelist = gamepasses.children;
         let totalPrice = 0;
 

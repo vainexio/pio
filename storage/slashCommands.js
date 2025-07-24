@@ -33,6 +33,17 @@ module.exports = {
   deleteSlashes: ['1272095323275132990'],
   slashes: [
     {
+      name: "gamepass",
+      type: 1,
+      description: "Calculate fee based on amount",
+      options: [
+        { 
+          name: 'amount', type: 10, required: true,
+          description: 'Amount to calculate',
+        },
+      ]
+    },
+    {
       "name": "create_stock",
       "type": 1,
       "description": "Create stock record",
@@ -395,27 +406,4 @@ module.exports = {
 };
 
 /*
-{
-      name: "calculate",
-      type: 1,
-      description: "Calculate fee based on amount",
-      options: [
-        {
-          "name": 'type',
-          "description": 'Type of transaction',
-          "type": 3,
-          "choices": [
-            {
-              name: 'Robux Gamepass',
-              value: 'robux'
-            },
-          ],
-          "required": true,
-        },
-        { 
-          name: 'amount', type: 10, required: true,
-          description: 'Amount to calculate',
-        },
-      ]
-    },
     */

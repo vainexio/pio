@@ -2148,7 +2148,7 @@ client.on('interactionCreate', async inter => {
       let amount = options.find(a => a.name === 'amount')
       let value = amount.value
 
-      let price = amount.value / 0.7
+      let price = Math.ceil(amount.value / 0.7)
       await inter.reply("Expected Gamepass Price: **"+price+"** "+emojis.robux)
     }
     //Refund

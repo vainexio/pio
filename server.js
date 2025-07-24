@@ -2143,48 +2143,13 @@ client.on('interactionCreate', async inter => {
       }
     }
     //Calculate
-    else if (cname === 'calculate') {
+    else if (cname === 'gamepass') {
       let options = inter.options._hoistedOptions
-      let type = options.find(a => a.name === 'type')
       let amount = options.find(a => a.name === 'amount')
       let value = amount.value
 
-      let title = ''
-      let footer = ''
-      let percentage
-      let total
-
-      if (type.value === 'paypalrate') {
-        title = 'Total Payment'
-        footer = 'Paypal Rate'
-        percentage = value >= 1000 ? 0.03 : value >= 500 ? 0.05 : value < 500 ? 0.10 : null
-        let fee = value * percentage
-        total = Math.round(value + fee)
-      }
-      else if (type.value === 'exchange') {
-        title = 'You Will Receive'
-        footer = 'E-wallet Exchange'
-        percentage = value >= 1000 ? 0.03 : value >= 500 ? 0.05 : value < 500 ? 0.1 : null
-        let fee = value * percentage
-        total = Math.round(value - fee)
-      }
-      else if (type.value === 'robux') {
-        title = 'Expected Gamepass Price'
-        footer = 'Robux Covered Tax'
-        percentage = 0.4286
-        let fee = value * percentage
-        total = Math.ceil(value + fee)
-      }
-
-      let embed = new MessageEmbed()
-        .addFields(
-          { name: title, value: '**' + total + '**', inline: true },
-          { name: 'Fee', value: 'x' + percentage, inline: true }
-        )
-        .setColor(colors.none)
-        .setFooter({ text: footer })
-
-      await inter.reply({ content: '.', embeds: [embed] })
+      let price = amount.value / 0.7
+      await inter.reply("Expected Gamepass Price: **"+price+"** "+emojis.robux)
     }
     //Refund
     else if (cname === 'refund') {

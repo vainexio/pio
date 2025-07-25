@@ -1279,6 +1279,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'payout') {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
       let options = inter.options._hoistedOptions
       let username = options.find(a => a.name === 'username')
       let amount = options.find(a => a.name === 'username')

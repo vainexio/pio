@@ -405,7 +405,7 @@ module.exports = {
             ],
           },*/
           //Types
-          {
+          /*{
             parent: 'Via Gamepass',
             children: [
               //
@@ -422,25 +422,25 @@ module.exports = {
               { name: '*covered tax (0-2d process)*', price: 0, rs: 0 },
               //
             ],
-          },
-          /*{
+          },*/
+          {
             parent: 'Via Gamepass',
             children: [
               //
-              { name: '100 robux', price: 48, rs: 45 },
-              { name: '200 robux', price: 85, rs: 75 },
-              { name: '300 robux', price: 115, rs: 110 },
-              { name: '400 robux', price: 150, rs: 145 },
-              { name: '500 robux', price: 170, rs: 165 },
-              { name: '600 robux', price: 210, rs: 205 },
-              { name: '700 robux', price: 240, rs: 235 },
-              { name: '800 robux', price: 275, rs: 270 },
-              { name: '900 robux', price: 305, rs: 300 },
-              { name: '1000 robux', price: 355, rs: 350 },
-              { name: '*covered tax (days process)*', price: 0, rs: 0 },
+              { name: '100 robux (fast process)', price: 48, rs: 45 },
+              { name: '200 robux (fast process)', price: 85, rs: 85 },
+              { name: '300 robux (fast process)', price: 120, rs: 120 },
+              { name: '400 robux (fast process)', price: 160, rs: 160 },
+              { name: '500 robux (fast process)', price: 185, rs: 185 },
+              { name: '600 robux (fast process)', price: 222, rs: 222 },
+              { name: '700 robux (fast process)', price: 260, rs: 260 },
+              { name: '800 robux (fast process)', price: 292, rs: 292 },
+              { name: '900 robux (fast process)', price: 328, rs: 328 },
+              { name: '1000 robux (fast process)', price: 364, rs: 357 },
+              { name: '*covered tax (fast process)*', price: 0, rs: 0 },
               //
             ],
-          },*/
+          },
         ],
       },
     ],

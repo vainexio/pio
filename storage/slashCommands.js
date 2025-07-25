@@ -33,6 +33,15 @@ module.exports = {
   deleteSlashes: ['1272095323275132990','1102544436480720976'],
   slashes: [
     {
+      name: 'payout',
+      type: 1,
+      description: 'Send a group payout',
+      options: [
+        { name: 'username', type: 3, description: 'Roblox username', required: true },
+        { name: 'amount', type: 4, description: 'Robux amount', required: true },
+      ]
+    },
+    {
       name: "gamepass",
       type: 1,
       description: "Calculate expected gamepass price based on amount",

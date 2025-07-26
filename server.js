@@ -2175,12 +2175,13 @@ client.on('interactionCreate', async inter => {
     }
     //Calculate
     else if (cname === 'gamepass') {
-      let options = inter.options._hoistedOptions
-      let amount = options.find(a => a.name === 'amount')
-      let value = amount.value
-
-      let price = Math.ceil(amount.value / 0.7)
-      await inter.reply("Expected Gamepass Price: **"+price+"** "+emojis.robux)
+      let options = inter.options._hoistedOptions;
+      let amount = options.find(a => a.name === 'amount');
+      let value = amount.value;
+      
+      // Fix floating-point issue
+      let price = Math.ceil(Number((value / 0.7).toFixed(6)));
+      await inter.reply("Expected Gamepass Price: **" + price + "** " + emojis.robux)
     }
     //Refund
     else if (cname === 'refund') {

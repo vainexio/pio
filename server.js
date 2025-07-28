@@ -3083,7 +3083,7 @@ client.on('interactionCreate', async inter => {
         if (booster) price = totalAmount * .250
         else price = totalAmount * .255
       }
-      else if (item.includes("gamepass") || item.includes("gpass") || item.includes("payout") || item.includes("pay out")) && typeof amount === "string") { //
+      else if ((item.includes("gamepass") || item.includes("gpass") || item.includes("payout") || item.includes("pay out")) && typeof amount === "string") { //
         let category = shop.pricelists.find(ctg => ctg.name === "Robux");
         let type = item.includes("gamepass") || item.includes("gpass") ? category.types.find(t => t.parent === "Via Gamepass")
           : item.includes("payout") || item.includes("pay out") ? category.types.find(t => t.parent === "Via Payout") : null

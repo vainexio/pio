@@ -2986,7 +2986,7 @@ client.on('interactionCreate', async inter => {
       let count = 0
       let thread = [
         {
-          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# please include keywords: **gamepass, gifting, decor, etc..**\n-# DO NOT INCLUDE THE AMOUNT',
+          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# please include keywords: **gamepass, payout, gifting, decor, etc..**\n-# DO NOT INCLUDE THE AMOUNT',
           answer: '',
         },
         {
@@ -3083,15 +3083,17 @@ client.on('interactionCreate', async inter => {
         if (booster) price = totalAmount * .250
         else price = totalAmount * .255
       }
-      else if ((item.includes("robux") || item.includes("gamepass") || item.includes("gpass")) && typeof amount === "string") { //
+      else if ((item.includes("robux") || item.includes("gamepass") || item.includes("gpass") || item.includes("payout") || item.includes("pay out")) && typeof amount === "string") { //
+        let type = item.includes("robux") || item.includes("gamepass") || item.includes("gpass") ? category.types.find(t => t.parent === "Via Gamepass")
+          : item.includes("payout") || item.includes("pay out") ? category.types.find(t => t.parent === "Via Payout") : null
         // 1) parse the string into an array of numeric amounts:
         let amounts = parseRobuxAmounts(thread[1].answer);
         let totalAmount = amounts.reduce((sum, a) => sum + a, 0);
 
         // 2) for each numeric amount, run your existing logic:
         let category = shop.pricelists.find(ctg => ctg.name === "Robux");
-        let gamepasses = category.types.find(t => t.parent === "Via Gamepass"); // || category.types.find(t => t.parent === "Via Payout")
-        let pricelist = gamepasses.children;
+        let robuxItems = type; // || category.types.find(t => t.parent === "Via Payout")
+        let pricelist = robuxItems.children;
         let totalPrice = 0;
 
         for (let amt of amounts) {

@@ -506,7 +506,7 @@ client.on('interactionCreate', async inter => {
         let options = inter.options._hoistedOptions
         //
         let key = options.find(a => a.name === 'key')
-        await inter.deferReply()
+        await inter.deferReply({ephemeral: true})
 
         let doc = await guildModel.findOne({key: key?.value})
         if (!doc) doc = await guildModel.findOne({author: inter.user.id})

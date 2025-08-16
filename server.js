@@ -492,12 +492,12 @@ client.on('interactionCreate', async inter => {
       let doc = await guildModel.findOne({key: key.value})
       if (doc) {
         doc.unverifyOnLeave = enabled.value
-        await doc.save()
         let reply = ""
         if (doc.unverifyOnLeave) reply = emojis.on+" Unverify on leave is now **enabled**"
         else reply = emojis.off+" Unverify on leave is now **disabled**"
         
         await inter.editReply({content: reply})
+        await doc.save()
       } else {
         await inter.editReply({content: emojis.warning+' Invalid access key'})
       }

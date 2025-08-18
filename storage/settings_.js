@@ -431,7 +431,7 @@ module.exports = {
               { name: '200 robux (fast process)', price: 85, rs: 85 },
               { name: '300 robux (fast process)', price: 120, rs: 120 },
               { name: '400 robux (fast process)', price: 160, rs: 160 },
-              { name: '500 robux (fast process)', price: 185, rs: 185 },
+              { name: '500 robux (fast process)', price: 183, rs: 183 },
               { name: '600 robux (fast process)', price: 222, rs: 222 },
               { name: '700 robux (fast process)', price: 260, rs: 255 },
               { name: '800 robux (fast process)', price: 298, rs: 292 },

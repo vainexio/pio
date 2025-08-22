@@ -405,25 +405,25 @@ module.exports = {
             ],
           },
           //Types
-          /*{
+          {
             parent: 'Via Gamepass',
             children: [
               //
-              { name: '100 robux (0-2d)', price: 48, rs: 45 },
-              { name: '200 robux (0-2d)', price: 85, rs: 75 },
-              { name: '300 robux (0-2d)', price: 120, rs: 115 },
-              { name: '400 robux (0-2d)', price: 160, rs: 155 },
-              { name: '500 robux (0-2d)', price: 183, rs: 177 },
-              { name: '600 robux (0-2d)', price: 222, rs: 219 },
-              { name: '700 robux (0-2d)', price: 260, rs: 255 },
-              { name: '800 robux (0-2d)', price: 286, rs: 270 },
-              { name: '900 robux (0-2d)', price: 320, rs: 312 },
-              { name: '1000 robux (0-2d)', price: 345, rs: 340 },
-              { name: '*covered tax (0-2d process)*', price: 0, rs: 0 },
+              { name: '100 robux', price: 48, rs: 45 },
+              { name: '200 robux', price: 85, rs: 75 },
+              { name: '300 robux', price: 120, rs: 115 },
+              { name: '400 robux', price: 160, rs: 155 },
+              { name: '500 robux', price: 183, rs: 177 },
+              { name: '600 robux', price: 222, rs: 219 },
+              { name: '700 robux', price: 260, rs: 255 },
+              { name: '800 robux', price: 286, rs: 270 },
+              { name: '900 robux', price: 320, rs: 312 },
+              { name: '1000 robux', price: 345, rs: 340 },
+              { name: '*covered tax (days process)*', price: 0, rs: 0 },
               //
             ],
-          },*/
-          {
+          },
+          /*{
             parent: 'Via Gamepass',
             children: [
               //
@@ -440,7 +440,7 @@ module.exports = {
               { name: '*covered tax (fast process)*', price: 0, rs: 0 },
               //
             ],
-          },
+          },*/
         ],
       },
     ],

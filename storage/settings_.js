@@ -386,7 +386,7 @@ module.exports = {
         id: '1096319583121584208',
         image: "https://media.discordapp.net/attachments/1093391705753002064/1094077237839532123/Logopit_1680918693719.png?width=1440&height=360",
         types: [
-          {
+          /*{
             parent: 'Via Payout',
             children: [
               //
@@ -422,8 +422,8 @@ module.exports = {
               { name: '*covered tax (days process)*', price: 0, rs: 0 },
               //
             ],
-          },
-          /*{
+          },*/
+          {
             parent: 'Via Gamepass',
             children: [
               //
@@ -440,7 +440,7 @@ module.exports = {
               { name: '*covered tax (fast process)*', price: 0, rs: 0 },
               //
             ],
-          },*/
+          },
         ],
       },
     ],

@@ -240,7 +240,7 @@ module.exports = {
             parent: 'Permanent',
             children: [
               //
-              { name: 'Permanent', price: 80, rs: 40 },
+              { name: 'Permanent', price: 50, rs: 40 },
               { name: 'Lifetime warranty until patched', price: 0 },
               { name: 'Required 2FA', price: 0 },
               //

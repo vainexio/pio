@@ -390,16 +390,16 @@ module.exports = {
             parent: 'Via Payout',
             children: [
               //
-              { name: '100 robux (payout)', price: 45, rs: 40 },
+              { name: '100 robux (payout)', price: 35, rs: 30 },
               { name: '200 robux (payout)', price: 75, rs: 70 },
               { name: '300 robux (payout)', price: 110, rs: 100 },
               { name: '400 robux (payout)', price: 145, rs: 140 },
               { name: '500 robux (payout)', price: 175, rs: 170 },
               { name: '600 robux (payout)', price: 210, rs: 195 },
               { name: '700 robux (payout)', price: 245, rs: 235 },
-              { name: '800 robux (payout)', price: 280, rs: 275 },
-              { name: '900 robux (payout)', price: 315, rs: 305 },
-              { name: '1000 robux (payout)', price: 350, rs: 340 },
+              { name: '800 robux (payout)', price: 275, rs: 270 },
+              { name: '900 robux (payout)', price: 290, rs: 285 },
+              { name: '1000 robux (payout)', price: 310, rs: 295 },
               { name: '*covered tax*', price: 0, rs: 0 },
               //
             ],

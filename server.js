@@ -3085,8 +3085,8 @@ client.on('interactionCreate', async inter => {
       }
       else if ((item.includes("robux") || item.includes("gamepass") || item.includes("gpass") || item.includes("payout") || item.includes("pay out")) && typeof amount === "string") { //
         let category = shop.pricelists.find(ctg => ctg.name === "Robux");
-        let type = item.includes("robux") || item.includes("gamepass") || item.includes("gpass") ? category.types.find(t => t.parent === "Via Gamepass")
-          : item.includes("payout") || item.includes("pay out") ? category.types.find(t => t.parent === "Via Payout") : null
+        let type = item.includes("payout") || item.includes("pay out") ? category.types.find(t => t.parent === "Via Payout") : item.includes("robux") || item.includes("gamepass") || item.includes("gpass") ? category.types.find(t => t.parent === "Via Gamepass")
+          : null
         // 1) parse the string into an array of numeric amounts:
         let amounts = parseRobuxAmounts(thread[1].answer);
         let totalAmount = amounts.reduce((sum, a) => sum + a, 0);

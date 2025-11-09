@@ -37,6 +37,15 @@ module.exports = {
   deleteSlashes: ['1272095323275132990','1102544436480720976'],
   slashes: [
     {
+      name: 'joindate',
+      type: 1,
+      description: 'Check group join date',
+      options: [
+        { name: 'username', type: 3, description: 'Roblox username', required: true },
+        { name: 'group_id', type: 3, description: 'Roblox Group ID', required: true },
+      ]
+    },
+    {
       name: 'eligible',
       type: 1,
       description: 'Check if a user is eligible on the group for payout!',

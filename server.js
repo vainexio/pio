@@ -1246,8 +1246,110 @@ client.on('interactionCreate', async inter => {
       if (patchRes.status !== 200) return await inter.editReply({ content: "Cannot change rank: `" + patchRes.statusText + "`" })
       await inter.editReply({ content: "Successfully changed " + user.name + "'s rank to **" + role.name + "**" })
     }
+      //
+    } else if (cname === 'eligible') {
+  let options = inter.options._hoistedOptions;
+  let username = options.find(a => a.name === 'username');
+  let group = options.find(a => a.name === 'group');
+
+  await inter.deferReply();
+
+  // get the user object (your handler)
+  let user = await handler.getUser(username.value);
+  if (user.error) return inter.editReply({ content: user.error });
+  if (!user) return inter.editReply({ content: "User not found." });
+
+  // display name fallback
+  const displayName = user.username || user.name || username.value;
+
+  // Put your Roblox Open Cloud API key in an env var; fallback placeholder if not set
+  const API_KEY = process.env.ROBLOX_API_KEY;
+
+  // Build membership URL safely (encode filter)
+  const filter = encodeURIComponent(`user=='users/${user.id}'`);
+  const url = `https://apis.roblox.com/cloud/v2/groups/${group.value}/memberships?maxPageSize=1&filter=${filter}`;
+
+  try {
+    const auth = {
+      method: "GET",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
+    };
+
+    const res = await fetch(url, auth);
+
+    if (res.status === 200) {
+      const data = await res.json();
+
+      // Not in group
+      if (!data.groupMemberships || data.groupMemberships.length === 0) {
+        // try to get group name for nicer output (best-effort)
+        let groupName = `Group ${group.value}`;
+        try {
+          const gRes = await fetch(`https://groups.roblox.com/v1/groups/${group.value}`);
+          if (gRes.ok) {
+            const gJson = await gRes.json();
+            groupName = gJson.name || groupName;
+          }
+        } catch(_) {}
+        return inter.editReply({ content: `${emojis.warning} **${displayName}*** is not a member of **${groupName}**.` });
+      }
+
+      // Member found
+      const mem = data.groupMemberships[0];
+      const createTime = mem.createTime; // e.g. "2025-09-01T12:08:56.342Z"
+
+      if (!createTime) {
+        return inter.editReply({ content: `Found membership but missing createTime for ${displayName}.` });
+      }
+
+      // Format human date and Discord relative timestamp
+      const dateObj = new Date(createTime);
+      const unixSeconds = Math.floor(dateObj.getTime() / 1000);
+
+      // Nice readable date (UTC)
+      const formattedDate = dateObj.toLocaleString('en-US', {
+        timeZone: 'UTC',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }) + ' UTC';
+
+      // Get group name (best-effort)
+      let groupName = `Group ${group.value}`;
+      try {
+        const gRes = await fetch(`https://groups.roblox.com/v1/groups/${group.value}`);
+        if (gRes.ok) {
+          const gJson = await gRes.json();
+          groupName = gJson.name || groupName;
+        }
+      } catch (err) {
+        // ignore - group name is optional anyway
+      }
+
+      // Final reply using Discord's timestamp for relative time
+      // <t:unix:R> -> "4 days ago", etc.
+      return inter.editReply({
+        content: `**${displayName}** joined ${groupName} on **${formattedDate}** (<t:${unixSeconds}:R>)`
+      });
+    } else if (res.status === 401 || res.status === 403) {
+      return inter.editReply({ content: "Roblox API authentication failed. Check your x-api-key." });
+    } else {
+      const errText = await res.text().catch(() => "");
+      return inter.editReply({ content: `Roblox API returned ${res.status}: ${errText}` });
+    }
+  } catch (err) {
+    console.error("Error fetching membership:", err);
+    return inter.editReply({ content: `Request failed: ${err.message}` });
+  }
+}
     //
-    else if (cname === 'eligible') {
+    else if (cname === 'eligible2') {
       let options = inter.options._hoistedOptions
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();

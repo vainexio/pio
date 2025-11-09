@@ -1245,8 +1245,6 @@ client.on('interactionCreate', async inter => {
       let patchRes = await fetch('https://groups.roblox.com/v1/groups/34624144/users/' + user.id, auth)
       if (patchRes.status !== 200) return await inter.editReply({ content: "Cannot change rank: `" + patchRes.statusText + "`" })
       await inter.editReply({ content: "Successfully changed " + user.name + "'s rank to **" + role.name + "**" })
-    }
-      //
     } else if (cname === 'eligible') {
   let options = inter.options._hoistedOptions;
   let username = options.find(a => a.name === 'username');

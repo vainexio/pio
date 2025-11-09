@@ -26,19 +26,23 @@ let types = [
   { name: '🟦 basic', value: 'nitro-basic' },
   { name: '🟦 basic yearly', value: 'basic-yearly' },
 ]
-
+let groups = [ 
+  { name: "Sloopies", value: '6648268' }, 
+  { name: "Valtric", value: '33092141' }, 
+  { name: "Jin's UGC", value: '34319686' }, 
+]
 
 module.exports = {
   register: true,
   deleteSlashes: ['1272095323275132990','1102544436480720976'],
   slashes: [
     {
-      name: 'payout',
+      name: 'eligible',
       type: 1,
-      description: 'Send a group payout',
+      description: 'Check if a user is eligible on the group for payout!',
       options: [
         { name: 'username', type: 3, description: 'Roblox username', required: true },
-        { name: 'amount', type: 4, description: 'Robux amount', required: true },
+        { name: 'group', type: 3, description: 'Group name', choices: groups, required: true },
       ]
     },
     {

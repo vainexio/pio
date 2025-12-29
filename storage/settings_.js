@@ -286,7 +286,7 @@ module.exports = {
             parent: 'gamepass links scanner',
             children: [
               //
-              { name: 'yearly', price: 60, rs: 0 },
+              { name: 'monthly', price: 30, rs: 0 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ ` /getlink ` command\n+ ` scan, nct, ct, max: ` commands\n\u200b'}
               //
             ],

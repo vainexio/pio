@@ -3532,7 +3532,7 @@ client.on('presenceUpdate', async (pres) => {
   let mem = await getMember(pres.userId, guild)
   if (!mem) return;
   let perms = await getPerms(mem, 3)
-  //let moderated = await moderate(mem,perms);
+  let moderated = await moderate(mem,perms);
 })
 process.on('unhandledRejection', async error => {
   ++errors

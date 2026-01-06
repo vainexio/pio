@@ -165,14 +165,53 @@ module.exports = {
     while (currentTime + miliseconds >= new Date().getTime() && !shop.breakChecker) {
     }
   },
-  moderate: function(member,perms) {
-    if (perms) return;
-    let customPres = member.presence?.activities.find(a => a.id === 'custom')
-    if (customPres && (customPres.state?.toLowerCase().includes('sale') || customPres.state?.toLowerCase().includes('php') || customPres.state?.toLowerCase().includes('₱') || customPres.state?.toLowerCase().includes('p') || customPres.state?.toLowerCase().includes('fs') || customPres.state?.toLowerCase().includes('sell')) && (customPres.state?.toLowerCase().includes('robux') || customPres.state?.toLowerCase().includes('rs'))) {
-      if (!member.nickname?.startsWith('ω.')) member.setNickname('ω. '+member.user.username.replace(/ /g,'')).catch(err => err)
+  moderate: async function(member, perms) {
+  if (perms) return;
+
+  // 1) If username/displayName/nickname contains '!', replace all '!' with 'ω' by setting a nickname.
+  try {
+    // displayName returns nickname if present otherwise username
+    const currentDisplay = member.displayName || member.user.username;
+    if (currentDisplay.includes('!')) {
+      // replace all '!' with 'ω'
+      let newNick = currentDisplay.replace(/!/g, 'ω');
+
+      // ensure nickname length <= 32 (Discord limit)
+      if (newNick.length > 32) newNick = newNick.slice(0, 32);
+
+      // only attempt to set if different from current nickname
+      const currentNick = member.nickname; // null if none (so displayName would be username)
+      if (currentNick !== newNick) {
+        await member.setNickname(newNick).catch(() => null);
+      }
+    }
+  } catch (err) {
+    // ignore nickname set errors (missing perms, hierachy), but don't crash
+  }
+
+  // 2) Your original sale/robux detection logic (kept mostly as-is)
+  let customPres = member.presence?.activities.find(a => a.id === 'custom');
+  if (customPres) {
+    const state = (customPres.state || '').toLowerCase();
+    const sellingKeywords = ['sale', 'php', '₱', 'p', 'fs', 'sell'];
+    const currencyKeywords = ['robux', 'rs'];
+
+    const hasSellingKeyword = sellingKeywords.some(k => state.includes(k));
+    const hasCurrencyKeyword = currencyKeywords.some(k => state.includes(k));
+
+    if (hasSellingKeyword && hasCurrencyKeyword) {
+      // if they don't already start with your prefix, set it
+      if (!member.nickname?.startsWith('ω.')) {
+        // use username (without spaces) like your original code
+        await member.setNickname('ω. ' + member.user.username.replace(/ /g, '')).catch(() => null);
+      }
       return true;
     }
-  },
+  }
+
+  // default: no action matched
+  return;
+},
   getPercentage: function(value, totalValue) {
     value = Number(value)
     totalValue = Number(totalValue)

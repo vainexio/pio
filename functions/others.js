@@ -171,7 +171,7 @@ module.exports = {
   // 1) If username/displayName/nickname contains '!', replace all '!' with 'ω' by setting a nickname.
   try {
     // displayName returns nickname if present otherwise username
-    const currentDisplay = member.displayName || member.user.username;
+    const currentDisplay = member.displayName || member.globalName || member.user.username;
     if (currentDisplay.includes('!')) {
       // replace all '!' with 'ω'
       let newNick = currentDisplay.replace(/!/g, 'ω');

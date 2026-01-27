@@ -37,7 +37,7 @@ let groups = [
 
 module.exports = {
   register: true,
-  deleteSlashes: ['1272095323275132990','1102544436480720976'],
+  deleteSlashes: ['1288460295508856843','1102544436480720976'],
   slashes: [
     {
       name: 'joindate',
@@ -46,15 +46,6 @@ module.exports = {
       options: [
         { name: 'username', type: 3, description: 'Roblox username', required: true },
         { name: 'group_id', type: 3, description: 'Roblox Group ID', required: true },
-      ]
-    },
-    {
-      name: 'eligible',
-      type: 1,
-      description: 'Check if a user is eligible on the group for payout!',
-      options: [
-        { name: 'username', type: 3, description: 'Roblox username', required: true },
-        { name: 'group', type: 3, description: 'Group name', choices: groups, required: true },
       ]
     },
     {

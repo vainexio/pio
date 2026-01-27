@@ -27,10 +27,13 @@ let types = [
   { name: '🟦 basic yearly', value: 'basic-yearly' },
 ]
 let groups = [ 
-  { name: "Sloopies", value: '6648268' }, 
+  { name: "Group 1", value: '33598861' }, 
+]
+
+/*
   { name: "Valtric", value: '33092141' }, 
   { name: "Jin's UGC", value: '34319686' }, 
-]
+  */
 
 module.exports = {
   register: true,

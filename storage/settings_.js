@@ -187,7 +187,7 @@ module.exports = {
     tixSettings: {
       support: '1109020434554433548',
       transcripts: '1109020437096181832',
-      closed: '1109020437524008981',
+      closed: '1471839148104093834',
       processing: '1256238648484167700',
       completed: '1256230400938999808'
     },

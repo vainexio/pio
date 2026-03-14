@@ -405,7 +405,7 @@ module.exports = {
             ],
           },
           //Types
-          {
+          /*{
             parent: 'Via Gamepass',
             children: [
               //
@@ -422,8 +422,8 @@ module.exports = {
               { name: '*covered tax (days process)*', price: 0, rs: 0 },
               //
             ],
-          },
-          /*{
+          },*/
+          {
             parent: 'Via Gamepass',
             children: [
               //

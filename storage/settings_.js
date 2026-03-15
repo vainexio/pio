@@ -440,7 +440,7 @@ module.exports = {
               { name: '*covered tax (fast process)*', price: 0, rs: 0 },
               //
             ],
-          },*/
+          },
         ],
       },
     ],

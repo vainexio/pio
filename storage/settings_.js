@@ -227,30 +227,6 @@ module.exports = {
     pricelists: [
       {
         //Category
-        name: 'Developer Badge',
-        keywords: ['dev','badge','db'],
-        channel: '1109020436764827698',
-        rs: '1258243493973856326',
-        status: 1,
-        id: '1109020436764827698',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077237004865556/Logopit_1680918616490.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Permanent',
-            children: [
-              //
-              { name: 'Permanent', price: 50, rs: 40 },
-              { name: 'Lifetime warranty until patched', price: 0 },
-              { name: 'Required 2FA', price: 0 },
-              //
-            ],
-          },
-          //
-        ],
-      },
-      {
-        //Category
         name: 'Nitro Links Checker',
         keywords: ['nitro checker','checker'],
         channel: '1392107651495628810',
@@ -264,7 +240,7 @@ module.exports = {
             parent: '1m nitro checker',
             children: [
               //
-              { name: 'monthly (bot dms)', price: 30, rs: 25 },
+              { name: '2 months (bot dms)', price: 30, rs: 30 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ Can scan 50 links per second\n+ Shows difference between valid, calimed and invalid links\n+ Shows accurate expiration (date & time) of links\n+ Foolproof (avoids scanning duplicated links)\n\u200b'}
               //
             ],
@@ -286,7 +262,7 @@ module.exports = {
             parent: 'gamepass links scanner',
             children: [
               //
-              { name: 'monthly', price: 30, rs: 0 },
+              { name: '2 months', price: 30, rs: 0 },
               { name: 'Features:\n+ Provided Bot (assistant)\n+ ` /getlink ` command\n+ ` scan, nct, ct, max: ` commands\n\u200b'}
               //
             ],
@@ -308,7 +284,9 @@ module.exports = {
             parent: 'Server Backup Bot',
             children: [
               //
-              { name: 'Slot', price: 150, rs: 140 },
+              { name: '6 months', price: 150, rs: 140 },
+              { name: '+500 tokens', price: 60, rs: 60 },
+              { name: '+1000 tokens', price: 100, rs: 100 },
               { name: 'Features:\n+ Provided Bot\n+ Via Discord OAuth2\n+ Can join all verified users in other serverss\n\u200b'}
               //
             ],
@@ -343,39 +321,6 @@ module.exports = {
           //
         ],
       },
-      /*{
-        //Category
-        name: 'Discord Nitro',
-        lowest: 100,
-        keywords: ['nitro','nitor','nb','basic','classic'],
-        channel: '1298219151701315614',
-        rs: '1298219265484128307',
-        status: 2,
-        id: '1096319579787116544',
-        image: 'https://media.discordapp.net/attachments/1093391705753002064/1094077186127970414/Logopit_1680918484757.png?width=1440&height=360',
-        types: [
-          //Types
-          {
-            parent: 'Monthly Subscription',
-            children: [
-              //
-              { name: 'Nitro Basic (Not avail)', price: 0, rs: 0 },
-              { name: 'Nitro Boost (No warr)', price: 200, rs: 195 },
-              //
-            ],
-          },
-          {
-            parent: 'Yearly Subscription',
-            children: [
-              //
-              { name: 'Nitro Basic (Not avail)', price: 0 },
-              { name: 'Nitro Boost (Not avail)', price: 0, rs: 0},
-              //
-            ],
-          },
-          //
-        ],
-      },*/
       {
         //Category
         name: 'Robux',
@@ -427,17 +372,17 @@ module.exports = {
             parent: 'Via Gamepass',
             children: [
               //
-              { name: '100 robux (fast process)', price: 48, rs: 45 },
-              { name: '200 robux (fast process)', price: 85, rs: 85 },
-              { name: '300 robux (fast process)', price: 120, rs: 120 },
-              { name: '400 robux (fast process)', price: 160, rs: 160 },
-              { name: '500 robux (fast process)', price: 183, rs: 183 },
-              { name: '600 robux (fast process)', price: 222, rs: 222 },
-              { name: '700 robux (fast process)', price: 260, rs: 255 },
-              { name: '800 robux (fast process)', price: 298, rs: 292 },
-              { name: '900 robux (fast process)', price: 334, rs: 328 },
-              { name: '1000 robux (fast process)', price: 360, rs: 355 },
-              { name: '*covered tax (fast process)*', price: 0, rs: 0 },
+              { name: '100 robux', price: 48, rs: 45 },
+              { name: '200 robux', price: 85, rs: 85 },
+              { name: '300 robux', price: 120, rs: 120 },
+              { name: '400 robux', price: 160, rs: 160 },
+              { name: '500 robux', price: 183, rs: 183 },
+              { name: '600 robux', price: 222, rs: 222 },
+              { name: '700 robux', price: 260, rs: 255 },
+              { name: '800 robux', price: 298, rs: 292 },
+              { name: '900 robux)', price: 334, rs: 328 },
+              { name: '1000 robux', price: 360, rs: 355 },
+              { name: '*covered tax*', price: 0, rs: 0 },
               //
             ],
           },
@@ -462,69 +407,11 @@ module.exports = {
             new MessageButton().setCustomId('restrictRemoval').setStyle('SECONDARY').setLabel('request removal').setEmoji('<a:yl_exclamationan:1138705076395978802>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
           ),
           autoDelete: true,
-        },
-        {
-          command: 'rpremium',
-          response: '• premium purchased:\n• subscription:\n• original email:\n• replacement email:\n• working pass:\n• shared/solo/fh:\n• date availed :\n• date reported:\n• days used:\n• remaining days:\n• price paid:\n• issue & screenshot of issue:\n• screenshot of vouch with proof of login:',
-          autoDelete: false,
-        },
-        {
-          command: 'rboost',
-          response: '• Permanent invite link (The one you sent in your order):\n• How many boosts:\n• Date bought:\n• Days used:\n• Vouch link/screenshot:\n• Issue & proof of issue:',
-          autoDelete: false,
-        },
-        {
-          command: 'rbadge',
-          response: '• User who claimed the badge:\n• Duration:\n• Vouch link/screenshot;',
-          autoDelete: false,
-        },
-        {
-          command: 'rnitro',
-          response: '• nitro link:\n• user who claimed the nitro:\n• revoked email from discord (click "to me" in the email to confirm that the email is connected with your acc):\n• screenshot of the email connected to your discord account:\n• date availed:\n• remaining days:\n• screenshot/link of vouch:\n• Ref code:\n\nMake sure that the screenshot you send is exactly similar (not cropped) to the example below:',
-          files: [{attachment: 'https://media.discordapp.net/attachments/1093391705753002064/1096677816168353962/Untitled_design_8.png?width=662&height=662',name: 'file.png'}],
-          autoDelete: false,
-        },
-        {
-          command: 'rate',
-          response: '**Paypal Rate** <:07:1069200743959109712>\n\n₱499 below = 10%\n₱500 above = 7%\n₱1,000 above = 3%',
-          autoDelete: true,
-        },
+        }
         {
           command: 'boost',
           response: emojis.nboost+' **Server Boosting**\n— Send **permanent** invite link of the server (not vanity).\n— The server must have a boost announcement channel (see attachments below)\n— This will be required once you vouch and report.\n—Do not forget your invite link.\n\n**Void warranty if:**\n— Invite link is not permanent or was removed.\n— Did not have a **system messages channel** for boosters.\n— The channel **is not** PUBLICLY visible.',
           files: [{attachment: 'https://media.discordapp.net/attachments/1093391705753002064/1093391789223850044/image.png?width=1135&height=527',name: 'file.png'},{attachment: 'https://media.discordapp.net/attachments/1093391705753002064/1093391724249878560/image.png?width=791&height=117',name: 'file.png'}],
-          autoDelete: true,
-        },
-        {
-          command: 'valorant',
-          response: '<:mark:1056579773989650543>Riot ID:',
-          autoDelete: true,
-        },
-        {
-          command: 'gcashhold',
-          response: '<a:yl_exclamationan:1138705076395978802> **gcash**\n<:indent:1174738613330788512> 0994 064 5043 [ **I. P. I.** ]\n\n<a:S_whiteheart02:1138715896077090856>  send a screenshot of your receipt *!*',
-          components: new MessageActionRow().addComponents(new MessageButton().setCustomId('reply-09940645043').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")),
-          autoDelete: true,
-        },
-        {
-          command: 'gcash',
-          response: '<a:yl_exclamationan:1138705076395978802> **gcash**\n<:indent:1174738613330788512> 0952 441 4983 [ **I. P. I.** ]\n\n<a:S_whiteheart02:1138715896077090856>  send a screenshot of your receipt *!*',
-          components: new MessageActionRow().addComponents(new MessageButton().setCustomId('reply-09524414983').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")),
-          autoDelete: true,
-        },
-        {
-          command: 'paypal',
-          response: '<a:yl_flowerspin:1138705226082304020> Paypal (w/ fee)\n— Link: https://paypal.me/marcoplaton\n— Email: narcshin3@gmail.com\n— Please make sure to set the payment type to **friends and family**!\n\n— Send screenshot of receipt here',
-          autoDelete: true,
-        },
-        {
-          command: '1s213213123',
-          response: '',
-          autoDelete: true,
-        },
-        {
-          command: 'robux',
-          response: '**robux report form**\n- gamepass link:\n- vouch link:\n- price paid:\n- date availed:\n\n<:S_letter:1138714993425125556> Ensure that no rules were violated, in accordance with the terms and conditions accepted during the ordering process.',
           autoDelete: true,
         },
       ]
@@ -533,176 +420,6 @@ module.exports = {
       {
         user: '482603796371865603', //mimi
         role: '1109020434554433549',
-      },
-    ],
-    randomVouchers: {
-      amount: [1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,1,2,3,4,5,6,7,8,9,10],
-      type: [
-        "dev badge",
-        "game creds",
-        "premium",
-        "global",
-        "nitro",
-      ]
-    },
-    stickyChannels: [
-      {
-        id: '1169573502022602752',
-        message: 'Type </search:1169591423566368840> to determine whether or not a user has a history of blacklist!',
-      },
-      {
-        id: '1094975726127685726',
-        message: "<a:S_bearheart:1094190497179910225> Type `;feedback` on <@1057167023492300881>'s DMs to submit a feedback."
-      },
-      {
-        id: '1109020436026634265',
-        message: '<a:yl_exclamationan:1138705076395978802>Read <#1109020434978054229> for important notices *!*\n<:S_dot:1138714811908235444>Read <#1278165540841459713> for stock updates *!*',
-      },
-      {
-        id: '1168377722712621108',
-        message: '<a:yl_exclamationan:1138705076395978802>Read <#1109020434978054229> for important notices *!*\n<:S_dot:1138714811908235444>Read <#1278165540841459713> for stock updates *!*',
-      },
-      {
-        id: '0',
-        message: '<:S_letter:1092606891240198154> **Stocks dropper showcase** (outdated showcase)',
-        files: ['https://cdn.discordapp.com/attachments/1101501538293252136/1102772107424833536/2023-05-02_09-39-15.mp4']
-      },
-      {
-        id: '1109020434978054233', //1109020434978054233
-        message: emojis.nboost+' **Server Booster Perks**\n- ₱5 discount on certain products\n- **Sloopier** role\n- **Sloopiest** role (2x boost)\n- 2x giveaway entries',
-      },
-      {
-        id: '1109020436026634260', //1109020436026634260
-        message: '__**Vouch here!**__\n\n• Send any message of acknowledgement\n• Send screenshot of your purchase\n\n**Void warranty if:**\n• no vouch/improper vouch\n• no screenshot/proof of login\n• did not vouch within 12 hours\n• reference code is not visible',
-      },
-      {
-        id: '1109020436278300810',
-        message: 'Click the button below to access our pricelists.',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Access').setCustomId('prVerify').setStyle('SECONDARY').setEmoji('<a:yl_exclamationan:1138705076395978802>')
-        ),
-      },
-      {
-        id: '1109020435754000423',
-        message: 'Click the button below to create a ticket!\n\n<:y_seperator:1138707390657740870> Order — Availing products\n<:y_seperator:1138707390657740870> Support — General concerns and inquiries\n<:y_seperator:1138707390657740870> Report — Reporting revoked products',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Create Order').setCustomId('createTicket-order').setStyle('SECONDARY').setEmoji('🌄'),
-          new MessageButton().setLabel('Support Ticket').setCustomId('createTicket-support').setStyle('SECONDARY').setEmoji('🌅'),
-          new MessageButton().setLabel('Submit Report').setCustomId('createTicket-report').setStyle('SECONDARY').setEmoji('☀️')
-        ),
-      },
-      {
-        id: '0',
-        message: "You will no longer need to accept the consent form in your ticket once you click this button.",
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('New TOS').setCustomId('terms101').setStyle('SECONDARY').setEmoji('<:S_exclamation:1093734009005158450>')
-        ),
-      },
-      {
-        id: '1278165540841459713',
-        message: '** **\nBoost the server to get the Sloopier role *!*',
-        order: true,
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('order here').setURL('https://discord.com/channels/1109020434449575936/1109020435754000423').setStyle('LINK').setEmoji('<a:y_catheart:1138704838360830044>')
-        )
-      },
-      {
-        id: '0',
-        message: '**Notification Roles** <:07:1069200743959109712>',
-        roles: true,
-        comp: null,
-      },
-      {
-        id: '0',
-        message: '**Notification Roles** <:07:1069200743959109712>',
-        roles: true,
-        comp: null,
-      },
-      {
-        id: '', //1109020435523326025
-        message: '',
-        condition: message => message.channel.name.includes('。') && !message.channel.name.includes('done'),//keys.find(k => message.channel.name.includes(k) && !message.channel.name.includes('done')),
-        comp: new MessageActionRow()
-        .addComponents(
-          //new MessageButton().setLabel('Follow Up').setStyle('SECONDARY').setEmoji('<a:S_arrowright:1095503803761033276>').setCustomId('followup'),
-          new MessageButton().setLabel('Mark as Done').setStyle('SECONDARY').setCustomId('done')//.setEmoji('<a:S_lapot:1088655136785711184>'),
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick your age*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('13-15').setStyle('DANGER').setEmoji('🐣').setCustomId('roles-13-15'),
-          new MessageButton().setLabel('16-18').setStyle('DANGER').setEmoji('🐥').setCustomId('roles-16-18'),
-          new MessageButton().setLabel('19-21').setStyle('DANGER').setEmoji('🐔').setCustomId('roles-19-21'),
-          new MessageButton().setLabel('22+').setStyle('DANGER').setEmoji('🍗').setCustomId('roles-22+')
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick which games you play*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Minecraft').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Minecraft'),
-          new MessageButton().setLabel('Valorant').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Valorant'),
-          new MessageButton().setLabel('Roblox').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Roblox'),
-          new MessageButton().setLabel('Genshin').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Genshin'),
-          new MessageButton().setLabel('COD').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-COD')
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick which games you play (2)*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('CSGO').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-CSGO'),
-          new MessageButton().setLabel('DOTA').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-DOTA'),
-          new MessageButton().setLabel('Overwatch').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Overwatch'),
-          new MessageButton().setLabel('LOL').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-LOL'),
-          new MessageButton().setLabel('Mobile Legends').setStyle('SECONDARY').setEmoji('🎮').setCustomId('roles-Mobile_Legends')
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick your pronouns*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('He/Him').setStyle('SECONDARY').setEmoji('♂️').setCustomId('roles-He/Him'),
-          new MessageButton().setLabel('She/Her').setStyle('SECONDARY').setEmoji('♀️').setCustomId('roles-She/Her'),
-          new MessageButton().setLabel('They/Them').setStyle('SECONDARY').setEmoji('👥').setCustomId('roles-They/Them'),
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick which notifications you want to get*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Announcements').setStyle('SECONDARY').setEmoji('🔔').setCustomId('roles-Announcement'),
-          new MessageButton().setLabel('Stocks').setStyle('SECONDARY').setEmoji('🔔').setCustomId('roles-Stocks'),
-          new MessageButton().setLabel('Shop Status').setStyle('SECONDARY').setEmoji('🔔').setCustomId('roles-Shop_Status')
-        ),
-      },
-      {
-        id: '1109020434978054231',
-        message: 'Click the button to gain the **Shop Status** role and get notified when the shop opens or closes!',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Shop Status').setStyle('SECONDARY').setEmoji('🔔').setCustomId('roles-Shop_Status')
-        ),
-      },
-      {
-        id: '1109020434978054226',
-        message: '*Pick your language*',
-        comp: new MessageActionRow()
-        .addComponents(
-          new MessageButton().setLabel('Filipino').setStyle('SECONDARY').setEmoji('🇵🇭').setCustomId('roles-Pipino'),
-          new MessageButton().setLabel('English').setStyle('SECONDARY').setEmoji('🌐').setCustomId('roles-English'),
-        ),
       },
     ],
     deleteChannels: [],
@@ -718,89 +435,7 @@ module.exports = {
       'Content-Type': 'application/json'
     }
   },
-  commands: [
-    {
-      Command: "stocks",
-      Template: "",
-      Alias: ['stock','stoc','sto'],
-      Category: "Misc",
-      Desc: 'Shows the list of available stocks',
-      ex: [''],
-      level: 0,
-    },
-    {
-      Command: "nitro",
-      Template: "<user> <amount> [payment] [item]",
-      Alias: [],
-      Category: "Handler",
-      Desc: 'Drops nitro boost to a user',
-      ex: ['nitro @user 10','nitro @user 10 paypal','nitro @user 10 gcash 1yr nitro boost'],
-      level: 4,
-    },
-    {
-      Command: "drop",
-      Template: "<channel> <voucher>",
-      Alias: [],
-      Category: "Handler",
-      Desc: 'Drops a voucher in a specific channel',
-      ex: ['nitro @channel ₱5 voucher','nitro @channel ₱10 premium voucher'],
-      level: 4,
-    },
-    {
-      Command: "rate",
-      Template: "<amount>",
-      Alias: [],
-      Category: "Handler",
-      Desc: 'Calculates the fee for paypal buyers',
-      ex: ['rate 509','rate 69.23'],
-      level: 4,
-    },
-    {
-      Command: "exchange",
-      Template: "<amount>",
-      Alias: ['ex'],
-      Category: "Handler",
-      Desc: 'Calculates the amount to receive in e-wallet exchange',
-      ex: ['ex 509','exchange 69.23'],
-      level: 4,
-    },
-    {
-      Command: "use",
-      Template: "<voucher>",
-      Alias: [],
-      Category: "Misc",
-      Desc: 'Use a voucher',
-      ex: ['use KJnHhJb'],
-      level: 0,
-    },
-    {
-      Command: "cmds",
-      Template: "[command]",
-      Alias: ['cmd','help'],
-      Category: "Misc",
-      Desc: 'Shows the list of available commands',
-      ex: ['cmds stocks','cmds use'],
-      level: 0,
-    },
-    {
-      Command: "stat",
-      Template: "<category> <stat>",
-      Alias: [],
-      Category: "Misc",
-      Desc: 'Changes the product status',
-      ex: ['stat nitro 1','stat spotify 2'],
-      level: 0,
-    },
-    {
-      Command: "setpr",
-      Template: "<type>",
-      Alias: [],
-      Category: "Misc",
-      Desc: 'Updates the pricelist',
-      ex: ['setpr rs','setpr all'],
-      level: 0,
-    },
-  ],
+  commands: [],
   permissions: [
     {
       id: "497918770187075595", //my user

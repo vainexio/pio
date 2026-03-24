@@ -407,7 +407,7 @@ module.exports = {
             new MessageButton().setCustomId('restrictRemoval').setStyle('SECONDARY').setLabel('request removal').setEmoji('<a:yl_exclamationan:1138705076395978802>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
           ),
           autoDelete: true,
-        }
+        },
         {
           command: 'boost',
           response: emojis.nboost+' **Server Boosting**\n— Send **permanent** invite link of the server (not vanity).\n— The server must have a boost announcement channel (see attachments below)\n— This will be required once you vouch and report.\n—Do not forget your invite link.\n\n**Void warranty if:**\n— Invite link is not permanent or was removed.\n— Did not have a **system messages channel** for boosters.\n— The channel **is not** PUBLICLY visible.',

@@ -16,7 +16,6 @@ const { exec } = require('node:child_process');
 
 const { exiftool } = require('exiftool-vendored');
 
-
 const axios = require('axios');
 //Discord
 const Discord = require('discord.js');

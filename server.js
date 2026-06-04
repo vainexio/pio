@@ -2687,7 +2687,7 @@ client.on('interactionCreate', async inter => {
           const allTix = await tixModel.find()
           let openCount = 0
           allTix.forEach(u => u.tickets.forEach(t => { if (t.status === 'open') openCount++ }))
-          if (openCount >= 5) {
+          if (openCount >= 15) {
             await channel.send({ embeds: [new EmbedBuilder()
               .setTitle('⚠️ High Traffic Notice')
               .setDescription('We currently have **' + openCount + '** active tickets open.\nOur team will attend to you as soon as possible — thank you for your patience! 🙏')

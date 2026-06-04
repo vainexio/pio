@@ -42,7 +42,7 @@
     "util": "^0.12.5"
   },
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "repository": {
     "url": "https://glitch.com/edit/#!/chisel-lavender-intelligence"

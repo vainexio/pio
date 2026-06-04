@@ -1144,7 +1144,7 @@ client.on('interactionCreate', async inter => {
     const { commandName, options, channelId } = inter;
 
     if (cname == "create_stock") {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
@@ -1153,32 +1153,53 @@ client.on('interactionCreate', async inter => {
       doc.category = stockName.value
       doc.amount = amount.value
       await doc.save()
-      await inter.reply({ content: emojis.check+" New stock was created!"})
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Stock Created**\n`' + stockName.value + '` — **' + amount.value + '** units')
+        .setColor(colors.green)
+        .setFooter({ text: 'Stock Management' })
+        .setTimestamp()
+      ], ephemeral: true })
       updateStocks()
     }
     else if (cname == "edit_stock") {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
 
       let doc = await stockModel.findOne({category: stockName.value})
-      if (!doc) return inter.reply({ content: emojis.x+" Invalid category name" })
+      if (!doc) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Invalid Category**\n`' + stockName.value + '` was not found.').setColor(colors.red)], ephemeral: true })
 
-      await inter.reply({ content: emojis.check+" Edited "+doc.category+"'s amount from "+doc.amount+" to **"+amount.value+"**!"})
+      let oldAmount = doc.amount
       doc.amount = amount.value
       await doc.save()
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Stock Updated**')
+        .addFields(
+          { name: 'Category', value: '`' + doc.category + '`', inline: true },
+          { name: 'Before', value: String(oldAmount), inline: true },
+          { name: 'After', value: '**' + amount.value + '**', inline: true },
+        )
+        .setColor(colors.green)
+        .setFooter({ text: 'Stock Management' })
+        .setTimestamp()
+      ], ephemeral: true })
       updateStocks()
     }
     else if (cname == "delete_stock") {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
 
       let doc = await stockModel.findOne({category: stockName.value})
-      if (!doc) return inter.reply({ content: emojis.x+" Invalid category name" })
+      if (!doc) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Invalid Category**\n`' + stockName.value + '` was not found.').setColor(colors.red)], ephemeral: true })
 
-      await inter.reply({ content: emojis.check+" "+doc.category+" was deleted!"})
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Stock Deleted**\n`' + doc.category + '` was removed.')
+        .setColor(colors.orange)
+        .setFooter({ text: 'Stock Management' })
+        .setTimestamp()
+      ], ephemeral: true })
       await stockModel.deleteOne({ category: stockName.value })
       updateStocks()
     }
@@ -1211,7 +1232,12 @@ client.on('interactionCreate', async inter => {
       let templates = await getChannel('1109020434810294344')
       let tempMsg = await templates.messages.fetch('1379678865294626828')
       const content = tempMsg.content.replace('{item}', item).replace('{starting_price}', startPrice.toFixed(2)).replace('{highest_bid}', startPrice.toFixed(2)).replace('{bidder}', 'N/A');
-      await inter.reply({ content: emojis.check + " Bid started!", ephemeral: true })
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Bid Started!**\n**Item:** ' + item + '\n**Starting Price:** ₱' + startPrice.toFixed(2))
+        .setColor(colors.green)
+        .setFooter({ text: 'Auction System' })
+        .setTimestamp()
+      ], ephemeral: true })
 
       const sentMsg = await inter.channel.send({
         content,
@@ -1304,10 +1330,11 @@ client.on('interactionCreate', async inter => {
         } catch(_) {}
 
         const groupLink = `https://www.roblox.com/groups/${group.value}`;
-        // Use your emoji variable (emojis.warning) — if you use a different variable name, swap it.
-        return inter.editReply({
-          content: `${emojis.warning} **${displayName}** is not a member of **${groupName}**.\nGroup: ${groupLink}`
-        });
+        return inter.editReply({ embeds: [new EmbedBuilder()
+          .setDescription(emojis.x + ' **Not a Member**\n**' + displayName + '** is not in **' + groupName + '**.')
+          .addFields({ name: 'Group', value: '[' + groupName + '](' + groupLink + ')' })
+          .setColor(colors.red)
+        ] });
       }
 
       // Member found
@@ -1341,10 +1368,17 @@ client.on('interactionCreate', async inter => {
         // ignore - group name is optional anyway
       }
 
-      // Final reply using Discord's relative timestamp (<t:unix:R>)
-      return inter.editReply({
-        content: `**${displayName}** joined **${groupName}** on **${formattedDate}** (<t:${unixSeconds}:R>)`
-      });
+      return inter.editReply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Group Membership Found**')
+        .addFields(
+          { name: 'Roblox User', value: '**' + displayName + '**', inline: true },
+          { name: 'Group', value: '**' + groupName + '**', inline: true },
+          { name: 'Join Date', value: formattedDate + '\n<t:' + unixSeconds + ':R>', inline: false },
+        )
+        .setColor(colors.green)
+        .setFooter({ text: 'Roblox Group Lookup' })
+        .setTimestamp()
+      ] });
     } else if (res.status === 401 || res.status === 403) {
       return inter.editReply({ content: "Roblox API authentication failed. Check your x-api-key." });
     } else {
@@ -1406,10 +1440,11 @@ client.on('interactionCreate', async inter => {
         } catch(_) {}
 
         const groupLink = `https://www.roblox.com/groups/${group.value}`;
-        // Use your emoji variable (emojis.warning) — if you use a different variable name, swap it.
-        return inter.editReply({
-          content: `${emojis.warning} **${displayName}** is not a member of **${groupName}**.\nGroup: ${groupLink}`
-        });
+        return inter.editReply({ embeds: [new EmbedBuilder()
+          .setDescription(emojis.x + ' **Not a Member**\n**' + displayName + '** is not in **' + groupName + '**.')
+          .addFields({ name: 'Group', value: '[' + groupName + '](' + groupLink + ')' })
+          .setColor(colors.red)
+        ] });
       }
 
       // Member found
@@ -1443,10 +1478,17 @@ client.on('interactionCreate', async inter => {
         // ignore - group name is optional anyway
       }
 
-      // Final reply using Discord's relative timestamp (<t:unix:R>)
-      return inter.editReply({
-        content: `**${displayName}** joined **${groupName}** on **${formattedDate}** (<t:${unixSeconds}:R>)`
-      });
+      return inter.editReply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Group Membership Found**')
+        .addFields(
+          { name: 'Roblox User', value: '**' + displayName + '**', inline: true },
+          { name: 'Group', value: '**' + groupName + '**', inline: true },
+          { name: 'Join Date', value: formattedDate + '\n<t:' + unixSeconds + ':R>', inline: false },
+        )
+        .setColor(colors.green)
+        .setFooter({ text: 'Roblox Group Lookup' })
+        .setTimestamp()
+      ] });
     } else if (res.status === 401 || res.status === 403) {
       return inter.editReply({ content: "Roblox API authentication failed. Check your x-api-key." });
     } else {
@@ -1460,7 +1502,7 @@ client.on('interactionCreate', async inter => {
   }
     //
     else if (cname === 'payout') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       let amount = options.find(a => a.name === 'username')
@@ -1491,7 +1533,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'buy') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let link = options.find(a => a.name === 'link')
       await inter.deferReply();
@@ -1540,7 +1582,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'accept') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
@@ -1569,7 +1611,7 @@ client.on('interactionCreate', async inter => {
       await inter.editReply({ content: "Accepted friend request: **" + user.name + "**\nProfile: https://www.roblox.com/users/" + user.id + "/profile" })
     }
     else if (cname === 'unfriend') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
@@ -1731,7 +1773,7 @@ client.on('interactionCreate', async inter => {
     // revoke
     else if (cname === 'revoke') {
       if (inter.user.id == "497918770187075595") { }
-      else if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      else if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let links = options.find(a => a.name === 'links')
@@ -1850,7 +1892,7 @@ client.on('interactionCreate', async inter => {
     }
     // generate
     else if (cname === 'generate') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let amount = options.find(a => a.name === 'amount')
@@ -1863,7 +1905,7 @@ client.on('interactionCreate', async inter => {
     }
     // codes
     else if (cname === 'codes') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let limit = options.find(a => a.name === 'limit')
@@ -1889,7 +1931,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'embed') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let embedId = options.find(a => a.name === 'id')
       let title = options.find(a => a.name === 'title')
@@ -2047,7 +2089,7 @@ client.on('interactionCreate', async inter => {
       });
     }
     else if (cname === 'display_embed') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       const embedId = options.find(a => a.name === 'id')
       const embedData = await embedModel.findOne({ id: embedId.value.toLowerCase() });
@@ -2073,7 +2115,7 @@ client.on('interactionCreate', async inter => {
       }
     }
     else if (cname === 'delete_embed') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       const embedId = options.find(a => a.name === 'id')
       const embedData = await embedModel.findOne({ id: embedId.value.toLowerCase() });
@@ -2086,7 +2128,7 @@ client.on('interactionCreate', async inter => {
       }
     }
     else if (cname === 'show_embeds') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       const embedData = await embedModel.find()
 
       if (embedData) {
@@ -2112,7 +2154,7 @@ client.on('interactionCreate', async inter => {
     }
     //Nitro dropper
     else if (cname === 'drop') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       if (!yay) return inter.reply({ content: emojis.warning + " The bot is currently busy deleting stocks (" + cStocks + "/" + tStocks + ")", ephemeral: true })
       await inter.deferReply();
@@ -2194,7 +2236,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (cname === 'resend') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       let msgIds = options.find(a => a.name === 'msg_ids')
       await inter.reply({ content: emojis.loading + ' Resending messages...', ephemeral: true })
@@ -2305,7 +2347,7 @@ client.on('interactionCreate', async inter => {
     }
     //Queue
     else if (cname === 'order') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + " Insufficient Permission" });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let options = inter.options.data
       //
       let user = options.find(a => a.name === 'user')
@@ -2341,7 +2383,20 @@ client.on('interactionCreate', async inter => {
           new ButtonBuilder().setURL(msgUrl).setStyle(ButtonStyle.Link).setEmoji('<:S_letter:1138714993425125556>').setLabel("view order"),
         );
 
-        await inter.editReply({ content: '<a:yt_chickclap:1138707159287345263> you order was placed ( ' + orders.toString() + ' )', components: [linkRow] })
+        await inter.editReply({ embeds: [new EmbedBuilder()
+          .setDescription('<a:yt_chickclap:1138707159287345263> **Order Placed!**')
+          .addFields(
+            { name: 'Product', value: product.value, inline: true },
+            { name: 'Quantity', value: quan.value.toString(), inline: true },
+            { name: 'Price', value: '₱' + price.value, inline: true },
+            { name: 'Customer', value: '<@' + user.user.id + '>', inline: true },
+            { name: 'Payment', value: (mop ? mop.value.toUpperCase() : 'GCash'), inline: true },
+            { name: 'Orders Channel', value: orders.toString(), inline: true },
+          )
+          .setColor(colors.green)
+          .setFooter({ text: 'Order System' })
+          .setTimestamp()
+        ], components: [linkRow] })
 
         let stock = await stockModel.findOne({category: product.value.toLowerCase()})
         if (stock) {
@@ -2359,10 +2414,18 @@ client.on('interactionCreate', async inter => {
       let options = inter.options.data;
       let amount = options.find(a => a.name === 'amount');
       let value = amount.value;
-      
-      // Fix floating-point issue
+
       let price = Math.ceil(Number((value / 0.7).toFixed(6)));
-      await inter.reply("Expected Gamepass Price: **" + price + "** " + emojis.robux)
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setTitle(emojis.robux + ' Gamepass Price Calculator')
+        .addFields(
+          { name: 'Amount (Robux)', value: String(value), inline: true },
+          { name: 'Expected Price', value: '**' + price + '** ' + emojis.robux, inline: true },
+          { name: 'Formula', value: '`amount ÷ 0.70`', inline: true },
+        )
+        .setDescription('-# Accounts for the 30% Roblox marketplace fee.')
+        .setColor(colors.yellow)
+      ] })
     }
     //Refund
     else if (cname === 'refund') {
@@ -2521,13 +2584,21 @@ client.on('interactionCreate', async inter => {
       let member = inter.member;
       await addRole(member, ['1109020434520887321'], inter.message.guild)
       let row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('claimed').setStyle(ButtonStyle.Secondary).setDisabled(true).setEmoji(emojis.check),
+        new ButtonBuilder().setCustomId('claimed').setStyle(ButtonStyle.Success).setDisabled(true).setLabel('Terms Accepted').setEmoji(emojis.check),
       );
-      inter.update({ content: '<a:tick:1138709329604784128> terms accepted : <@' + inter.user.id + '>', components: [row] })
+      inter.update({ embeds: [new EmbedBuilder()
+        .setDescription('<a:tick:1138709329604784128> **Terms Accepted** — <@' + inter.user.id + '>')
+        .setColor(colors.green)
+        .setFooter({ text: 'Sloopie Tickets' })
+      ], components: [row], content: null })
       let row2 = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('order form').setEmoji('<a:y_starroll:1138704563529076786>'),
       );
-      inter.channel.send({ components: [row2] })
+      inter.channel.send({ embeds: [new EmbedBuilder()
+        .setDescription('<:indent:1174738613330788512> Fill out the order form and we\'ll get started *!*')
+        .setColor(colors.yellow)
+        .setFooter({ text: 'Sloopie Tickets' })
+      ], components: [row2] })
       inter.channel.setName(inter.channel.name.replace('ticket', inter.user.username.replace(/ /g, '')))
     }
     //tickets
@@ -2590,13 +2661,20 @@ client.on('interactionCreate', async inter => {
         }
       }
 
-      await inter.reply({ content: "creating your ticket <a:9h_Squirtle1:1138711304085971044>", ephemeral: true })
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.loading + ' Creating your ticket...')
+        .setColor(colors.yellow)
+      ], ephemeral: true })
       let channel = await makeTicket(data)
-      await inter.followUp({ content: "<a:yl_exclamationan:1138705076395978802> ticket created *!*\nhead to : " + channel.toString(), ephemeral: true })
+      await inter.followUp({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.check + ' **Ticket Created!**\nHead over to: ' + channel.toString())
+        .setColor(colors.green)
+        .setFooter({ text: 'Sloopie Tickets' })
+      ], ephemeral: true })
     }
     else if (id.includes('Ticket-')) {
       let method = id.startsWith('openTicket-') ? 'open' : id.startsWith('closedTicket-') ? 'closed' : id.startsWith('deleteTicket-') ? 'delete' : null
-      if (!await getPerms(inter.member, 4) && method !== 'closed') return inter.reply({ content: emojis.warning + ' Insufficient Permission', ephemeral: true });
+      if (!await getPerms(inter.member, 4) && method !== 'closed') return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
 
       let userId = id.replace(method + 'Ticket-', '').replace(/_/g, ' ')
       let user = await getUser(userId)
@@ -2616,20 +2694,23 @@ client.on('interactionCreate', async inter => {
         else if (method === 'closed') {
           let row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('transcript-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Transcript').setEmoji('💾'),
-            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Open').setEmoji('🔓'),
-            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Delete').setEmoji('⛔'),
+            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Success).setLabel('Reopen').setEmoji('🔓'),
+            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Danger).setLabel('Delete').setEmoji('⛔'),
           );
           comp = [row]
         }
         else if (method === 'open') {
           let row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('closedTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔓'),
+            new ButtonBuilder().setCustomId('closedTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔒'),
           );
           comp = [row]
         }
         if (method === 'delete') {
           let log = await getChannel(shop.tixSettings.transcripts)
-          await inter.reply({ content: 'Saving transcript to ' + log.toString() })
+          await inter.reply({ embeds: [new EmbedBuilder()
+            .setDescription(emojis.loading + ' Saving transcript to ' + log.toString() + '...')
+            .setColor(colors.yellow)
+          ] })
 
           let user = await getUser(userId)
           let ticket = await doc.tickets.find(tix => tix.id === inter.channel.id)
@@ -2672,10 +2753,18 @@ client.on('interactionCreate', async inter => {
               );
 
               await msg.edit({ content: null, embeds: [embed], components: [row] })
-              await inter.channel.send({ content: emojis.check + ' Transcript saved *!*' })
+              await inter.channel.send({ embeds: [new EmbedBuilder()
+                .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + ticket.transcript + ')')
+                .setColor(colors.green)
+                .setFooter({ text: 'Sloopie Tickets' })
+              ] })
               user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err))
             });
-            await inter.channel.send({ content: text })
+            await inter.channel.send({ embeds: [new EmbedBuilder()
+              .setDescription('🗑️ **Deleting Channel**\nThis channel will be removed shortly.')
+              .setColor(colors.red)
+              .setFooter({ text: 'Sloopie Tickets' })
+            ] })
             setTimeout(async function () {
               doc = await tixModel.findOne({ id: user.id })
               for (let i in doc.tickets) {
@@ -2694,7 +2783,10 @@ client.on('interactionCreate', async inter => {
         else if (method !== 'delete') {
           let botMsg = null
           inter.deferUpdate();
-          await inter.message.reply({ content: 'Updating ticket... ' + emojis.loading }).then(msg => botMsg = msg)
+          await inter.message.reply({ embeds: [new EmbedBuilder()
+            .setDescription(emojis.loading + ' Updating ticket...')
+            .setColor(colors.yellow)
+          ] }).then(msg => botMsg = msg)
           //Modify channel
           for (let i in doc.tickets) {
             let ticket = doc.tickets[i]
@@ -2709,26 +2801,29 @@ client.on('interactionCreate', async inter => {
               await inter.channel.permissionOverwrites.set([
                 {
                   id: inter.guild.roles.everyone,
-                  deny: ['VIEW_CHANNEL'],
+                  deny: [PermissionFlagsBits.ViewChannel],
                 },
                 {
                   id: user.id,
-                  deny: method === 'closed' || method === 'delete' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
-                  allow: method === 'open' ? ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] : null,
+                  deny: method === 'closed' || method === 'delete' ? [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] : null,
+                  allow: method === 'open' ? [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] : null,
                 },
                 {
                   id: inter.guild.roles.cache.find(r => r.id === shop.tixSettings.support),
-                  allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                  allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
                 },
 
               ]);
             }
           }
           await doc.save()
+          let statusColor = method === 'closed' ? colors.red : colors.green
+          let statusIcon = method === 'closed' ? '🔒' : '🔓'
+          let statusLabel = method === 'closed' ? 'Ticket Closed' : 'Ticket Reopened'
           let embed = new EmbedBuilder()
-            .setDescription(text)
-            .setColor(colors.none)
-            .setFooter({ text: "Sloopies Ticketing System" })
+            .setDescription(statusIcon + ' **' + statusLabel + '**\nBy ' + inter.user.toString() + ' — <t:' + Math.floor(Date.now() / 1000) + ':R>')
+            .setColor(statusColor)
+            .setFooter({ text: 'Sloopie Tickets' })
           inter.channel.send({ embeds: [embed], components: comp })
           botMsg.delete();
         }
@@ -2737,11 +2832,14 @@ client.on('interactionCreate', async inter => {
       }
     }
     else if (id.startsWith('transcript-')) {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission', ephemeral: true });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let userId = id.replace('transcript-', '').replace(/_/g, ' ')
       let doc = await tixModel.findOne({ id: userId })
       let log = await getChannel(shop.tixSettings.transcripts)
-      await inter.reply({ content: 'Saving transcript to ' + log.toString() })
+      await inter.reply({ embeds: [new EmbedBuilder()
+        .setDescription(emojis.loading + ' Saving transcript to ' + log.toString() + '...')
+        .setColor(colors.yellow)
+      ] })
 
       if (doc) {
 
@@ -2783,7 +2881,11 @@ client.on('interactionCreate', async inter => {
             new ButtonBuilder().setURL(ticket.transcript).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
           );
           await msg.edit({ content: null, embeds: [embed], components: [row] })
-          await inter.channel.send({ content: emojis.check + ' Transcript saved *!*' })
+          await inter.channel.send({ embeds: [new EmbedBuilder()
+            .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + ticket.transcript + ')')
+            .setColor(colors.green)
+            .setFooter({ text: 'Sloopie Tickets' })
+          ] })
           user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err))
         });
       }
@@ -2806,7 +2908,7 @@ client.on('interactionCreate', async inter => {
     }
     //
     else if (id === 'orderStatus') {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission', ephemeral: true });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
 
       let stat = ['noted', 'processing', 'delayed', 'almost', 'completed', 'cancelled']
       let otherStat = [
@@ -2858,16 +2960,16 @@ client.on('interactionCreate', async inter => {
         await ticket.permissionOverwrites.set([
           {
             id: inter.guild.roles.everyone,
-            deny: ['VIEW_CHANNEL'],
+            deny: [PermissionFlagsBits.ViewChannel],
           },
           {
             id: member.id,
             deny: null,
-            allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
           },
           {
             id: inter.guild.roles.cache.find(r => r.id === shop.tixSettings.support),
-            allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
           },
         ]);
       } else if (found === 'processing') {
@@ -2877,16 +2979,16 @@ client.on('interactionCreate', async inter => {
           await ticket.permissionOverwrites.set([
             {
               id: inter.guild.roles.everyone,
-              deny: ['VIEW_CHANNEL'],
+              deny: [PermissionFlagsBits.ViewChannel],
             },
             {
               id: member.id,
               deny: null,
-              allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+              allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
             },
             {
               id: inter.guild.roles.cache.find(r => r.id === shop.tixSettings.support),
-              allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+              allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
             },
           ]);
         }
@@ -2927,7 +3029,7 @@ client.on('interactionCreate', async inter => {
       }
     }
     else if (id.startsWith('drop-')) {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission', ephemeral: true });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let msgId = id.replace('drop-', '')
       let drops = await getChannel(shop.channels.drops)
       let dropMsg = await drops.messages.fetch(msgId)
@@ -2958,7 +3060,7 @@ client.on('interactionCreate', async inter => {
         })
     }
     else if (id.startsWith('showDrop-')) {
-      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission', ephemeral: true });
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
       let msgId = id.replace('showDrop-', '')
       let drops = await getChannel(shop.channels.drops)
       let dropMsg = await drops.messages.fetch(msgId)
@@ -3685,7 +3787,7 @@ async function getPendingClosures() {
               await ticket.permissionOverwrites.set([
                 {
                   id: ticket.guild.roles.everyone,
-                  deny: ['VIEW_CHANNEL'],
+                  deny: [PermissionFlagsBits.ViewChannel],
                 },
                 {
                   id: user.id,
@@ -3694,7 +3796,7 @@ async function getPendingClosures() {
                 },
                 {
                   id: ticket.guild.roles.cache.find(r => r.id === shop.tixSettings.support),
-                  allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                  allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
                 },
               ]);
             }

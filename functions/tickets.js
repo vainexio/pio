@@ -57,17 +57,25 @@ module.exports = {
       await data.doc.save()
       
       let embed = new EmbedBuilder()
-      .setTitle(data.name)
-      .setDescription("welcome **"+data.user.username+"** *!*\n<:hb_rule_book:1138712613769990254> any available <@&"+data.support+"> will assist you soon.\n\n"+data.context)
+      .setTitle('🎟️ ' + data.name)
+      .setDescription(
+        'Welcome, <@' + data.user.id + '> *!*\n' +
+        '<:hb_rule_book:1138712613769990254> A member of <@&' + data.support + '> will assist you shortly.\n\n' +
+        data.context
+      )
+      .addFields(
+        { name: 'Ticket Type', value: data.name, inline: true },
+        { name: 'Opened', value: '<t:' + Math.floor(Date.now() / 1000) + ':R>', inline: true },
+      )
       .setColor(colors.yellow)
-      .setFooter({text: 'Sloopie Tickets'})
+      .setFooter({ text: 'Sloopie Tickets • #' + data.count })
       .setThumbnail(data.guild.iconURL())
-      
+
       let row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('closedTicket-'+data.user.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔒'),
         new ButtonBuilder().setCustomId('timedClosure').setStyle(ButtonStyle.Secondary).setLabel('Timed Closure').setEmoji('<:Timer:1351861429954936893>'),
       );
-      let BotMsg = channel.send({ content: "<a:S_whiteheart02:1138715896077090856> <@"+data.user.id+">\n<a:S_whiteheart02:1138715896077090856> <@&"+data.support+">\n\n<:S_letter:1138714993425125556> ticket opened ("+data.name.toLowerCase()+") *!*", embeds: [embed] , components: [row]})
+      let BotMsg = channel.send({ content: '<a:S_whiteheart02:1138715896077090856> <@' + data.user.id + '> <@&' + data.support + '>', embeds: [embed], components: [row] })
       
       })
       .catch(async err => {

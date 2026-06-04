@@ -2758,7 +2758,7 @@ client.on('interactionCreate', async inter => {
                 { name: 'Ticket Owner', value: user.toString(), inline: true },
                 { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
                 { name: 'Panel Name', value: ticket.panel ? ticket.panel : 'Unknown', inline: true },
-                { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
+                { name: 'Transcript', value: viewerUrl ? '[View Transcript](' + viewerUrl + ')' : 'See attached file', inline: true },
                 { name: 'Count', value: ticket.count ? ticket.count.toString() : 'Unknown', inline: true },
                 { name: 'Moderator', value: inter.user.toString(), inline: true }
               )
@@ -2766,17 +2766,17 @@ client.on('interactionCreate', async inter => {
               .setColor(colors.yellow)
               .setFooter({ text: 'Sloopie Tickets' })
 
-            let row = new ActionRowBuilder().addComponents(
-              new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
-            );
+            let rowComponents = [];
+            if (viewerUrl) rowComponents.push(new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'));
+            let row = rowComponents.length ? new ActionRowBuilder().addComponents(...rowComponents) : null;
 
-            await logMsg.edit({ content: null, embeds: [embed], components: [row] });
+            await logMsg.edit({ content: null, embeds: [embed], components: row ? [row] : [] });
             await inter.channel.send({ embeds: [new EmbedBuilder()
-              .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + viewerUrl + ')')
+              .setDescription(emojis.check + ' **Transcript Saved!**' + (viewerUrl ? '\n[View Transcript](' + viewerUrl + ')' : ' See attached file.'))
               .setColor(colors.green)
               .setFooter({ text: 'Sloopie Tickets' })
             ] });
-            user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err));
+            user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: row ? [row] : [] }).catch(err => console.log(err));
             await inter.channel.send({ embeds: [new EmbedBuilder()
               .setDescription('🗑️ **Deleting Channel**\nThis channel will be removed shortly.')
               .setColor(colors.red)
@@ -2877,7 +2877,7 @@ client.on('interactionCreate', async inter => {
               { name: 'Ticket Owner', value: user.toString(), inline: true },
               { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
               { name: 'Panel Name', value: ticket.panel ? ticket.panel : 'Unknown', inline: true },
-              { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
+              { name: 'Transcript', value: viewerUrl ? '[View Transcript](' + viewerUrl + ')' : 'See attached file', inline: true },
               { name: 'Count', value: ticket.count ? ticket.count.toString() : 'Unknown', inline: true },
               { name: 'Moderator', value: inter.user.toString(), inline: true }
             )
@@ -2885,16 +2885,16 @@ client.on('interactionCreate', async inter => {
             .setColor(colors.yellow)
             .setFooter({ text: 'Sloopie Tickets' })
 
-          let row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
-          );
-          await logMsg.edit({ content: null, embeds: [embed], components: [row] });
+          let transcriptComponents = [];
+          if (viewerUrl) transcriptComponents.push(new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'));
+          let row = transcriptComponents.length ? new ActionRowBuilder().addComponents(...transcriptComponents) : null;
+          await logMsg.edit({ content: null, embeds: [embed], components: row ? [row] : [] });
           await inter.channel.send({ embeds: [new EmbedBuilder()
-            .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + viewerUrl + ')')
+            .setDescription(emojis.check + ' **Transcript Saved!**' + (viewerUrl ? '\n[View Transcript](' + viewerUrl + ')' : ' See attached file.'))
             .setColor(colors.green)
             .setFooter({ text: 'Sloopie Tickets' })
           ] });
-          user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err));
+          user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: row ? [row] : [] }).catch(err => console.log(err));
       }
     }
     else if (id == 'timedClosure') {
@@ -3776,8 +3776,8 @@ async function generateTranscript(channel) {
   const fileName = `${channel.id}.html`;
   fsSync.writeFileSync(path.join(TRANSCRIPT_DIR, fileName), html);
   const attachment = new AttachmentBuilder(Buffer.from(html), { name: fileName });
-  const host = `https://${process.env.REPLIT_DEV_DOMAIN}`;
-  const viewerUrl = `${host}/transcripts/${fileName}`;
+  const host = process.env.BASE_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : null);
+  const viewerUrl = host ? `${host}/transcripts/${fileName}` : null;
   return { attachment, viewerUrl };
 }
 
@@ -3837,17 +3837,17 @@ async function checkInactiveTickets() {
                   { name: 'Ticket Owner', value: user.toString(), inline: true },
                   { name: 'Ticket Name', value: '`' + ticket.name + '`', inline: true },
                   { name: 'Auto-Deleted', value: '<t:' + Math.floor(now / 1000) + ':R>', inline: true },
-                  { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
+                  { name: 'Transcript', value: viewerUrl ? '[View Transcript](' + viewerUrl + ')' : 'See attached file', inline: true },
                 )
                 .setThumbnail(channel.guild.iconURL())
                 .setColor(colors.red)
                 .setFooter({ text: 'Auto-deleted — inactive for 48h while closed' });
-              const linkRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript'),
-              );
+              const autoDeleteComponents = [];
+              if (viewerUrl) autoDeleteComponents.push(new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript'));
+              const linkRow = autoDeleteComponents.length ? new ActionRowBuilder().addComponents(...autoDeleteComponents) : null;
               const logMsg = await log.send({ content: 'Auto-delete', files: [attachment] });
-              await logMsg.edit({ content: null, embeds: [transcriptEmbed], components: [linkRow] });
-              user.send({ content: 'Your ticket `' + ticket.name + '` was auto-deleted after 48h of inactivity while closed.', embeds: [transcriptEmbed], files: [attachment], components: [linkRow] }).catch(() => {});
+              await logMsg.edit({ content: null, embeds: [transcriptEmbed], components: linkRow ? [linkRow] : [] });
+              user.send({ content: 'Your ticket `' + ticket.name + '` was auto-deleted after 48h of inactivity while closed.', embeds: [transcriptEmbed], files: [attachment], components: linkRow ? [linkRow] : [] }).catch(() => {});
               const idx = userDoc.tickets.findIndex(t => t.id === ticket.id);
               if (idx !== -1) userDoc.tickets.splice(idx, 1);
               await userDoc.save();

@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu} = Discord;
+const { ActivityType, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = Discord;
 let colors = {
   red: "#ea3737",
   blue: "#1200ff",
@@ -90,19 +90,19 @@ module.exports = {
         {
           status: "idle", //online, idle, dnd
           activities: [
-            { name: ".gg/sloopies", type: "Watching".toUpperCase(), //playing, watching, listening only
+            { name: ".gg/sloopies", type: ActivityType.Watching, //playing, watching, listening only
             }, ], 
         },
         {
           status: "idle", //online, idle, dnd
           activities: [
-            { name: "#tickets to order", type: "Watching".toUpperCase(), //playing, watching, listening only
+            { name: "#tickets to order", type: ActivityType.Watching, //playing, watching, listening only
             }, ], 
         },
         {
           status: "idle", //online, idle, dnd
           activities: [
-            { name: "ping @slurpies for inqueries", type: "Watching".toUpperCase(), //playing, watching, listening only
+            { name: "ping @slurpies for inqueries", type: ActivityType.Watching, //playing, watching, listening only
             }, ], 
         },
       ]
@@ -194,8 +194,8 @@ module.exports = {
     
     gcashStatus: null,
     breakChecker: false,
-    orderStatus: new MessageActionRow().addComponents(
-          new MessageSelectMenu().setCustomId('orderStatus').setPlaceholder('Update Order Status').addOptions([
+    orderStatus: new ActionRowBuilder().addComponents(
+          new StringSelectMenuBuilder().setCustomId('orderStatus').setPlaceholder('Update Order Status').addOptions([
             {label: 'Noted',description: 'Change Order Status',value: 'noted', emoji: '<:S_yellowheart:1141708792141189200>'},
             {label: 'Processing',description: 'Change Order Status',value: 'processing', emoji: '<a:yt_chickclap:1138707159287345263>'},
             {label: 'Delayed',description: 'Change Order Status',value: 'delayed',emoji:'<a:warningping:1320359447134212147>'},
@@ -408,16 +408,16 @@ module.exports = {
         {
           command: 'form',
           response: null,
-          components: new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
+          components: new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
           ),
           autoDelete: true,
         },
         {
           command: 'restrict',
           response: "Click the button below to request for removal of your @restricted role.\n-# Make sure to remove any advertisement statuses on your profile.",
-          components: new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('restrictRemoval').setStyle('SECONDARY').setLabel('request removal').setEmoji('<a:yl_exclamationan:1138705076395978802>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
+          components: new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('restrictRemoval').setStyle(ButtonStyle.Secondary).setLabel('request removal').setEmoji('<a:yl_exclamationan:1138705076395978802>'),//.setEmoji('<a:S_arrowright:1095503803761033276>'),
           ),
           autoDelete: true,
         },

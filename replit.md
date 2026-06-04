@@ -4,8 +4,8 @@ A Discord bot template for managing a digital marketplace/shop on Discord. Handl
 
 ## Tech Stack
 
-- **Runtime:** Node.js 16.x
-- **Discord:** discord.js v13
+- **Runtime:** Node.js 20.x
+- **Discord:** discord.js v14
 - **Database:** MongoDB (mongoose)
 - **Web server:** Express (keep-alive server on port 5000)
 - **AI:** OpenAI API

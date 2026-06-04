@@ -1,0 +1,1 @@
+- [discord.js v14 migration](djs-v14-migration.md) — v13→v14 upgrade complete; Node.js must be 20+; key API rename map documented.

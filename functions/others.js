@@ -1,6 +1,6 @@
 const {getPerms, noPerms, client} = require('../server.js');
 const Discord = require('discord.js');
-const {Client, Intents, MessageEmbed, MessageActionRow, MessageButton} = Discord;
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = Discord;
 
 const sendMsg = require('../functions/sendMessage.js')
 const sendChannel = sendMsg.sendChannel
@@ -15,67 +15,51 @@ const {getTemplate} = cmdHandler
 const get = require('../functions/get.js')
 const {getRandom, getChannel} = get
 
+const toButtonStyle = (s) => {
+  s = (s || '').toUpperCase();
+  if (s === 'PRIMARY') return ButtonStyle.Primary;
+  if (s === 'SUCCESS') return ButtonStyle.Success;
+  if (s === 'DANGER') return ButtonStyle.Danger;
+  if (s === 'LINK') return ButtonStyle.Link;
+  return ButtonStyle.Secondary;
+};
+
 const makeButton = async function (id, label, style, emoji) {
-  //emoji = emoji ? emoji : ''
-  style = style.toUpperCase()
-  let button = new MessageButton()
-				.setLabel(label)
-				.setStyle(style.toUpperCase())
-  
-  if (style === 'LINK') {
-    button = new MessageButton(button)
-    .setURL(id)
-  }
-  else {
-    button = new MessageButton(button)
-    .setCustomId(id)
+  let button = new ButtonBuilder()
+    .setLabel(label)
+    .setStyle(toButtonStyle(style));
+
+  if ((style || '').toUpperCase() === 'LINK') {
+    button.setURL(id);
+  } else {
+    button.setCustomId(id);
   }
   if (emoji) {
-    button = new MessageButton(button)
-    .setEmoji(emoji)
+    button.setEmoji(emoji);
   }
-  
-  const row = new MessageActionRow()
-			.addComponents(
-        button
-        );
   return button;
-}
+};
+
 const makeRow = async function (id, label, style, emoji) {
-  //emoji = emoji ? emoji : ''
-  style = style.toUpperCase()
-  let button = new MessageButton()
-				.setLabel(label)
-				.setStyle(style.toUpperCase())
-  
-  if (style === 'LINK') {
-    button = new MessageButton(button)
-    .setURL(id)
-  }
-  else {
-    button = new MessageButton(button)
-    .setCustomId(id)
+  let button = new ButtonBuilder()
+    .setLabel(label)
+    .setStyle(toButtonStyle(style));
+
+  if ((style || '').toUpperCase() === 'LINK') {
+    button.setURL(id);
+  } else {
+    button.setCustomId(id);
   }
   if (emoji) {
-    button = new MessageButton(button)
-    .setEmoji(emoji)
+    button.setEmoji(emoji);
   }
-  
-  const row = new MessageActionRow()
-			.addComponents(
-        button
-        );
+
+  const row = new ActionRowBuilder().addComponents(button);
   return row;
-}
+};
+
 module.exports = {
   parseAmounts: function (input) {
-  // The regex explanation:
-  // - (?:(\d+(?:\.\d+)?)[xX]\s*(?:of\s*)?)?
-  //    Optionally matches a multiplier like "2x" or "1.5x" (ignoring case) and optionally the word "of".
-  // - \b(\d+(?:\.\d+)?)
-  //    Matches the actual numeric part (e.g., "2", "300", "1.4") with word boundaries.
-  // - ([kK])?\b
-  //    Optionally matches the letter "k" (or "K"). If present, it indicates the number is in thousands.
   const regex = /(?:(\d+(?:\.\d+)?)[xX]\s*(?:of\s*)?)?\b(\d+(?:\.\d+)?)([kK])?\b/gi;
   const results = [];
   let match;
@@ -84,10 +68,7 @@ module.exports = {
     const multiplier = match[1] ? parseFloat(match[1]) : 1;
     const number = parseFloat(match[2]);
     const isK = !!match[3];
-    
-    // Multiply by 1000 if the "k" suffix is present
     const value = multiplier * number * (isK ? 1000 : 1);
-    
     results.push({ multiplier, number, isK, value });
   }
 
@@ -122,7 +103,7 @@ module.exports = {
   let msgSize = 0
   let totalMsg = 0
   
-  let embedMention = new MessageEmbed()
+  let embedMention = new EmbedBuilder()
   .setDescription("No recent pings was found.")
   .setColor(colors.red)
   
@@ -144,15 +125,14 @@ module.exports = {
         messages.forEach(async (gotMsg) => {
           if (gotMsg.content.toLowerCase().includes(key.toLowerCase()) && gotMsg.author.id === client.user.id) {
             mentionsCount += 1
-            let row = new MessageActionRow().addComponents(
-              new MessageButton().setLabel('Jump to Message').setURL(gotMsg.url).setStyle('LINK')
+            let row = new ActionRowBuilder().addComponents(
+              new ButtonBuilder().setLabel('Jump to Message').setURL(gotMsg.url).setStyle(ButtonStyle.Link)
             );
             message.reply({content: emojis.check+' Reference code was found.', components: [row]})
             foundKey = true
           }
         })
       });
-      //Return
       if (foundKey || await msgSize != 100) {
         msgBot.delete();
         if (!foundKey) message.channel.send(emojis.x+" No key was found `"+key+"`.")
@@ -168,28 +148,19 @@ module.exports = {
   moderate: async function(member, perms) {
   if (perms) return;
 
-  // 1) If username/displayName/nickname contains '!', replace all '!' with 'ω' by setting a nickname.
   try {
-    // displayName returns nickname if present otherwise username
     const currentDisplay = member.displayName || member.globalName || member.user.username;
     if (currentDisplay.includes('!')) {
-      // replace all '!' with 'ω'
       let newNick = currentDisplay.replace(/!/g, 'ω');
-
-      // ensure nickname length <= 32 (Discord limit)
       if (newNick.length > 32) newNick = newNick.slice(0, 32);
-
-      // only attempt to set if different from current nickname
-      const currentNick = member.nickname; // null if none (so displayName would be username)
+      const currentNick = member.nickname;
       if (currentNick !== newNick) {
         await member.setNickname(newNick).catch(() => null);
       }
     }
   } catch (err) {
-    // ignore nickname set errors (missing perms, hierachy), but don't crash
   }
 
-  // 2) Your original sale/robux detection logic (kept mostly as-is)
   let customPres = member.presence?.activities.find(a => a.id === 'custom');
   if (customPres) {
     const state = (customPres.state || '').toLowerCase();
@@ -200,16 +171,13 @@ module.exports = {
     const hasCurrencyKeyword = currencyKeywords.some(k => state.includes(k));
 
     if (hasSellingKeyword && hasCurrencyKeyword) {
-      // if they don't already start with your prefix, set it
       if (!member.nickname?.startsWith('ω.')) {
-        // use username (without spaces) like your original code
         await member.setNickname('ω. ' + member.user.username.replace(/ /g, '')).catch(() => null);
       }
       return true;
     }
   }
 
-  // default: no action matched
   return;
 },
   getPercentage: function(value, totalValue) {
@@ -248,7 +216,6 @@ module.exports = {
   }
   return array;
 },
-  //Scan String For Key
   scanString: function (string,key) {
   string = string.toLowerCase()
   key = key.toLowerCase()
@@ -256,7 +223,6 @@ if (string.includes(key)) {
   return true;
 }
 },
-  //ARGS
   requireArgs: async function (message,count) {
   var args = message.content.trim().split(/\n| /);
 if (!args[count]) {

@@ -19,10 +19,19 @@ const { exiftool } = require('exiftool-vendored');
 const axios = require('axios');
 //Discord
 const Discord = require('discord.js');
-const { MessageAttachment, ActivityType, WebhookClient, Permissions, Client, Intents, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = Discord;
-const myIntents = new Intents();
-myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES);
-const client = new Client({ intents: myIntents, partials: ["CHANNEL"] });
+const { AttachmentBuilder, ActivityType, WebhookClient, PermissionFlagsBits, Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ChannelType } = Discord;
+const client = new Client({
+  intents: [
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel, Partials.Message],
+});
 //Env
 const token = process.env.SECRET;
 const open_ai = process.env.OPEN_AI
@@ -76,7 +85,7 @@ client.on("debug", function (info) {
   console.log(info)
 });
 //When bot is ready
-client.on("ready", async () => {
+client.on("clientReady", async () => {
   let guildsID = [];
   let channel = await getChannel('1109020434810294345')
   const connection = joinVoiceChannel({
@@ -282,14 +291,14 @@ async function guildPerms(message, perms) {
   if (message.member.permissions.has(perms)) {
     return true;
   } else {
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
       .addFields({ name: 'Insufficient Permissions', value: emojis.x + " You don't have the required server permissions to use this command.\n\n`" + perms.toString().toUpperCase() + "`" })
       .setColor(colors.red)
     message.channel.send({ embeds: [embed] })
   }
 }
 function noPerms(message) {
-  let Embed = new MessageEmbed()
+  let Embed = new EmbedBuilder()
     .setColor(colors.red)
     .setDescription("You lack special permissions to use this command.")
   return Embed;
@@ -363,9 +372,9 @@ async function updateStocks() {
   content += "-# This updates automatically when an order has been placed"
   let channel = await getChannel("1109020436026634265")
 
-  let row = new MessageActionRow()
+  let row = new ActionRowBuilder()
   .addComponents(
-    new MessageButton().setLabel('create order').setCustomId('createTicket-order').setStyle('SECONDARY').setEmoji('<a:y_b2buntrain1:1138705768808464514>')
+    new ButtonBuilder().setLabel('create order').setCustomId('createTicket-order').setStyle(ButtonStyle.Secondary).setEmoji('<a:y_b2buntrain1:1138705768808464514>')
   )
   bulkDelete(channel,"active stocks")
   await channel.send({content: content, components: [row]})
@@ -375,13 +384,13 @@ client.on("messageCreate", async (message) => {
   //Ping
   if (message.channel.parent?.name.toLowerCase().includes('ordrs')) {
     //
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
       .addFields({ name: 'terms and conditions', value: '<:S_letter:1138714993425125556> before proceeding, you must read and accept our terms and conditions.\n\n<:hb_rule_book:1138712613769990254> by clicking the button, you indicate that you have read, understood and accepted the terms stated in <#1109020435754000421> and the rules implied in <#1109020435754000422> for the product you want to avail *!*\n\n<:hb_rule_book:1138712613769990254> you will be held liable for any violation of our rules, for you have accepted the terms and agreed to comply *!*', inline: true })
       .setColor(colors.yellow)
 
-    let row = new MessageActionRow()
+    let row = new ActionRowBuilder()
       .addComponents(
-        new MessageButton().setLabel('accept terms').setCustomId('terms').setStyle('SECONDARY').setEmoji('<:hb_rule_book:1138712613769990254>'),
+        new ButtonBuilder().setLabel('accept terms').setCustomId('terms').setStyle(ButtonStyle.Secondary).setEmoji('<:hb_rule_book:1138712613769990254>'),
       )
     //
     if (message.author.id === client.user.id && message.content?.toLowerCase().includes('ticket opened')) {
@@ -400,8 +409,8 @@ client.on("messageCreate", async (message) => {
 
           message.channel.send({ content: "<@" + member.id + ">", embeds: [embed], components: [row] })
         } else if (await hasRole(member, ['1109020434520887321'], message.guild)) {
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
           );
           message.channel.send({ components: [row] })
         }
@@ -458,11 +467,11 @@ client.on("messageCreate", async (message) => {
   }
   if (message.content.startsWith('.regen')) { await message.reply('Use </regen:1280758037203779594> to regen your links *!*') }
   let checkerVersion = 'Checker version 2.9'
-  if (message.channel.name?.includes('nitro-checker') || (message.channel.type === 'DM' && shop.checkerWhitelist.find(u => u === message.author.id))) {
+  if (message.channel.name?.includes('nitro-checker') || (message.channel.type === ChannelType.DM && shop.checkerWhitelist.find(u => u === message.author.id))) {
     let args = getArgs(message.content)
     if (args.length === 0) return;
-    let addStocks = args[0].toLowerCase() === 'stocks' && message.channel.type !== 'DM' ? true : false
-    let sortLinks = args[1]?.toLowerCase() === 'sort' && addStocks && message.channel.type !== 'DM' ? true : args[0]?.toLowerCase() === 'sort' ? true : false
+    let addStocks = args[0].toLowerCase() === 'stocks' && message.channel.type !== ChannelType.DM ? true : false
+    let sortLinks = args[1]?.toLowerCase() === 'sort' && addStocks && message.channel.type !== ChannelType.DM ? true : args[0]?.toLowerCase() === 'sort' ? true : false
 
     let codes = []
     let text = ''
@@ -488,9 +497,9 @@ client.on("messageCreate", async (message) => {
       shop.checkers.push(data)
       scanData = shop.checkers.find(c => c.id === message.author.id)
     }
-    let row = new MessageActionRow().addComponents(
-      new MessageButton().setEmoji("🛑").setLabel("Stop").setCustomId("breakChecker-").setStyle("SECONDARY"),
-      new MessageButton().setEmoji("⌛").setLabel("Status").setCustomId("checkerStatus-" + scanData.id).setStyle("SECONDARY")
+    let row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setEmoji("🛑").setLabel("Stop").setCustomId("breakChecker-").setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setEmoji("⌛").setLabel("Status").setCustomId("checkerStatus-" + scanData.id).setStyle(ButtonStyle.Secondary)
     );
     await message.channel.send({ content: 'Fetching nitro codes (' + codes.length + ') ' + emojis.loading, components: [row] }).then(botMsg => msg = botMsg)
 
@@ -561,7 +570,7 @@ client.on("messageCreate", async (message) => {
     }
     sortLinks ? codes.sort((a, b) => (b.rawExpire - a.rawExpire)) : null
     let embeds = []
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
       .setColor(colors.yellow)
 
     let num = 0
@@ -578,15 +587,15 @@ client.on("messageCreate", async (message) => {
       let user = data.user ? data.user : 'Unknown User'
       let expire = data.expire
       let expireUnix = data.expireUnix
-      if (embed.fields.length <= 24) {
-        embed = new MessageEmbed(embed)
+      if ((embed.data.fields?.length ?? 0) <= 24) {
+        embed = EmbedBuilder.from(embed)
           .setFooter({ text: checkerVersion })
         if (codes.length === num) embeds.push(embed);
         //
       }
       else {
         embeds.push(embed)
-        embed = new MessageEmbed()
+        embed = new EmbedBuilder()
           .setColor(colors.yellow)
           .setFooter({ text: checkerVersion })
         if (codes.length === num) embeds.push(embed);
@@ -628,7 +637,7 @@ client.on("messageCreate", async (message) => {
       message.channel.send({ embeds: [embed] })
     }
     if (addStocks) {
-      let newEmbed = new MessageEmbed();
+      let newEmbed = new EmbedBuilder();
       newEmbed.addFields(
         { name: 'Stocked NBoost', value: stat.put.boost > 20 ? stat.put.boost.toString() : stat.put.boost >= 1 ? '|| ' + stat.put.boostString.replace('\n', '') + ' ||' : 'None' },
         { name: 'Stocked NBasic', value: stat.put.basic > 20 ? stat.put.basic.toString() : stat.put.basic >= 1 ? '|| ' + stat.put.basicString.replace('\n', '') + ' ||' : 'None' },
@@ -638,26 +647,26 @@ client.on("messageCreate", async (message) => {
       message.channel.send({ embeds: [newEmbed] })
     }
     shop.checkers = []
-    !message.channel.type === 'DM' ? message.delete() : null
+    !message.channel.type === ChannelType.DM ? message.delete() : null
   }
   //
-  if (message.channel.type === 'DM') return;
+  if (message.channel.type === ChannelType.DM) return;
   //
   else if (isCommand("help", message)) {
     let args = await getArgs(message.content)
     let clearFilter = (args[1] && args[1].toLowerCase() === 'clear')
     if (!args[1] || clearFilter) {
       let botMsg = null
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('desc').setStyle('PRIMARY').setLabel('Description'),
-        new MessageButton().setCustomId('template').setStyle('SECONDARY').setLabel('Template'),
+      let row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('desc').setStyle(ButtonStyle.Primary).setLabel('Description'),
+        new ButtonBuilder().setCustomId('template').setStyle(ButtonStyle.Secondary).setLabel('Template'),
       );
       let current = 'desc'
       async function displayHelp(type) {
         let known = []
         let embed = null
 
-        embed = new MessageEmbed()
+        embed = new EmbedBuilder()
           .setAuthor({ name: "Sloopies", iconURL: client.user.avatarURL() })
           .setDescription("```js\n[] - Required Argument | () - Optional Argument```\n> Use `:help [Command]` to know more about a command.")
           .setColor(theme)
@@ -669,24 +678,24 @@ client.on("messageCreate", async (message) => {
             let foundCmd = await known.find(a => a === commands[i].Category)
             if (!foundCmd) {
               known.push(commands[i].Category)
-              embed = new MessageEmbed(embed)
-                .addField(commands[i].Category, '[_]')
+              embed = EmbedBuilder.from(embed)
+                .addFields({ name: commands[i].Category, value: '[_]' })
             }
           }
         }
 
         for (let i in commands) {
           if (await getPerms(message.member, commands[i].level) || commands[i].level === 0) {
-            let field = embed.fields.find(field => field.name === commands[i].Category)
+            let field = embed.data.fields.find(field => field.name === commands[i].Category)
 
             if (field) {
               let template = commands[i].Template.length > 0 ? ' ' + commands[i].Template : ''
               let desc = commands[i].Desc.length > 0 ? ' — *' + commands[i].Desc + '*' : ''
               let fieldValue = field.value.replace('[_]', '')
               if (commands[i].slash) {
-                embed.fields[embed.fields.indexOf(field)] = { name: commands[i].Category, value: fieldValue + (type === 'desc' ? '</' + commands[i].Command + ':' + commands[i].id + '>' + desc : '</' + commands[i].Command + ':' + commands[i].id + '>' + template) + '\n' }
+                embed.data.fields[embed.data.fields.indexOf(field)] = { name: commands[i].Category, value: fieldValue + (type === 'desc' ? '</' + commands[i].Command + ':' + commands[i].id + '>' + desc : '</' + commands[i].Command + ':' + commands[i].id + '>' + template) + '\n' }
               } else {
-                embed.fields[embed.fields.indexOf(field)] = { name: commands[i].Category, value: fieldValue + (type === 'desc' ? '`' + prefix + commands[i].Command + '`' + desc : '`' + prefix + commands[i].Command + '`' + template) + '\n' }
+                embed.data.fields[embed.data.fields.indexOf(field)] = { name: commands[i].Category, value: fieldValue + (type === 'desc' ? '`' + prefix + commands[i].Command + '`' + desc : '`' + prefix + commands[i].Command + '`' + template) + '\n' }
               }
             } else {
               console.log("Invalid Category: " + commands[i].Category)
@@ -705,7 +714,7 @@ client.on("messageCreate", async (message) => {
           let lb = await displayHelp(i.customId)
           for (let inter in row.components) {
             let comp = row.components[inter]
-            comp.customId && comp.customId === i.customId ? comp.setStyle('PRIMARY') : comp.setStyle('SECONDARY')
+            comp.data?.custom_id && comp.data.custom_id === i.customId ? comp.setStyle(ButtonStyle.Primary) : comp.setStyle(ButtonStyle.Secondary)
           }
           i.update({ embeds: [lb], components: [row] });
           current = i.customId
@@ -723,7 +732,7 @@ client.on("messageCreate", async (message) => {
     else {
       let template = await getTemplate(prefix + args[1], await getPerms(message.member, 0))
 
-      let embed = new MessageEmbed()
+      let embed = new EmbedBuilder()
         .addFields({ name: "Commands", value: template })
         .setColor(theme)
       await message.channel.send({ embeds: [embed] })
@@ -775,11 +784,11 @@ client.on("messageCreate", async (message) => {
     let temp = await getChannel(shop.channels.templates)
     let msg = await temp.messages.fetch('1258068217339969648')
 
-    let row = new MessageActionRow()
+    let row = new ActionRowBuilder()
       .addComponents(
-        new MessageButton().setLabel('create order').setCustomId('createTicket-order').setStyle('SECONDARY').setEmoji('<a:y_b2buntrain1:1138705768808464514>'),
-        new MessageButton().setLabel('ask support').setCustomId('createTicket-support').setStyle('SECONDARY').setEmoji('<:S_letter:1138714993425125556>'),
-        new MessageButton().setLabel('submit report').setCustomId('createTicket-report').setStyle('SECONDARY').setEmoji('<:hb_rule_book:1138712613769990254>')
+        new ButtonBuilder().setLabel('create order').setCustomId('createTicket-order').setStyle(ButtonStyle.Secondary).setEmoji('<a:y_b2buntrain1:1138705768808464514>'),
+        new ButtonBuilder().setLabel('ask support').setCustomId('createTicket-support').setStyle(ButtonStyle.Secondary).setEmoji('<:S_letter:1138714993425125556>'),
+        new ButtonBuilder().setLabel('submit report').setCustomId('createTicket-report').setStyle(ButtonStyle.Secondary).setEmoji('<:hb_rule_book:1138712613769990254>')
       )
     await message.channel.send({ content: msg.content, components: [row] })
   }
@@ -794,7 +803,7 @@ client.on("messageCreate", async (message) => {
 
     // Find the category by name
     const category = message.guild.channels.cache.find(channel =>
-      channel.type === 'GUILD_CATEGORY' && channel.name.toLowerCase() === categoryName.toLowerCase());
+      channel.type === ChannelType.GuildCategory && channel.name.toLowerCase() === categoryName.toLowerCase());
 
     if (!category) {
       return message.channel.send('Category not found.');
@@ -862,7 +871,7 @@ client.on("messageCreate", async (message) => {
     for (let a in pricelists) {
       let data = pricelists[a]
       if (data.name.length > 0) {
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .setTitle(data.name)
           .setDescription('\n\n** **')
           .setColor(colors.none)
@@ -884,7 +893,7 @@ client.on("messageCreate", async (message) => {
               let emoji = method === 'rs' ? '<a:y_starroll:1138704563529076786>' : '<a:S_whiteheart02:1138715896077090856>'
               children += '﹒  ' + child.name + (pr > 0 ? ' ' + emoji + ' ₱' + pr : '') + '\n'
             }
-            embed = new MessageEmbed(embed)
+            embed = EmbedBuilder.from(embed)
               .addFields({ name: type.parent, value: children })
               .setImage(data.image ? data.image : '')
           }
@@ -895,7 +904,7 @@ client.on("messageCreate", async (message) => {
             '<:hb_announce:1138706465046134805> restocking *!!*', //3
             '<:hb_announce:1138706465046134805> not available *!!!*' //4
           ]
-          embed = new MessageEmbed(embed)
+          embed = EmbedBuilder.from(embed)
             .addFields({ name: 'Availability', value: "[**check here**](https://discord.com/channels/1109020434449575936/1109020435754000423/1361284984618618901)" }) //productStatus[data.status]+''
 
           await channel.send({ embeds: [embed] }).then(msg => foundBulked.messages.push({ name: data.name, url: msg.url, emoji: data.status === 4 ? '<:red_dot:1141281924208414781>' : data.status === 3 ? emojis.loading : method === 'rs' ? '<a:y_starroll:1138704563529076786>' : '<a:y_starroll:1138704563529076786>' }))
@@ -907,15 +916,15 @@ client.on("messageCreate", async (message) => {
       let stockHolder = [[], [], [], [], [], [], [], [], [], []];
       let holderCount = 0
       let channel = await getChannel(bulked[i].channel)
-      stockHolder[0].push(new MessageButton().setLabel('order here').setURL('https://discord.com/channels/1109020434449575936/1109020435754000423').setStyle('LINK').setEmoji('<:hb_rule_book:1138712613769990254>'))
+      stockHolder[0].push(new ButtonBuilder().setLabel('order here').setURL('https://discord.com/channels/1109020434449575936/1109020435754000423').setStyle(ButtonStyle.Link).setEmoji('<:hb_rule_book:1138712613769990254>'))
       for (let b in bulked[i].messages) {
         let msg = bulked[i].messages[b];
         let name = msg.name
         let url = msg.url
         if (stockHolder[holderCount].length === 5) holderCount++
         stockHolder[holderCount].push(
-          new MessageButton()
-            .setStyle("LINK")
+          new ButtonBuilder()
+            .setStyle(ButtonStyle.Link)
             .setLabel(name.toLowerCase())
             .setURL(url)
             .setEmoji(msg.emoji)
@@ -924,8 +933,8 @@ client.on("messageCreate", async (message) => {
       let comps = []
       for (let i in stockHolder) {
         if (stockHolder[i].length !== 0) {
-          let row = new MessageActionRow();
-          row.components = stockHolder[i];
+          let row = new ActionRowBuilder();
+          row.setComponents(stockHolder[i]);
           comps.push(row)
         }
       }
@@ -941,7 +950,7 @@ client.on("messageCreate", async (message) => {
     let f2 = '《,》'.replace(/ /, '').split(/,/)
     console.log(f, f2)
     message.guild.channels.cache.forEach(ch => {
-      if (ch.type !== 'GUILD_CATEGORY' && ch.type !== 'GUILD_VOICE') {
+      if (ch.type !== ChannelType.GuildCategory && ch.type !== ChannelType.GuildVoice) {
         cc++;
         let name = ch.name.replace(f[0], f2[0]).replace(f[1], f2[1])
         console.log(name)
@@ -995,10 +1004,10 @@ client.on("messageCreate", async (message) => {
     let channelId = message.channel.id
     await shop.deleteChannels.push(channelId)
 
-    let row = new MessageActionRow().addComponents(
-      new MessageButton()
+    let row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
         .setCustomId('channelDelete-' + channelId)
-        .setStyle('DANGER')
+        .setStyle(ButtonStyle.Danger)
         .setLabel("Cancel Deletion")
     )
     message.reply({ content: emojis.loading + ' Deleting this channel in **' + args[1] + '** `(' + countdown + 'ms)`\nPlease click **Cancel Deletion** if you wish to proceed with your order.', components: [row] })
@@ -1023,11 +1032,11 @@ client.on("messageCreate", async (message) => {
     }
     message.react(emojis.check)
 
-    let comp = new MessageActionRow()
+    let comp = new ActionRowBuilder()
       .addComponents(
-        new MessageButton().setLabel('Create Order').setCustomId('createTicket-order').setStyle('SECONDARY').setEmoji('🌄'),
-        new MessageButton().setLabel('Support Ticket').setCustomId('createTicket-support').setStyle('SECONDARY').setEmoji('🌅'),
-        new MessageButton().setLabel('Submit Report').setCustomId('createTicket-report').setStyle('SECONDARY').setEmoji('☀️')
+        new ButtonBuilder().setLabel('Create Order').setCustomId('createTicket-order').setStyle(ButtonStyle.Secondary).setEmoji('🌄'),
+        new ButtonBuilder().setLabel('Support Ticket').setCustomId('createTicket-support').setStyle(ButtonStyle.Secondary).setEmoji('🌅'),
+        new ButtonBuilder().setLabel('Submit Report').setCustomId('createTicket-report').setStyle(ButtonStyle.Secondary).setEmoji('☀️')
       )
     await message.channel.send({ components: [comp], content: 'Click the button below to create a ticket!\n\n<:y_seperator:1138707390657740870> Order — Availing products\n<:y_seperator:1138707390657740870> Support — General concerns and inquiries\n<:y_seperator:1138707390657740870> Report — Reporting revoked products', })
   }
@@ -1042,7 +1051,7 @@ client.on("messageCreate", async (message) => {
     for (let i in attachments) { files.push(attachments[i].url) }
     await removeRole(message.member, ['1264114197122388010'])
 
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
       .setAuthor({ name: message.author.username, iconURL: message.author.avatarURL() })
       .setDescription(message.content)
       .setImage(files[0])
@@ -1071,7 +1080,7 @@ client.on("messageCreate", async (message) => {
         custom = true
         console.log(data.name)
         if (data.name.length > 0) {
-          let embed = new MessageEmbed()
+          let embed = new EmbedBuilder()
             .setTitle(data.name)
             .setDescription('\n\n** **')
             .setColor(colors.none)
@@ -1085,7 +1094,7 @@ client.on("messageCreate", async (message) => {
               let emoji = '<a:yl_flowerspin:1138705226082304020>'
               children += '' + emoji + ' ' + child.name + (pr > 0 ? ' <a:S_whiteheart02:1138715896077090856> ₱' + pr : '') + '\n'
             }
-            embed = new MessageEmbed(embed)
+            embed = EmbedBuilder.from(embed)
               .addFields({ name: type.parent, value: children })
               .setImage(data.image ? data.image : '')
           }
@@ -1096,7 +1105,7 @@ client.on("messageCreate", async (message) => {
             '<:hb_announce:1138706465046134805> restocking *!!*', //3
             '<:hb_announce:1138706465046134805> not available *!!!*' //4
           ]
-          embed = new MessageEmbed(embed)
+          embed = EmbedBuilder.from(embed)
             .addFields({ name: 'Product Status', value: productStatus[data.status] })
           await message.reply({ content: "Here's our current pricelist for " + data.name, embeds: [embed] })
         }
@@ -1130,13 +1139,13 @@ let cStocks = 0
 let tStocks = 0
 
 client.on('interactionCreate', async inter => {
-  if (inter.isCommand()) {
+  if (inter.isChatInputCommand()) {
     let cname = inter.commandName
     const { commandName, options, channelId } = inter;
 
     if (cname == "create_stock") {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
 
@@ -1149,7 +1158,7 @@ client.on('interactionCreate', async inter => {
     }
     else if (cname == "edit_stock") {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
       let amount = options.find(a => a.name === 'amount')
 
@@ -1163,7 +1172,7 @@ client.on('interactionCreate', async inter => {
     }
     else if (cname == "delete_stock") {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let stockName = options.find(a => a.name === 'stock_name')
 
       let doc = await stockModel.findOne({category: stockName.value})
@@ -1174,7 +1183,7 @@ client.on('interactionCreate', async inter => {
       updateStocks()
     }
     else if (commandName === 'bid') {
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let item = options.find(a => a.name === 'item')
       let startPrice = options.find(a => a.name === 'starting_price')
       item = item.value
@@ -1192,12 +1201,12 @@ client.on('interactionCreate', async inter => {
       await auction.save();
 
       // 2) Send a message in the same channel with a “Bid” button
-      const bidButton = new MessageButton()
+      const bidButton = new ButtonBuilder()
         .setCustomId(`auction_bid_${auction._id}`)
         .setLabel('Bid')
-        .setStyle('PRIMARY');
+        .setStyle(ButtonStyle.Primary);
 
-      const row = new MessageActionRow().addComponents(bidButton);
+      const row = new ActionRowBuilder().addComponents(bidButton);
 
       let templates = await getChannel('1109020434810294344')
       let tempMsg = await templates.messages.fetch('1379678865294626828')
@@ -1214,7 +1223,7 @@ client.on('interactionCreate', async inter => {
       await auction.save();
     }
     if (cname === 'setrank') {
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       let rank = options.find(a => a.name === 'rank')
       await inter.deferReply();
@@ -1246,7 +1255,7 @@ client.on('interactionCreate', async inter => {
       await inter.editReply({ content: "Successfully changed " + user.name + "'s rank to **" + role.name + "**" })
     } 
     else if (cname === 'eligible') {
-  let options = inter.options._hoistedOptions;
+  let options = inter.options.data;
   let username = options.find(a => a.name === 'username');
   let group = options.find(a => a.name === 'group');
 
@@ -1348,7 +1357,7 @@ client.on('interactionCreate', async inter => {
   }
   }
     else if (cname === 'joindate') {
-  let options = inter.options._hoistedOptions;
+  let options = inter.options.data;
   let username = options.find(a => a.name === 'username');
   let group = options.find(a => a.name === 'group_id');
 
@@ -1452,7 +1461,7 @@ client.on('interactionCreate', async inter => {
     //
     else if (cname === 'payout') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       let amount = options.find(a => a.name === 'username')
       await inter.deferReply();
@@ -1483,7 +1492,7 @@ client.on('interactionCreate', async inter => {
     //
     else if (cname === 'buy') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let link = options.find(a => a.name === 'link')
       await inter.deferReply();
 
@@ -1532,7 +1541,7 @@ client.on('interactionCreate', async inter => {
     //
     else if (cname === 'accept') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
 
@@ -1561,7 +1570,7 @@ client.on('interactionCreate', async inter => {
     }
     else if (cname === 'unfriend') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let username = options.find(a => a.name === 'username')
       await inter.deferReply();
 
@@ -1591,7 +1600,7 @@ client.on('interactionCreate', async inter => {
     // regen
     else if (cname === 'regen') {
       //if (!await getPerms(inter.member,4)) return inter.reply({content: emojis.warning+' Insufficient Permission'});
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let links = options.find(a => a.name === 'links')
       let args = await getArgs(links.value)
@@ -1723,7 +1732,7 @@ client.on('interactionCreate', async inter => {
     else if (cname === 'revoke') {
       if (inter.user.id == "497918770187075595") { }
       else if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let links = options.find(a => a.name === 'links')
       let args = await getArgs(links.value)
@@ -1842,7 +1851,7 @@ client.on('interactionCreate', async inter => {
     // generate
     else if (cname === 'generate') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let amount = options.find(a => a.name === 'amount')
       let type = options.find(a => a.name === 'type')
@@ -1855,7 +1864,7 @@ client.on('interactionCreate', async inter => {
     // codes
     else if (cname === 'codes') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let account = options.find(a => a.name === 'account')
       let limit = options.find(a => a.name === 'limit')
       let exclude = options.find(a => a.name === 'exclude')
@@ -1881,7 +1890,7 @@ client.on('interactionCreate', async inter => {
     //
     else if (cname === 'embed') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let embedId = options.find(a => a.name === 'id')
       let title = options.find(a => a.name === 'title')
       let description = options.find(a => a.name === 'description')
@@ -1893,7 +1902,7 @@ client.on('interactionCreate', async inter => {
 
       const embedData = await embedModel.findOne({ id: embedId.value.toLowerCase() });
       if (embedData) return inter.reply({ content: emojis.warning + " This ID is already in use!", ephemeral: true })
-      let embed = new MessageEmbed()
+      let embed = new EmbedBuilder()
         .setDescription(description.value)
 
       if (color) embed.setColor(color.value);
@@ -1904,44 +1913,44 @@ client.on('interactionCreate', async inter => {
       if (image) embed.setImage(image.value);
       if (footer) embed.setFooter(footer.value);
 
-      const row = new MessageActionRow()
+      const row = new ActionRowBuilder()
         .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
             .setCustomId('edit_title')
             .setLabel('Edit Title')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('edit_description')
             .setLabel('Edit Description')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('edit_color')
             .setLabel('Edit Color')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('edit_thumbnail')
             .setLabel('Edit Thumbnail')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('edit_image')
             .setLabel('Edit Image')
-            .setStyle('SECONDARY')
+            .setStyle(ButtonStyle.Secondary)
         );
 
-      const row2 = new MessageActionRow()
+      const row2 = new ActionRowBuilder()
         .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
             .setCustomId('edit_footer')
             .setLabel('Edit Footer')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('add_field')
             .setLabel('Add Field')
-            .setStyle('SECONDARY'),
-          new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
             .setCustomId('save_embed')
             .setLabel('Save Embed')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Success)
         );
 
       await inter.reply({ content: emojis.loading + " Generating embed", ephemeral: true })
@@ -1955,13 +1964,13 @@ client.on('interactionCreate', async inter => {
           console.log(embed)
           let newEmbed = new embedModel({
             id: embedId.value.toLowerCase(),
-            title: embed.title ? embed.title : null,
-            description: embed.description,
-            color: embed.color ? embed.color.toString(16).padStart(6, '0') : null,
-            thumbnail: embed.thumbnail ? embed.thumbnail.url : null,
-            image: embed.image ? embed.image.url : null,
-            footer: embed.footer ? embed.footer.text : null,
-            fields: embed.fields
+            title: embed.data.title ? embed.data.title : null,
+            description: embed.data.description,
+            color: embed.data.color ? embed.data.color.toString(16).padStart(6, '0') : null,
+            thumbnail: embed.data.thumbnail ? embed.data.thumbnail.url : null,
+            image: embed.data.image ? embed.data.image.url : null,
+            footer: embed.data.footer ? embed.data.footer.text : null,
+            fields: embed.data.fields
           });
           await newEmbed.save();
           await i.message.edit({ content: emojis.check + " Embed saved.\nYou can display this embed by running `/display_embed id:" + embedId.value + "`", components: [] });
@@ -2017,7 +2026,7 @@ client.on('interactionCreate', async inter => {
           if (collected.size > 0) {
             const fieldValue = collected.first().content.split(',');
             if (fieldValue.length === 2) {
-              embed.addField(fieldValue[0].trim(), fieldValue[1].trim());
+              embed.addFields({ name: fieldValue[0].trim(), value: fieldValue[1].trim() });
               await i.message.edit({ embeds: [embed] });
               await collected.first().delete()
             } else {
@@ -2030,8 +2039,8 @@ client.on('interactionCreate', async inter => {
       });
 
       collector.on('end', async collected => {
-        let row = new MessageActionRow().addComponents(
-          new MessageButton().setCustomId("yay").setStyle('SECONDARY').setLabel("Interaction ended").setDisabled(true),
+        let row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId("yay").setStyle(ButtonStyle.Secondary).setLabel("Interaction ended").setDisabled(true),
         );
         await msg.edit({ components: [row] })
         console.log(`Collected ${collected.size} interactions.`);
@@ -2039,12 +2048,12 @@ client.on('interactionCreate', async inter => {
     }
     else if (cname === 'display_embed') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       const embedId = options.find(a => a.name === 'id')
       const embedData = await embedModel.findOne({ id: embedId.value.toLowerCase() });
 
       if (embedData) {
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .setDescription(embedData.description)
         console.log(embedData.color)
         if (embedData.color) embed.setColor(embedData.color);
@@ -2055,7 +2064,7 @@ client.on('interactionCreate', async inter => {
         if (embedData.image) embed.setImage(embedData.image);
         if (embedData.footer) embed.setFooter(embedData.footer);
         if (embedData.fields && embedData.fields.length > 0) {
-          embedData.fields.forEach(field => embed.addField(field.name, field.value));
+          embedData.fields.forEach(field => embed.addFields({ name: field.name, value: field.value }));
         }
         await inter.reply({ content: emojis.loading + " Sending embed...", ephemeral: true });
         await inter.channel.send({ embeds: [embed] });
@@ -2065,7 +2074,7 @@ client.on('interactionCreate', async inter => {
     }
     else if (cname === 'delete_embed') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       const embedId = options.find(a => a.name === 'id')
       const embedData = await embedModel.findOne({ id: embedId.value.toLowerCase() });
 
@@ -2089,7 +2098,7 @@ client.on('interactionCreate', async inter => {
           list += count + '. ' + doc.id + '\n'
         }
 
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .addFields(
             { name: "Saved Embed IDs", value: list },
             { name: "Configuration", value: "> `/display_embed [ID]` to display an embed\n> `/delete_embed [ID]` to remove an embed" }
@@ -2104,7 +2113,7 @@ client.on('interactionCreate', async inter => {
     //Nitro dropper
     else if (cname === 'drop') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       if (!yay) return inter.reply({ content: emojis.warning + " The bot is currently busy deleting stocks (" + cStocks + "/" + tStocks + ")", ephemeral: true })
       await inter.deferReply();
       //
@@ -2151,9 +2160,9 @@ client.on('interactionCreate', async inter => {
         let dropMsg
         await drops.send({ content: (note ? note.value : '') + links }).then(msg => dropMsg = msg)
         //
-        let row = new MessageActionRow().addComponents(
-          new MessageButton().setCustomId("drop-" + dropMsg.id).setStyle('SECONDARY').setEmoji('<a:y_b2buntrain1:1138705768808464514>').setLabel("drop"),
-          new MessageButton().setCustomId("showDrop-" + dropMsg.id).setStyle('SECONDARY').setEmoji('📋'),
+        let row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId("drop-" + dropMsg.id).setStyle(ButtonStyle.Secondary).setEmoji('<a:y_b2buntrain1:1138705768808464514>').setLabel("drop"),
+          new ButtonBuilder().setCustomId("showDrop-" + dropMsg.id).setStyle(ButtonStyle.Secondary).setEmoji('📋'),
         );
         inter.editReply({ content: "<:yl_exclamation:1138705048562581575> <@" + user.user.id + "> sending **" + quan.value + "** " + item.value + "(s)\n<:S_dot:1138714811908235444> make sure to open your DMs *!*\n<:S_dot:1138714811908235444> the message may appear as **direct or request** message *!*", components: [row] })
         //Send auto queue
@@ -2186,7 +2195,7 @@ client.on('interactionCreate', async inter => {
     //
     else if (cname === 'resend') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + ' Insufficient Permission' });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let msgIds = options.find(a => a.name === 'msg_ids')
       await inter.reply({ content: emojis.loading + ' Resending messages...', ephemeral: true })
       let args = await getArgs(msgIds.value)
@@ -2265,8 +2274,8 @@ client.on('interactionCreate', async inter => {
               .then(async (messages) => {
                 messages.forEach(async (gotMsg) => { arrays.push(gotMsg.content) });
               });
-            //stockHolder[0].push(new MessageButton().setCustomId('none').setStyle('SECONDARY').setLabel('nitro boost ( '+data.nitroBoost+' )').setEmoji(emojis.nboost))
-            //stockHolder[0].push(new MessageButton().setCustomId('none2').setStyle('SECONDARY').setLabel('nitro basic ( '+data.nitroBasic+' )').setEmoji(emojis.nbasic))
+            //stockHolder[0].push(new ButtonBuilder().setCustomId('none').setStyle(ButtonStyle.Secondary).setLabel('nitro boost ( '+data.nitroBoost+' )').setEmoji(emojis.nboost))
+            //stockHolder[0].push(new ButtonBuilder().setCustomId('none2').setStyle(ButtonStyle.Secondary).setLabel('nitro basic ( '+data.nitroBasic+' )').setEmoji(emojis.nbasic))
             //Loop
             for (let i in arrays) {
               let msg = arrays[i];
@@ -2275,15 +2284,15 @@ client.on('interactionCreate', async inter => {
                 let text = args[0].includes(':') ? args.slice(1).join(" ") : msg
                 let emoji = args[0].includes(':') ? args[0] : null
                 if (stockHolder[holderCount].length === 5) holderCount++
-                stockHolder[holderCount].push(new MessageButton().setCustomId("none" + getRandom(1, 10000)).setStyle("SECONDARY").setLabel(text.replace(/!/g, '')).setEmoji(args[0].includes(':') ? args[0] : null).setDisabled(text.includes("!") ? true : false));
+                stockHolder[holderCount].push(new ButtonBuilder().setCustomId("none" + getRandom(1, 10000)).setStyle(ButtonStyle.Secondary).setLabel(text.replace(/!/g, '')).setEmoji(args[0].includes(':') ? args[0] : null).setDisabled(text.includes("!") ? true : false));
               }
             }
             //Handle display
             let comps = []
             for (let i in stockHolder) {
               if (stockHolder[i].length !== 0) {
-                let row = new MessageActionRow();
-                row.components = stockHolder[i];
+                let row = new ActionRowBuilder();
+                row.setComponents(stockHolder[i]);
                 comps.push(row)
               }
             }
@@ -2297,7 +2306,7 @@ client.on('interactionCreate', async inter => {
     //Queue
     else if (cname === 'order') {
       if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.warning + " Insufficient Permission" });
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       //
       let user = options.find(a => a.name === 'user')
       let product = options.find(a => a.name === 'product')
@@ -2328,8 +2337,8 @@ client.on('interactionCreate', async inter => {
         await addRole(member, ['1109020434520887324'], inter.guild)
         await orders.send({ content: content, components: [row] }).then(msg => msgUrl = msg.url)
         inter.channel.setName(quan.value + '。' + product.value)
-        let linkRow = new MessageActionRow().addComponents(
-          new MessageButton().setURL(msgUrl).setStyle('LINK').setEmoji('<:S_letter:1138714993425125556>').setLabel("view order"),
+        let linkRow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setURL(msgUrl).setStyle(ButtonStyle.Link).setEmoji('<:S_letter:1138714993425125556>').setLabel("view order"),
         );
 
         await inter.editReply({ content: '<a:yt_chickclap:1138707159287345263> you order was placed ( ' + orders.toString() + ' )', components: [linkRow] })
@@ -2347,7 +2356,7 @@ client.on('interactionCreate', async inter => {
     }
     //Calculate
     else if (cname === 'gamepass') {
-      let options = inter.options._hoistedOptions;
+      let options = inter.options.data;
       let amount = options.find(a => a.name === 'amount');
       let value = amount.value;
       
@@ -2357,14 +2366,14 @@ client.on('interactionCreate', async inter => {
     }
     //Refund
     else if (cname === 'refund') {
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let price = options.find(a => a.name === 'price')
       let subscription = options.find(a => a.name === 'subscription')
       let remaining = options.find(a => a.name === 'remaining')
       let service = 0.9
       let calcu = price.value / subscription.value * remaining.value
 
-      let embed = new MessageEmbed()
+      let embed = new EmbedBuilder()
         .addFields(
           { name: 'Total Refund', value: '**' + Math.round(calcu).toString() + '**', inline: true },
           { name: 'Price paid', value: price.value.toString(), inline: true },
@@ -2380,7 +2389,7 @@ client.on('interactionCreate', async inter => {
     }
     //Order status
     else if (cname === 'orderstatus') {
-      let options = inter.options._hoistedOptions
+      let options = inter.options.data
       let preset = options.find(a => a.name === 'preset_status')
       let status = options.find(a => a.name === 'custom_status')
       let got = false
@@ -2404,7 +2413,7 @@ client.on('interactionCreate', async inter => {
     }
   }
   //BUTTONS
-  else if (inter.isButton() || inter.isSelectMenu()) {
+  else if (inter.isButton() || inter.isStringSelectMenu()) {
     let id = inter.customId
     console.log(id)
     if (id.startsWith('auction_bid_')) {
@@ -2511,12 +2520,12 @@ client.on('interactionCreate', async inter => {
     else if (id === 'terms') {
       let member = inter.member;
       await addRole(member, ['1109020434520887321'], inter.message.guild)
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('claimed').setStyle('SECONDARY').setDisabled(true).setEmoji(emojis.check),
+      let row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('claimed').setStyle(ButtonStyle.Secondary).setDisabled(true).setEmoji(emojis.check),
       );
       inter.update({ content: '<a:tick:1138709329604784128> terms accepted : <@' + inter.user.id + '>', components: [row] })
-      let row2 = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('order form').setEmoji('<a:y_starroll:1138704563529076786>'),
+      let row2 = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('order form').setEmoji('<a:y_starroll:1138704563529076786>'),
       );
       inter.channel.send({ components: [row2] })
       inter.channel.setName(inter.channel.name.replace('ticket', inter.user.username.replace(/ /g, '')))
@@ -2605,16 +2614,16 @@ client.on('interactionCreate', async inter => {
           }
         }
         else if (method === 'closed') {
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('transcript-' + user.id).setStyle('SECONDARY').setLabel('Transcript').setEmoji('💾'),
-            new MessageButton().setCustomId('openTicket-' + user.id).setStyle('SECONDARY').setLabel('Open').setEmoji('🔓'),
-            new MessageButton().setCustomId('deleteTicket-' + user.id).setStyle('SECONDARY').setLabel('Delete').setEmoji('⛔'),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('transcript-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Transcript').setEmoji('💾'),
+            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Open').setEmoji('🔓'),
+            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Delete').setEmoji('⛔'),
           );
           comp = [row]
         }
         else if (method === 'open') {
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('closedTicket-' + user.id).setStyle('SECONDARY').setLabel('Close').setEmoji('🔓'),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('closedTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔓'),
           );
           comp = [row]
         }
@@ -2644,8 +2653,8 @@ client.on('interactionCreate', async inter => {
                 }
               }
 
-              let embed = new MessageEmbed()
-                .setAuthor({ name: user.tag, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
+              let embed = new EmbedBuilder()
+                .setAuthor({ name: user.username, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
                 .addFields(
                   { name: 'Ticket Owner', value: user.toString(), inline: true },
                   { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
@@ -2658,8 +2667,8 @@ client.on('interactionCreate', async inter => {
                 .setColor(colors.yellow)
                 .setFooter({ text: "If the link expired, try downloading the file instead." })
 
-              let row = new MessageActionRow().addComponents(
-                new MessageButton().setURL(ticket.transcript).setStyle('LINK').setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
+              let row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setURL(ticket.transcript).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
               );
 
               await msg.edit({ content: null, embeds: [embed], components: [row] })
@@ -2716,7 +2725,7 @@ client.on('interactionCreate', async inter => {
             }
           }
           await doc.save()
-          let embed = new MessageEmbed()
+          let embed = new EmbedBuilder()
             .setDescription(text)
             .setColor(colors.none)
             .setFooter({ text: "Sloopies Ticketing System" })
@@ -2756,8 +2765,8 @@ client.on('interactionCreate', async inter => {
             }
           }
 
-          let embed = new MessageEmbed()
-            .setAuthor({ name: user.tag, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
+          let embed = new EmbedBuilder()
+            .setAuthor({ name: user.username, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
             .addFields(
               { name: 'Ticket Owner', value: user.toString(), inline: true },
               { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
@@ -2770,8 +2779,8 @@ client.on('interactionCreate', async inter => {
             .setColor(colors.yellow)
             .setFooter({ text: "If the link expired, try downloading the file instead." })
 
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setURL(ticket.transcript).setStyle('LINK').setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setURL(ticket.transcript).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
           );
           await msg.edit({ content: null, embeds: [embed], components: [row] })
           await inter.channel.send({ content: emojis.check + ' Transcript saved *!*' })
@@ -2820,8 +2829,8 @@ client.on('interactionCreate', async inter => {
       found === 'completed' || found === 'cancelled' ? row.components[0].disabled = true : null
       let member = await inter.message.mentions.members.first()
 
-      let closeButton = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('closedTicket-' + member.id).setStyle('SECONDARY').setLabel('Close').setEmoji('🔒'),
+      let closeButton = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('closedTicket-' + member.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔒'),
       );
       let comp = found === 'completed' || found === 'cancelled' ? [closeButton] : []
 
@@ -2929,9 +2938,9 @@ client.on('interactionCreate', async inter => {
       let msg = await template.messages.fetch("1276061971317391430")
       let error = false;
       let code = makeCode(10)
-      let copy = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('copyLinks').setStyle('SECONDARY').setLabel('Copy Links'),
-        new MessageButton().setLabel('Vouch Here').setURL('https://discord.com/channels/1109020434449575936/1109020436026634260').setStyle('LINK').setEmoji('<:hb_announce:1138706465046134805>')
+      let copy = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('copyLinks').setStyle(ButtonStyle.Secondary).setLabel('Copy Links'),
+        new ButtonBuilder().setLabel('Vouch Here').setURL('https://discord.com/channels/1109020434449575936/1109020436026634260').setStyle(ButtonStyle.Link).setEmoji('<:hb_announce:1138706465046134805>')
       );
       await member.send({ content: msg.content + "\n\nRef code: `" + code + "`\n||" + dropMsg.content + " ||", components: [copy] }).catch((err) => {
         error = true
@@ -2939,9 +2948,9 @@ client.on('interactionCreate', async inter => {
       })
         .then(async (msg) => {
           if (error) return;
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('sent').setStyle('SUCCESS').setLabel('Sent to ' + member.user.tag).setDisabled(true),
-            new MessageButton().setCustomId('code').setStyle('SECONDARY').setLabel(code).setDisabled(true),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('sent').setStyle(ButtonStyle.Success).setLabel('Sent to ' + member.user.username).setDisabled(true),
+            new ButtonBuilder().setCustomId('code').setStyle(ButtonStyle.Secondary).setLabel(code).setDisabled(true),
           );
           inter.update({ components: [row] })
           dropMsg.edit({ content: code + "\n" + dropMsg.content, components: [row] })
@@ -2985,7 +2994,7 @@ client.on('interactionCreate', async inter => {
       let userId = id.replace('checkerStatus-', '')
       let data = shop.checkers.find(c => c.id == userId)
       if (data) {
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .setColor(colors.none)
           .addFields({
             name: 'Checker Status',
@@ -3004,32 +3013,32 @@ client.on('interactionCreate', async inter => {
     else if (id.startsWith('replyCopy-')) {
       let reply = id.replace('replyCopy-', '')
 
-      let embed = new MessageEmbed()
+      let embed = new EmbedBuilder()
         .setDescription(reply)
         .setColor(colors.none)
         .setFooter({ text: 'Hold to copy' })
 
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('togglePhone-' + reply).setStyle('DANGER').setLabel('Switch to IOS').setEmoji('<:apple:1016400281631740014>'),
+      let row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('togglePhone-' + reply).setStyle(ButtonStyle.Danger).setLabel('Switch to IOS').setEmoji('<:apple:1016400281631740014>'),
       );
       inter.reply({ embeds: [embed], components: [row], ephemeral: true })
     }
     else if (id.startsWith('togglePhone-')) {
       let content = id.replace('togglePhone-', '')
       if (inter.message.content.length > 0) {
-        let row = new MessageActionRow().addComponents(
-          new MessageButton().setCustomId('togglePhone-' + content).setStyle('DANGER').setLabel('Switch to IOS').setEmoji('<:apple:1016400281631740014>'),
+        let row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId('togglePhone-' + content).setStyle(ButtonStyle.Danger).setLabel('Switch to IOS').setEmoji('<:apple:1016400281631740014>'),
         );
 
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .setDescription(content)
           .setColor(colors.none)
           .setFooter({ text: 'Hold to copy' })
 
         inter.update({ content: null, embeds: [embed], components: [row] })
       } else {
-        let row = new MessageActionRow().addComponents(
-          new MessageButton().setCustomId('togglePhone-' + content).setStyle('SUCCESS').setLabel('Switch to android').setEmoji('<:android:1016400278934786158>'),
+        let row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId('togglePhone-' + content).setStyle(ButtonStyle.Success).setLabel('Switch to android').setEmoji('<:android:1016400278934786158>'),
         );
         inter.update({ content: content, embeds: [], components: [row] })
       }
@@ -3042,7 +3051,7 @@ client.on('interactionCreate', async inter => {
       let found = shop.deleteChannels.find(c => c === channelId)
       if (found) {
         shop.deleteChannels.splice(shop.deleteChannels.indexOf(channelId), 1)
-        inter.update({ content: emojis.check + " Channel deletion was cancelled by " + inter.user.tag + "", components: [] })
+        inter.update({ content: emojis.check + " Channel deletion was cancelled by " + inter.user.username + "", components: [] })
       } else {
         inter.reply({ content: emojis.warning + ' This channel is no longer up for deletion.', ephemeral: true })
       }
@@ -3065,15 +3074,15 @@ client.on('interactionCreate', async inter => {
         ]
         let random = getRandom(0, 4)
         codes[random] = chosen
-        let row = new MessageActionRow()
+        let row = new ActionRowBuilder()
           .addComponents(
-            new MessageButton().setCustomId(random === 0 ? 'prCode-' + random : 'randomCode-0').setStyle('SECONDARY').setLabel(codes[0]),
-            new MessageButton().setCustomId(random === 1 ? 'prCode-' + random : 'randomCode-1').setStyle('SECONDARY').setLabel(codes[1]),
-            new MessageButton().setCustomId(random === 2 ? 'prCode-' + random : 'randomCode-2').setStyle('SECONDARY').setLabel(codes[2]),
-            new MessageButton().setCustomId(random === 3 ? 'prCode-' + random : 'randomCode-3').setStyle('SECONDARY').setLabel(codes[3]),
-            new MessageButton().setCustomId(random === 4 ? 'prCode-' + random : 'randomCode-4').setStyle('SECONDARY').setLabel(codes[4]),
+            new ButtonBuilder().setCustomId(random === 0 ? 'prCode-' + random : 'randomCode-0').setStyle(ButtonStyle.Secondary).setLabel(codes[0]),
+            new ButtonBuilder().setCustomId(random === 1 ? 'prCode-' + random : 'randomCode-1').setStyle(ButtonStyle.Secondary).setLabel(codes[1]),
+            new ButtonBuilder().setCustomId(random === 2 ? 'prCode-' + random : 'randomCode-2').setStyle(ButtonStyle.Secondary).setLabel(codes[2]),
+            new ButtonBuilder().setCustomId(random === 3 ? 'prCode-' + random : 'randomCode-3').setStyle(ButtonStyle.Secondary).setLabel(codes[3]),
+            new ButtonBuilder().setCustomId(random === 4 ? 'prCode-' + random : 'randomCode-4').setStyle(ButtonStyle.Secondary).setLabel(codes[4]),
           );
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
           .addFields({ name: 'Choose the correct matching code', value: '```yaml\n' + chosen + '```' })
           .setColor(colors.none)
         let botMsg = null
@@ -3085,9 +3094,9 @@ client.on('interactionCreate', async inter => {
             channels += '\n<:bullet:1138710447835578388> <#' + ch.id + '>'
           }
         })
-        let linker = new MessageActionRow()
+        let linker = new ActionRowBuilder()
           .addComponents(
-            new MessageButton().setURL(botMsg.url).setStyle('LINK').setLabel('Check DMs'),
+            new ButtonBuilder().setURL(botMsg.url).setStyle(ButtonStyle.Link).setLabel('Check DMs'),
           );
         inter.reply({ content: emojis.loading + ' Verification prompt was sent in your DMs!', components: [linker], ephemeral: true })
         let notice = await getChannel(shop.channels.alerts)
@@ -3185,7 +3194,7 @@ client.on('interactionCreate', async inter => {
         let amt = amounts[i]
         totalAmount += amt.value
       }
-      let embed = new MessageEmbed()
+      let embed = new EmbedBuilder()
         .setDescription('item : **' + thread[0].answer + '**\namount : **' + (totalAmount > 0 ? totalAmount : thread[1].answer) + '**')
         .setColor(colors.none)
         .setFooter({ text: 'order confirmation' })
@@ -3322,9 +3331,9 @@ client.on('interactionCreate', async inter => {
         }
         itemsUsed = Object.values(map);
       }
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('confirmOrder-' + (price == 'none' ? price : price.toFixed(2))).setStyle('SUCCESS').setLabel('Yes'),
-        new MessageButton().setCustomId('orderFormat').setStyle('SECONDARY').setLabel('Retry'),
+      let row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('confirmOrder-' + (price == 'none' ? price : price.toFixed(2))).setStyle(ButtonStyle.Success).setLabel('Yes'),
+        new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('Retry'),
       );
       console.log(itemsUsed)
       if (itemsUsed.length > 0 && price != "none") {
@@ -3357,16 +3366,16 @@ client.on('interactionCreate', async inter => {
         if (responder) {
           
           
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SECONDARY').setLabel('new number').setEmoji('<:S_letter:1138714993425125556>'),
-            new MessageButton().setCustomId('reply-09459868489').setStyle('SECONDARY').setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('autopay-'+inter.user.id).setStyle(ButtonStyle.Secondary).setLabel('new number').setEmoji('<:S_letter:1138714993425125556>'),
+            new ButtonBuilder().setCustomId('reply-09459868489').setStyle(ButtonStyle.Secondary).setEmoji('<:bullet:1138710447835578388>').setLabel("copy number")
           );
           await inter.channel.send({content: emojis.loading+" your payment will be validated automatically:\n\n\<a:yl_exclamationan:1138705076395978802> **gcash**\n\<:indent:1174738613330788512> 0945-986-8489 [ **R. I.** ]\n\n-# Number: `"+phone.number+"`\n-# Expected Amount: `ANY`\n\n-# ‼️ If you are going to use a new number to send, please click the button below!", components: [row]})
         }
       } else {
         
-        let row = new MessageActionRow().addComponents(
-          new MessageButton().setCustomId('autopay-'+inter.user.id).setStyle('SUCCESS').setLabel('Yes'),
+        let row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId('autopay-'+inter.user.id).setStyle(ButtonStyle.Success).setLabel('Yes'),
         );
         await inter.channel.send({content: "** **\n<:gcash:1273091410228150276> Would you like to auto pay with GCash?\n-# Auto pay may have flaws. If the payment was not validated, please send the receipt instead.\n** **", components: [row]})
       }*/
@@ -3402,8 +3411,8 @@ client.on('interactionCreate', async inter => {
           answer: '',
         },
       ]
-      let row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId('autopay-' + inter.user.id).setStyle('SECONDARY').setLabel('Retry'),
+      let row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('autopay-' + inter.user.id).setStyle(ButtonStyle.Secondary).setLabel('Retry'),
       );
       const filter = m => m.author.id === inter.user.id;
       async function getResponse(data) {
@@ -3467,7 +3476,7 @@ client.on('interactionCreate', async inter => {
         await inter.reply({ content: "Stopping...", ephemeral: true })
         data.breakLoop = true;
         sleep(2000)
-        await inter.channel.send({ content: emojis.check + " Stopped Scanning\nAuthor: `" + inter.user.tag + "`", ephemeral: true })
+        await inter.channel.send({ content: emojis.check + " Stopped Scanning\nAuthor: `" + inter.user.username + "`", ephemeral: true })
       } else {
         inter.reply({ content: "The queue no longer exist.", ephemeral: true })
       }
@@ -3489,7 +3498,7 @@ client.ws.on('MESSAGE_UPDATE', async packet => {
   try {
     // 1) Get the channel
     const channel = await client.channels.fetch(channelId);
-    if (!channel || !channel.isText()) return;
+    if (!channel || !channel.isTextBased()) return;
 
     // 2) Remove any old “updated” notices
     const fetched = await channel.messages.fetch({ limit: 100 });
@@ -3538,7 +3547,7 @@ process.on('unhandledRejection', async error => {
   console.log(error);
   let caller_line = error.stack?.split("\n");
   let index = await caller_line.find(b => b.includes('/app'))
-  let embed = new MessageEmbed()
+  let embed = new EmbedBuilder()
     .addFields(
       { name: 'Caller Line', value: '```' + (index ? index : 'Unknown') + '```', inline: true },
       { name: 'Error Code', value: '```css\n[ ' + error.code + ' ]```', inline: true },
@@ -3601,8 +3610,8 @@ const interval = setInterval(async function () {
             }
 
             if (newDoc) {
-              let row = new MessageActionRow().addComponents(
-                new MessageButton().setCustomId('cancelClosure').setStyle('DANGER').setLabel('Cancel').setEmoji('🔓'),
+              let row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('cancelClosure').setStyle(ButtonStyle.Danger).setLabel('Cancel').setEmoji('🔓'),
               );
               await channel.send({ content: "This ticket is scheduled for closure.\n-# Click the button below to halt this process.", components: [row] })
             }
@@ -3692,15 +3701,15 @@ async function getPendingClosures() {
           }
           await userData.save()
           await pendingClosure.deleteOne({ ticketId: data.ticketId })
-          let embed = new MessageEmbed()
+          let embed = new EmbedBuilder()
             .setDescription('Status: `CLOSED`\nAuthor: ' + client.user.toString())
             .setColor(colors.none)
             .setFooter({ text: "Sloopies Ticketing System" })
 
-          let row = new MessageActionRow().addComponents(
-            new MessageButton().setCustomId('transcript-' + user.id).setStyle('SECONDARY').setLabel('Transcript').setEmoji('💾'),
-            new MessageButton().setCustomId('openTicket-' + user.id).setStyle('SECONDARY').setLabel('Open').setEmoji('🔓'),
-            new MessageButton().setCustomId('deleteTicket-' + user.id).setStyle('SECONDARY').setLabel('Delete').setEmoji('⛔'),
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('transcript-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Transcript').setEmoji('💾'),
+            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Open').setEmoji('🔓'),
+            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Delete').setEmoji('⛔'),
           );
           await ticket.send({ embeds: [embed], components: [row] })
           botMsg.delete();

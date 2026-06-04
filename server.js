@@ -234,7 +234,7 @@ module.exports = {
   noPerms,
 };
 
-let listener = app.listen(process.env.PORT, function () {
+let listener = app.listen(5000, '0.0.0.0', function () {
   console.log('Not that it matters but your app is listening on port ' + listener.address().port);
 });
 /*

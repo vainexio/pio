@@ -6,7 +6,11 @@ const mongoose = require('mongoose');
 const moment = require('moment')
 const { HttpsProxyAgent } = require('https-proxy-agent');
 const url = require('url');
+const path = require('path');
 const fsSync = require('fs');
+// Ensure transcript viewer directory exists
+const TRANSCRIPT_DIR = path.join(__dirname, 'public', 'transcripts');
+if (!fsSync.existsSync(TRANSCRIPT_DIR)) fsSync.mkdirSync(TRANSCRIPT_DIR, { recursive: true });
 const discordTranscripts = require('discord-html-transcripts');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const cheerio = require('cheerio');
@@ -2671,6 +2675,23 @@ client.on('interactionCreate', async inter => {
         .setColor(colors.green)
         .setFooter({ text: 'Sloopie Tickets' })
       ], ephemeral: true })
+
+      // ── Smart Notice: warn when many tickets are active ──
+      if (tixModel && channel) {
+        try {
+          const allTix = await tixModel.find()
+          let openCount = 0
+          allTix.forEach(u => u.tickets.forEach(t => { if (t.status === 'open') openCount++ }))
+          if (openCount >= 5) {
+            await channel.send({ embeds: [new EmbedBuilder()
+              .setTitle('⚠️ High Traffic Notice')
+              .setDescription('We currently have **' + openCount + '** active tickets open.\nOur team will attend to you as soon as possible — thank you for your patience! 🙏')
+              .setColor(colors.orange)
+              .setFooter({ text: 'Sloopie Tickets' })
+            ] })
+          }
+        } catch (e) { console.error('Smart notice error:', e) }
+      }
     }
     else if (id.includes('Ticket-')) {
       let method = id.startsWith('openTicket-') ? 'open' : id.startsWith('closedTicket-') ? 'closed' : id.startsWith('deleteTicket-') ? 'delete' : null
@@ -2721,45 +2742,36 @@ client.on('interactionCreate', async inter => {
           }
 
           try {
-            let attachment = await discordTranscripts.createTranscript(inter.channel); //, {saveImages: true}
-            await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
-              let attachments = Array.from(msg.attachments.values())
-              let stringFiles = ""
-              if (msg.attachments.size > 0) {
-                let index = 0
-                for (let i in attachments) {
-                  console.log(attachments[i])
-                  ticket.transcript = 'https://codebeautify.org/htmlviewer?url=' + attachments[i].url.slice(0, -1)
-                  await doc.save();
-                }
-              }
+            const { attachment, viewerUrl } = await generateTranscript(inter.channel);
+            ticket.transcript = viewerUrl;
+            await doc.save();
+            const logMsg = await log.send({ files: [attachment] });
 
-              let embed = new EmbedBuilder()
-                .setAuthor({ name: user.username, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
-                .addFields(
-                  { name: 'Ticket Owner', value: user.toString(), inline: true },
-                  { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
-                  { name: 'Panel Name', value: ticket.panel ? ticket.panel : 'Unknown', inline: true },
-                  { name: 'Transcript', value: '[Online Transcript](' + ticket.transcript + ')', inline: true },
-                  { name: 'Count', value: ticket.count ? ticket.count.toString() : 'Unknown', inline: true },
-                  { name: 'Moderator', value: inter.user.toString(), inline: true }
-                )
-                .setThumbnail(inter.guild.iconURL())
-                .setColor(colors.yellow)
-                .setFooter({ text: "If the link expired, try downloading the file instead." })
+            let embed = new EmbedBuilder()
+              .setAuthor({ name: user.username, iconURL: user.avatarURL() })
+              .addFields(
+                { name: 'Ticket Owner', value: user.toString(), inline: true },
+                { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
+                { name: 'Panel Name', value: ticket.panel ? ticket.panel : 'Unknown', inline: true },
+                { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
+                { name: 'Count', value: ticket.count ? ticket.count.toString() : 'Unknown', inline: true },
+                { name: 'Moderator', value: inter.user.toString(), inline: true }
+              )
+              .setThumbnail(inter.guild.iconURL())
+              .setColor(colors.yellow)
+              .setFooter({ text: 'Sloopie Tickets' })
 
-              let row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setURL(ticket.transcript).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
-              );
+            let row = new ActionRowBuilder().addComponents(
+              new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
+            );
 
-              await msg.edit({ content: null, embeds: [embed], components: [row] })
-              await inter.channel.send({ embeds: [new EmbedBuilder()
-                .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + ticket.transcript + ')')
-                .setColor(colors.green)
-                .setFooter({ text: 'Sloopie Tickets' })
-              ] })
-              user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err))
-            });
+            await logMsg.edit({ content: null, embeds: [embed], components: [row] });
+            await inter.channel.send({ embeds: [new EmbedBuilder()
+              .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + viewerUrl + ')')
+              .setColor(colors.green)
+              .setFooter({ text: 'Sloopie Tickets' })
+            ] });
+            user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err));
             await inter.channel.send({ embeds: [new EmbedBuilder()
               .setDescription('🗑️ **Deleting Channel**\nThis channel will be removed shortly.')
               .setColor(colors.red)
@@ -2849,45 +2861,35 @@ client.on('interactionCreate', async inter => {
           ticket = {}
           inter.message.reply({ content: emojis.warning + ' Invalid ticket data.' })
         }
-        let attachment = await discordTranscripts.createTranscript(inter.channel);
-
-        await log.send({ content: 'Loading', files: [attachment] }).then(async msg => {
-          let attachments = Array.from(msg.attachments.values())
-          let stringFiles = ""
-          if (msg.attachments.size > 0) {
-            let index = 0
-            for (let i in attachments) {
-              console.log(attachments[i])
-              ticket.transcript = 'https://codebeautify.org/htmlviewer?url=' + attachments[i].url.slice(0, -1)
-              await doc.save();
-            }
-          }
+        const { attachment, viewerUrl } = await generateTranscript(inter.channel);
+        ticket.transcript = viewerUrl;
+        await doc.save();
+        const logMsg = await log.send({ files: [attachment] });
 
           let embed = new EmbedBuilder()
-            .setAuthor({ name: user.username, iconURL: user.avatarURL(), url: 'https://discord.gg/sloopies' })
+            .setAuthor({ name: user.username, iconURL: user.avatarURL() })
             .addFields(
               { name: 'Ticket Owner', value: user.toString(), inline: true },
               { name: 'Ticket Name', value: 'Current: `' + inter.channel.name + '`\nOriginal: `' + ticket.name + '`', inline: true },
               { name: 'Panel Name', value: ticket.panel ? ticket.panel : 'Unknown', inline: true },
-              { name: 'Transcript', value: '[Online Transcript](' + ticket.transcript + ')', inline: true },
+              { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
               { name: 'Count', value: ticket.count ? ticket.count.toString() : 'Unknown', inline: true },
               { name: 'Moderator', value: inter.user.toString(), inline: true }
             )
             .setThumbnail(inter.guild.iconURL())
             .setColor(colors.yellow)
-            .setFooter({ text: "If the link expired, try downloading the file instead." })
+            .setFooter({ text: 'Sloopie Tickets' })
 
           let row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setURL(ticket.transcript).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
+            new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript').setEmoji('<:y_seperator:1138707390657740870>'),
           );
-          await msg.edit({ content: null, embeds: [embed], components: [row] })
+          await logMsg.edit({ content: null, embeds: [embed], components: [row] });
           await inter.channel.send({ embeds: [new EmbedBuilder()
-            .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + ticket.transcript + ')')
+            .setDescription(emojis.check + ' **Transcript Saved!**\n[View Transcript](' + viewerUrl + ')')
             .setColor(colors.green)
             .setFooter({ text: 'Sloopie Tickets' })
-          ] })
-          user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err))
-        });
+          ] });
+          user.send({ content: 'Your ticket transcript was generated *!*', embeds: [embed], files: [attachment], components: [row] }).catch(err => console.log(err));
       }
     }
     else if (id == 'timedClosure') {
@@ -3667,6 +3669,7 @@ let ready = true;
 app.use(express.json());
 app.use(cors())
 app.use(express.urlencoded({ extended: true }));
+app.use('/transcripts', express.static(path.join(__dirname, 'public', 'transcripts')));
 
 const interval = setInterval(async function () {
   //Get time//
@@ -3762,6 +3765,96 @@ const interval = setInterval(async function () {
   }
 }, 5000)
 
+// ─── Transcript Helper ──────────────────────────────────────────────────────
+async function generateTranscript(channel) {
+  const html = await discordTranscripts.createTranscript(channel, { returnType: 'string', poweredBy: false });
+  const fileName = `${channel.id}.html`;
+  fsSync.writeFileSync(path.join(TRANSCRIPT_DIR, fileName), html);
+  const attachment = new AttachmentBuilder(Buffer.from(html), { name: fileName });
+  const host = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+  const viewerUrl = `${host}/transcripts/${fileName}`;
+  return { attachment, viewerUrl };
+}
+
+// ─── Inactive Ticket Monitor ────────────────────────────────────────────────
+async function checkInactiveTickets() {
+  if (!tixModel || !pendingClosure) return;
+  const now = Date.now();
+  const WARN_IDLE_MS = 23 * 3600 * 1000;       // warn at 23h idle
+  const AUTO_DELETE_MS = 48 * 3600 * 1000;     // delete closed ticket after 48h idle
+  try {
+    const allUsers = await tixModel.find();
+    for (const userDoc of allUsers) {
+      for (const ticket of userDoc.tickets) {
+        const channel = await getChannel(ticket.id).catch(() => null);
+        if (!channel) continue;
+        try {
+          const msgs = await channel.messages.fetch({ limit: 1 });
+          const lastMsg = msgs.first();
+          if (!lastMsg) continue;
+          const idle = now - lastMsg.createdTimestamp;
+
+          // ── Auto-close open ticket after 23h inactivity ──
+          if (ticket.status === 'open' && idle >= WARN_IDLE_MS) {
+            const existing = await pendingClosure.findOne({ ticketId: ticket.id });
+            if (!existing) {
+              const closureDoc = new pendingClosure(closureSchema);
+              closureDoc.userId = userDoc.id;
+              closureDoc.ticketId = ticket.id;
+              closureDoc.remainingTime = 1;
+              await closureDoc.save();
+              const cancelRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('cancelClosure').setStyle(ButtonStyle.Success).setLabel('Keep Open').setEmoji('🔓'),
+              );
+              await channel.send({
+                content: `<@${userDoc.id}>`,
+                embeds: [new EmbedBuilder()
+                  .setDescription('⏰ **Inactivity Notice**\nThis ticket has been idle for **23+ hours** and will be automatically closed in **1 hour**.\nSend any message or click below to cancel.')
+                  .setColor(colors.orange)
+                  .setFooter({ text: 'Sloopie Tickets' })
+                ],
+                components: [cancelRow]
+              });
+            }
+          }
+
+          // ── Auto-delete closed ticket after 48h idle ──
+          else if (ticket.status === 'closed' && idle >= AUTO_DELETE_MS) {
+            const user = await getUser(userDoc.id);
+            if (!user) continue;
+            const log = await getChannel(shop.tixSettings.transcripts).catch(() => null);
+            if (!log) continue;
+            try {
+              const { attachment, viewerUrl } = await generateTranscript(channel);
+              const transcriptEmbed = new EmbedBuilder()
+                .setAuthor({ name: user.username, iconURL: user.avatarURL() })
+                .addFields(
+                  { name: 'Ticket Owner', value: user.toString(), inline: true },
+                  { name: 'Ticket Name', value: '`' + ticket.name + '`', inline: true },
+                  { name: 'Auto-Deleted', value: '<t:' + Math.floor(now / 1000) + ':R>', inline: true },
+                  { name: 'Transcript', value: '[View Transcript](' + viewerUrl + ')', inline: true },
+                )
+                .setThumbnail(channel.guild.iconURL())
+                .setColor(colors.red)
+                .setFooter({ text: 'Auto-deleted — inactive for 48h while closed' });
+              const linkRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setURL(viewerUrl).setStyle(ButtonStyle.Link).setLabel('View Transcript'),
+              );
+              const logMsg = await log.send({ content: 'Auto-delete', files: [attachment] });
+              await logMsg.edit({ content: null, embeds: [transcriptEmbed], components: [linkRow] });
+              user.send({ content: 'Your ticket `' + ticket.name + '` was auto-deleted after 48h of inactivity while closed.', embeds: [transcriptEmbed], files: [attachment], components: [linkRow] }).catch(() => {});
+              const idx = userDoc.tickets.findIndex(t => t.id === ticket.id);
+              if (idx !== -1) userDoc.tickets.splice(idx, 1);
+              await userDoc.save();
+              await channel.delete();
+            } catch (err) { console.error('Auto-delete ticket error:', err); }
+          }
+        } catch (err) { console.error('Inactive ticket check error for ' + ticket.id + ':', err); }
+      }
+    }
+  } catch (err) { console.error('checkInactiveTickets error:', err); }
+}
+
 async function getPendingClosures() {
   let pendingTickets = await pendingClosure.find()
   for (let i in pendingTickets) {
@@ -3777,7 +3870,10 @@ async function getPendingClosures() {
         data.remainingTime--
         if (data.remainingTime == 0 && ticketData.status == "open") {
           let botMsg = null
-          await ticket.send({ content: 'Updating ticket... ' + emojis.loading }).then(msg => botMsg = msg)
+          await ticket.send({ embeds: [new EmbedBuilder()
+            .setDescription(emojis.loading + ' Closing ticket automatically...')
+            .setColor(colors.yellow)
+          ] }).then(msg => botMsg = msg)
           //Modify channel
           for (let i in userData.tickets) {
             let ticketTable = userData.tickets[i]
@@ -3791,7 +3887,7 @@ async function getPendingClosures() {
                 },
                 {
                   id: user.id,
-                  deny: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'],
+                  deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
                   allow: null,
                 },
                 {
@@ -3804,18 +3900,22 @@ async function getPendingClosures() {
           await userData.save()
           await pendingClosure.deleteOne({ ticketId: data.ticketId })
           let embed = new EmbedBuilder()
-            .setDescription('Status: `CLOSED`\nAuthor: ' + client.user.toString())
-            .setColor(colors.none)
-            .setFooter({ text: "Sloopies Ticketing System" })
+            .setDescription('🔒 **Ticket Auto-Closed**\nThis ticket was closed automatically due to inactivity.\nBy ' + client.user.toString() + ' — <t:' + Math.floor(Date.now() / 1000) + ':R>')
+            .setColor(colors.red)
+            .setFooter({ text: 'Sloopie Tickets' })
 
           let row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('transcript-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Transcript').setEmoji('💾'),
-            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Open').setEmoji('🔓'),
-            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Secondary).setLabel('Delete').setEmoji('⛔'),
+            new ButtonBuilder().setCustomId('openTicket-' + user.id).setStyle(ButtonStyle.Success).setLabel('Reopen').setEmoji('🔓'),
+            new ButtonBuilder().setCustomId('deleteTicket-' + user.id).setStyle(ButtonStyle.Danger).setLabel('Delete').setEmoji('⛔'),
           );
           await ticket.send({ embeds: [embed], components: [row] })
           botMsg.delete();
-          await user.send({ content: "<:hb_rule_book:1138712613769990254> Your ticket `(" + ticket.name + ")` was closed automatically.\nTranscript will be sent once the ticket is deleted." });
+          await user.send({ embeds: [new EmbedBuilder()
+            .setDescription('<:hb_rule_book:1138712613769990254> **Ticket Auto-Closed**\nYour ticket `' + ticket.name + '` was closed automatically due to inactivity.\nTranscript will be sent once the ticket is deleted.')
+            .setColor(colors.red)
+            .setFooter({ text: 'Sloopie Tickets' })
+          ] }).catch(() => {});
         }
         else if (ticketData.status != "open") {
           await pendingClosure.deleteOne({ ticketId: data.ticketId })
@@ -3830,6 +3930,6 @@ async function getPendingClosures() {
   }
 }
 setInterval(async function () {
-  getPendingClosures()
-},
-  3600000)
+  getPendingClosures();
+  checkInactiveTickets();
+}, 3600000)

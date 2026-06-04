@@ -15,7 +15,7 @@
     "body-parser": "^1.20.5",
     "cheerio": "^0.22.0",
     "cors": "^2.8.6",
-    "discord-html-transcripts": "^3.3.0",
+    "discord-html-transcripts": "^3.2.0",
     "discord.js": "^14.26.4",
     "exiftool-vendored": "^30.2.0",
     "express": "^4.22.2",

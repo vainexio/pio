@@ -88,6 +88,9 @@ let ticketId = 10
 client.on("debug", function (info) {
   console.log(info)
 });
+client.on('error', function (err) {
+  console.error('Discord client error (handled):', err.message)
+});
 //When bot is ready
 client.on("clientReady", async () => {
   let guildsID = [];
@@ -234,6 +237,7 @@ client.on("clientReady", async () => {
   }
   console.log('Successfully logged in to discord bot.')
   getPendingClosures()
+  sanitizeTickets()
   let statusInterval = 0
   setInterval(async function () {
     client.user.setPresence(shop.bot.status[statusInterval]);
@@ -247,7 +251,8 @@ module.exports = {
   noPerms,
 };
 
-let listener = app.listen(5000, '0.0.0.0', function () {
+const PORT = process.env.PORT || 5000;
+let listener = app.listen(PORT, '0.0.0.0', function () {
   console.log('Not that it matters but your app is listening on port ' + listener.address().port);
 });
 /*
@@ -3933,3 +3938,31 @@ setInterval(async function () {
   getPendingClosures();
   checkInactiveTickets();
 }, 3600000)
+
+async function sanitizeTickets() {
+  if (!tixModel) return;
+  try {
+    const allUsers = await tixModel.find();
+    let removed = 0;
+    for (const userDoc of allUsers) {
+      const before = userDoc.tickets.length;
+      const surviving = [];
+      for (const ticket of userDoc.tickets) {
+        const ch = await getChannel(ticket.id).catch(() => null);
+        if (ch) {
+          surviving.push(ticket);
+        } else {
+          removed++;
+          await pendingClosure.deleteOne({ ticketId: ticket.id }).catch(() => {});
+        }
+      }
+      if (surviving.length !== before) {
+        userDoc.tickets = surviving;
+        await userDoc.save();
+      }
+    }
+    console.log('[sanitizeTickets] Done — removed ' + removed + ' stale ticket(s) with deleted channels.');
+  } catch (err) {
+    console.error('[sanitizeTickets] Error:', err.message);
+  }
+}

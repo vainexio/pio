@@ -75,7 +75,7 @@ module.exports = {
         new ButtonBuilder().setCustomId('closedTicket-'+data.user.id).setStyle(ButtonStyle.Secondary).setLabel('Close').setEmoji('🔒'),
         new ButtonBuilder().setCustomId('timedClosure').setStyle(ButtonStyle.Secondary).setLabel('Timed Closure').setEmoji('<:Timer:1351861429954936893>'),
       );
-      let BotMsg = channel.send({ content: '<a:S_whiteheart02:1138715896077090856> <@' + data.user.id + '> <@&' + data.support + '>', embeds: [embed], components: [row] })
+      let BotMsg = channel.send({ content: 'ticket opened <@' + data.user.id + '> <@&' + data.support + '>', embeds: [embed], components: [row] })
       
       })
       .catch(async err => {

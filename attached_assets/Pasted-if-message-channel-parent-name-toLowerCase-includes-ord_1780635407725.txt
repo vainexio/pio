@@ -1,0 +1,35 @@
+if (message.channel.parent?.name.toLowerCase().includes('ordrs')) {
+    //
+    let embed = new EmbedBuilder()
+      .addFields({ name: 'terms and conditions', value: '<:S_letter:1138714993425125556> before proceeding, you must read and accept our terms and conditions.\n\n<:hb_rule_book:1138712613769990254> by clicking the button, you indicate that you have read, understood and accepted the terms stated in <#1109020435754000421> and the rules implied in <#1109020435754000422> for the product you want to avail *!*\n\n<:hb_rule_book:1138712613769990254> you will be held liable for any violation of our rules, for you have accepted the terms and agreed to comply *!*', inline: true })
+      .setColor(colors.yellow)
+
+    let row = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder().setLabel('accept terms').setCustomId('terms').setStyle(ButtonStyle.Secondary).setEmoji('<:hb_rule_book:1138712613769990254>'),
+      )
+    //
+    if (message.author.id === client.user.id && message.content?.toLowerCase().includes('ticket opened')) {
+
+      let member = message.mentions.members.first()
+      if (member) {
+        let phone = await phoneModel.findOne({ userId: member.id })
+        if (phone) {
+          shop.expected.push({ channel: message.channel.id, amount: "auto", num: phone.number })
+        }
+        let shopStatus = await getChannel(shop.channels.status);
+        if (shopStatus.name === 'shop : CLOSED') {
+          message.channel.send("<@" + member.id + "> the shop is currently **closed**, please come back at <t:1677542400:t> to proceed with your order *!*")
+        }
+        if (!await hasRole(member, ['1109020434520887321'], message.channel.guild)) {
+
+          message.channel.send({ content: "<@" + member.id + ">", embeds: [embed], components: [row] })
+        } else if (await hasRole(member, ['1109020434520887321'], message.guild)) {
+          let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('orderFormat').setStyle(ButtonStyle.Secondary).setLabel('order form').setEmoji('<:S_letter:1138714993425125556>'),
+          );
+          message.channel.send({ components: [row] })
+        }
+      }
+    }
+  }

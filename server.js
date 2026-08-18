@@ -3651,6 +3651,37 @@ client.on('presenceUpdate', async (pres) => {
   let perms = await getPerms(mem, 3)
   let moderated = await moderate(mem,perms);
 })
+client.on('channelUpdate', async (oldChannel, newChannel) => {
+  if (!newChannel.name || !oldChannel.name || oldChannel.name === newChannel.name) return;
+  if (!tixModel || !pendingClosure) return;
+
+  const isDone = newChannel.name.includes('done。');
+  const isClosing = newChannel.name.includes('closing。');
+  if (!isDone && !isClosing) return;
+
+  try {
+    const existing = await pendingClosure.findOne({ ticketId: newChannel.id });
+    if (existing) return;
+
+    const userDoc = await tixModel.findOne({ 'tickets.id': newChannel.id });
+    if (!userDoc) return;
+    const ticket = userDoc.tickets.find(t => t.id === newChannel.id);
+    if (!ticket || ticket.status !== 'open') return;
+
+    const doc = new pendingClosure(closureSchema);
+    doc.userId = userDoc.id;
+    doc.ticketId = newChannel.id;
+    doc.remainingTime = isDone ? 12 : 5;
+    await doc.save();
+
+    let row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('cancelClosure').setStyle(ButtonStyle.Danger).setLabel('Cancel').setEmoji('🔓'),
+    );
+    await newChannel.send({ content: "This ticket is scheduled for closure.\n-# Click the button below to halt this process.", components: [row] });
+  } catch (err) {
+    console.error('channelUpdate closure scheduling error:', err);
+  }
+});
 process.on('unhandledRejection', async error => {
   ++errors
   console.log(error);
@@ -3693,45 +3724,6 @@ const interval = setInterval(async function () {
       }, 60000)
     }
 
-    if (tixModel) {
-      let tickets = await tixModel.find()
-      for (let i in tickets) {
-        let user = await tixModel.findOne({ id: tickets[i].id })//tickets[i]
-        let userTickets = user.tickets
-
-        for (let j in userTickets) {
-          let ticket = userTickets[j]
-          if (ticket.status == "open") {
-            let channel = await getChannel(ticket.id)
-            let pendingForClosure = await pendingClosure.findOne({ ticketId: ticket.id })
-            let newDoc = null
-            if (channel && channel.name.includes('done。') && !pendingForClosure) {
-              newDoc = new pendingClosure(closureSchema)
-              newDoc.userId = user.id
-              newDoc.ticketId = ticket.id
-              newDoc.remainingTime = 12
-              await newDoc.save()
-            } else if (channel && channel.name.includes('closing。') && !pendingForClosure) {
-              newDoc = new pendingClosure(closureSchema)
-              newDoc.userId = user.id
-              newDoc.ticketId = ticket.id
-              newDoc.remainingTime = 5
-              await newDoc.save()
-            }
-
-            if (newDoc) {
-              let row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('cancelClosure').setStyle(ButtonStyle.Danger).setLabel('Cancel').setEmoji('🔓'),
-              );
-              await channel.send({ content: "This ticket is scheduled for closure.\n-# Click the button below to halt this process.", components: [row] })
-            }
-          }
-        }
-        await user.save()
-      }
-    }
-
-    //
     let template = await getChannel(shop.channels.templates)
     let annc = await getChannel(shop.channels.shopStatus)
 
@@ -3756,7 +3748,6 @@ const interval = setInterval(async function () {
       let vc = await getChannel(shop.channels.reportsVc)
       if (vc.name === 'reports : OPEN') return;
       vc.setName('reports : OPEN')
-      //await annc.bulkDelete(3)
       await annc.send({ content: msg.content, files: ['https://stickershop.line-scdn.net/stickershop/v1/sticker/422001172/iPhone/sticker@2x.png?v=1'] })
     }
     else if (time === '8:0PM') {
@@ -3772,7 +3763,11 @@ const interval = setInterval(async function () {
 
 // ─── Transcript Helper ──────────────────────────────────────────────────────
 async function generateTranscript(channel) {
-  const html = await discordTranscripts.createTranscript(channel, { returnType: 'string', poweredBy: false });
+    const html = await discordTranscripts.createTranscript(channel, {
+    returnType: 'string',
+    poweredBy: false,
+    saveImages: false,
+  });
   const fileName = `${channel.id}.html`;
   fsSync.writeFileSync(path.join(TRANSCRIPT_DIR, fileName), html);
   const attachment = new AttachmentBuilder(Buffer.from(html), { name: fileName });

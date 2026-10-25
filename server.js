@@ -168,6 +168,7 @@ client.on("clientReady", async () => {
         status: String,
         count: Number,
         category: String,
+        ordered: Boolean,
       }
     ],
   })
@@ -2388,6 +2389,11 @@ client.on('interactionCreate', async inter => {
         await addRole(member, ['1109020434520887324'], inter.guild)
         await orders.send({ content: content, components: [row] }).then(msg => msgUrl = msg.url)
         inter.channel.setName(quan.value + '。' + product.value)
+        // Mark ticket as ordered so it skips the inactivity auto-close
+        if (tixModel) {
+          await tixModel.updateOne({ 'tickets.id': inter.channel.id }, { $set: { 'tickets.$.ordered': true } }).catch(() => {});
+          if (pendingClosure) await pendingClosure.deleteOne({ ticketId: inter.channel.id }).catch(() => {});
+        }
         let linkRow = new ActionRowBuilder().addComponents(
           new ButtonBuilder().setURL(msgUrl).setStyle(ButtonStyle.Link).setEmoji('<:S_letter:1138714993425125556>').setLabel("view order"),
         );
@@ -3795,7 +3801,9 @@ async function checkInactiveTickets() {
           const idle = now - lastMsg.createdTimestamp;
 
           // ── Auto-close open ticket after 23h inactivity ──
-          if (ticket.status === 'open' && idle >= WARN_IDLE_MS) {
+          // Tickets with an /order placed (flag, or the '。' rename /order applies) skip the notice
+          const hasOrder = ticket.ordered || channel.name.includes('。');
+          if (ticket.status === 'open' && !hasOrder && idle >= WARN_IDLE_MS) {
             const existing = await pendingClosure.findOne({ ticketId: ticket.id });
             if (!existing) {
               const closureDoc = new pendingClosure(closureSchema);
@@ -3866,6 +3874,10 @@ async function getPendingClosures() {
       let userData = await tixModel.findOne({ id: data.userId })
       let ticketData = userData.tickets.find(t => t.id == data.ticketId)
       if (userData && ticketData) {
+        if (ticketData.ordered || ticket.name.includes('。')) {
+          await pendingClosure.deleteOne({ ticketId: data.ticketId })
+          continue
+        }
         if (data.remainingTime == 12) await user.send({ content: emojis.warning + " Your ticket (" + ticket.toString() + ") will be closed automatically in " + data.remainingTime + " hours." }).catch(err => console.log(err));
         data.remainingTime--
         if (data.remainingTime == 0 && ticketData.status == "open") {

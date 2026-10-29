@@ -224,6 +224,14 @@ module.exports = {
       alerts: '1109020437096181830',
       drops: '1138638129054633984',
     },
+    // PRICING — only seeds the database on the very first start. After that, prices,
+    // rates and keywords are edited from Discord with /pricing (functions/pricing.js)
+    // and changes here do nothing unless brought in with /pricing import.
+    //   keywords      product: "how much" replies; with defaultType also ticket orders
+    //   defaultType   price list used when a ticket only matches the product keywords
+    //   types[].keywords  words that send a ticket order to this price list
+    //   types[].rate      { price, rs, per, unit } — priced per `per` units (e.g. ₱315 per 1000 robux)
+    //   types[].hidden    keep it orderable but off the pricelist channels
     pricelists: [
       {
         //Category
@@ -338,6 +346,7 @@ module.exports = {
         //Category
         name: 'Robux',
         keywords: ['roblox','robux','rbx','bobux'],
+        defaultType: 'Via Gamepass',
         channel: '1109020436764827700',
         rs: '1258243460209578096',
         status: 2,
@@ -346,6 +355,7 @@ module.exports = {
         types: [
           {
             parent: 'Via Payout',
+            keywords: ['payout', 'pay out'],
             children: [
               //
               { name: '100 robux (payout)', price: 40, rs: 35 },
@@ -383,6 +393,7 @@ module.exports = {
           },*/
           {
             parent: 'Via Gamepass',
+            keywords: ['gamepass', 'gpass'],
             children: [
               //
               { name: '100 robux', price: 48, rs: 45 },
@@ -398,6 +409,30 @@ module.exports = {
               { name: '*covered tax*', price: 0, rs: 0 },
               //
             ],
+          },
+          {
+            parent: 'Via Gifting',
+            keywords: ['gifting', 'gift'],
+            hidden: true,
+            rate: { price: 315, rs: 310, per: 1000, unit: 'robux' },
+            children: [],
+          },
+        ],
+      },
+      {
+        //Category
+        name: 'Roblox Plus',
+        keywords: ['roblox plus', 'rbx plus', 'plus'],
+        channel: '1109020436764827700',
+        rs: '1258243460209578096',
+        status: 2,
+        image: '',
+        types: [
+          {
+            parent: 'Rate',
+            keywords: ['roblox plus', 'rbx plus', 'plus'],
+            rate: { price: 500, per: 1000, unit: 'robux' },
+            children: [],
           },
         ],
       },

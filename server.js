@@ -202,6 +202,7 @@ client.on("clientReady", async () => {
   Task = mongoose.model('Task2', taskSchema);
   pendingClosure = mongoose.model("SloopiesPendingClosure", closureSchema);
   auctionModel = mongoose.model('Auction', AuctionSchema);
+  await pricing.load()
   ///
   let doc = await ticketModel.findOne({ id: ticketId })
   if (!doc) {
@@ -342,6 +343,8 @@ const { makeTicket } = tickets
 const linksHandler = require('./functions/linksHandler.js')
 const { generateLinks, revokeLinks, fetchLinks } = linksHandler
 const { ai } = require('./functions/ai.js')
+//Pricing
+const pricing = require('./functions/pricing.js')
 /*
 ░█████╗░██╗░░░░░██╗███████╗███╗░░██╗████████╗  ███╗░░░███╗███████╗░██████╗░██████╗░█████╗░░██████╗░███████╗
 ██╔══██╗██║░░░░░██║██╔════╝████╗░██║╚══██╔══╝  ████╗░████║██╔════╝██╔════╝██╔════╝██╔══██╗██╔════╝░██╔════╝
@@ -896,16 +899,17 @@ client.on("messageCreate", async (message) => {
           }
           for (let b in data.types) {
             let type = data.types[b]
+            if (type.hidden) continue
             let children = ''
-            for (let c in type.children) {
-              let child = type.children[c]
-              let pr = method === 'rs' ? child.rs ? child.rs : child.price : child.price
+            for (let child of pricing.displayEntries(type, method === 'rs')) {
+              let pr = child.price
               let emoji = method === 'rs' ? '<a:y_starroll:1138704563529076786>' : '<a:S_whiteheart02:1138715896077090856>'
               children += '﹒  ' + child.name + (pr > 0 ? ' ' + emoji + ' ₱' + pr : '') + '\n'
             }
+            if (!children) continue
             embed = EmbedBuilder.from(embed)
               .addFields({ name: type.parent, value: children })
-              .setImage(data.image ? data.image : '')
+            if (data.image) embed.setImage(data.image)
           }
           let productStatus = [
             'None',
@@ -1097,16 +1101,17 @@ client.on("messageCreate", async (message) => {
 
           for (let b in data.types) {
             let type = data.types[b]
+            if (type.hidden) continue
             let children = ''
-            for (let c in type.children) {
-              let child = type.children[c]
+            for (let child of pricing.displayEntries(type, false)) {
               let pr = child.price
               let emoji = '<a:yl_flowerspin:1138705226082304020>'
               children += '' + emoji + ' ' + child.name + (pr > 0 ? ' <a:S_whiteheart02:1138715896077090856> ₱' + pr : '') + '\n'
             }
+            if (!children) continue
             embed = EmbedBuilder.from(embed)
               .addFields({ name: type.parent, value: children })
-              .setImage(data.image ? data.image : '')
+            if (data.image) embed.setImage(data.image)
           }
           let productStatus = [
             'None',
@@ -2465,6 +2470,17 @@ client.on('interactionCreate', async inter => {
 
       inter.reply({ embeds: [embed] });
     }
+    //Pricing
+    else if (cname === 'pricing') {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ embeds: [new EmbedBuilder().setDescription(emojis.x + ' **Insufficient Permission**').setColor(colors.red)], ephemeral: true });
+      try {
+        await pricing.handleCommand(inter)
+      } catch (err) {
+        console.error('Pricing command |', err)
+        let reply = { content: emojis.x + ' Something went wrong. Check `/pricing view` for what was saved.\n```diff\n- ' + err.message + '```', ephemeral: true }
+        inter.deferred || inter.replied ? inter.editReply(reply) : inter.reply(reply)
+      }
+    }
     //Order status
     else if (cname === 'orderstatus') {
       let options = inter.options.data
@@ -3282,7 +3298,7 @@ client.on('interactionCreate', async inter => {
       let count = 0
       let thread = [
         {
-          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# please include keywords: **gamepass, payout, gifting, decor, etc..**\n-# DO NOT INCLUDE THE AMOUNT',
+          question: '>>> <a:y_starroll:1138704563529076786> which product do you want to avail?\n-# please include keywords: **' + pricing.orderKeywords().join(', ') + ', etc..**\n-# DO NOT INCLUDE THE AMOUNT',
           answer: '',
         },
         {
@@ -3316,135 +3332,14 @@ client.on('interactionCreate', async inter => {
 
       let price = "none"
       let itemsUsed = [];
-      let amount = thread[1].answer
-      let item = thread[0].answer.toLowerCase()
       let booster = await hasRole(member, ['1138634227169112165', '1109020434520887325'], inter.guild)
 
-      function parseRobuxAmounts(input) {
-        const result = [];
-        if (!input) return result;
-
-        // normalize “and” → commas, then split on commas
-        const segments = input
-          .toLowerCase()
-          .replace(/\band\b/g, ',')
-          .split(',')
-          .map(s => s.trim())
-          .filter(s => s);
-
-        for (const seg of segments) {
-          // a) multiplier form: "2x600", "2 x 600", "2×600"
-          let m = seg.match(/^(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)(k?)$/);
-          if (m) {
-            const count = parseInt(m[1], 10);
-            const num = parseFloat(m[2]);
-            const isK = m[3] === 'k';
-            const value = isK ? Math.round(num * 1000) : Math.round(num);
-
-            // push `value` count times
-            for (let i = 0; i < count; i++) {
-              result.push(value);
-            }
-            continue;
-          }
-
-          // b) single‐value form: "2500", "2.5k", "600"
-          let s = seg.match(/^(\d+(?:\.\d+)?)(k?)$/);
-          if (s) {
-            const num = parseFloat(s[1]);
-            const isK = s[2] === 'k';
-            let value = isK ? Math.round(num * 1000) : Math.round(num);
-
-            // if >1000, split into 1000-chunks + remainder
-            if (value > 1000) {
-              const thousands = Math.floor(value / 1000);
-              const rem = value - thousands * 1000;
-              for (let i = 0; i < thousands; i++) {
-                result.push(1000);
-              }
-              if (rem > 0) {
-                result.push(rem);
-              }
-            } else {
-              result.push(value);
-            }
-          }
-          // anything else is ignored
-        }
-
-        return result;
-      }
-
-      if (item.includes('gift') && !isNaN(totalAmount)) {
-        if (booster) price = totalAmount * .310
-        else price = totalAmount * .315
-      }
-      else if ((item.includes("robux") || item.includes("gamepass") || item.includes("gpass") || item.includes("payout") || item.includes("pay out")) && typeof amount === "string") { //
-        let category = shop.pricelists.find(ctg => ctg.name === "Robux");
-        let type = item.includes("payout") || item.includes("pay out") ? category.types.find(t => t.parent === "Via Payout") : item.includes("robux") || item.includes("gamepass") || item.includes("gpass") ? category.types.find(t => t.parent === "Via Gamepass")
-          : null
-        // 1) parse the string into an array of numeric amounts:
-        let amounts = parseRobuxAmounts(thread[1].answer);
-        let totalAmount = amounts.reduce((sum, a) => sum + a, 0);
-
-        // 2) for each numeric amount, run your existing logic:
-        let robuxItems = type; // || category.types.find(t => t.parent === "Via Payout")
-        let pricelist = robuxItems.children;
-        let totalPrice = 0;
-
-        for (let amt of amounts) {
-          if (amt <= 1000) {
-            let entry = pricelist.find(e => parseInt(e.name) === amt);
-            if (entry) {
-              let unit = booster ? entry.rs : entry.price;
-              itemsUsed.push({
-                name: entry.name,
-                count: 1,
-                unitPrice: unit,
-                total: unit
-              });
-              totalPrice += unit;
-            }
-          } else {
-            // greedy-split already done in parser, so this branch only happens if amt >1000 and you
-            // want to re-split by other denominations— you can actually skip it if parser covered it.
-            let rem = amt;
-            let sorted = pricelist
-              .filter(e => !isNaN(parseInt(e.name)))
-              .sort((a, b) => parseInt(b.name) - parseInt(a.name));
-            for (let coin of sorted) {
-              let cv = parseInt(coin.name);
-              if (rem >= cv) {
-                let cnt = Math.floor(rem / cv);
-                let unit = booster ? coin.rs : coin.price;
-                itemsUsed.push({
-                  name: coin.name,
-                  count: cnt,
-                  unitPrice: unit,
-                  total: cnt * unit
-                });
-                totalPrice += cnt * unit;
-                rem -= cnt * cv;
-              }
-            }
-          }
-        }
-
-        // finally set your price
-        price = totalPrice;
-      }
-      {
-        let map = {};
-        for (let it of itemsUsed) {
-          let key = `${it.name}|${it.unitPrice}`;
-          if (!map[key]) {
-            map[key] = { ...it };
-          } else {
-            map[key].count += it.count;
-            map[key].total += it.total;
-          }
-        }
-        itemsUsed = Object.values(map);
+      // Keywords, rates and prices come from /pricing (functions/pricing.js)
+      let match = pricing.findOrderType(thread[0].answer)
+      if (match) {
+        let quote = pricing.quote(match.type, thread[1].answer, booster)
+        price = quote.price
+        itemsUsed = quote.items
       }
       let row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('confirmOrder-' + (price == 'none' ? price : price.toFixed(2))).setStyle(ButtonStyle.Success).setLabel('Yes'),
@@ -3594,6 +3489,23 @@ client.on('interactionCreate', async inter => {
         await inter.channel.send({ content: emojis.check + " Stopped Scanning\nAuthor: `" + inter.user.username + "`", ephemeral: true })
       } else {
         inter.reply({ content: "The queue no longer exist.", ephemeral: true })
+      }
+    }
+  }
+  //AUTOCOMPLETE
+  else if (inter.isAutocomplete()) {
+    if (inter.commandName === 'pricing') await pricing.handleAutocomplete(inter)
+  }
+  //MODALS
+  else if (inter.isModalSubmit()) {
+    if (inter.customId.startsWith('pricingEdit-')) {
+      if (!await getPerms(inter.member, 4)) return inter.reply({ content: emojis.x + ' Insufficient Permission', ephemeral: true });
+      try {
+        await pricing.handleModal(inter)
+      } catch (err) {
+        console.error('Pricing edit |', err)
+        let reply = { content: emojis.x + ' Something went wrong. Check `/pricing view` for what was saved.\n```diff\n- ' + err.message + '```', ephemeral: true }
+        inter.deferred || inter.replied ? inter.editReply(reply) : inter.reply(reply)
       }
     }
   }

@@ -192,6 +192,66 @@ module.exports = {
           "required": true,
         },
       ]
+    },
+    {
+      name: 'pricing',
+      type: 1,
+      description: 'Manage prices, rates and keywords',
+      options: [
+        {
+          name: 'view', type: 1, description: 'Show prices, rates and keywords',
+          options: [
+            { name: 'product', type: 3, description: 'Only show this product', required: false, autocomplete: true },
+          ]
+        },
+        {
+          name: 'edit', type: 1, description: 'Edit a product or price list in a form (type a new name to create one)',
+          options: [
+            { name: 'product', type: 3, description: 'Product, e.g. Robux', required: true, autocomplete: true },
+            { name: 'type', type: 3, description: 'Price list inside it, e.g. Via Payout. Leave empty to edit the product itself', required: false, autocomplete: true },
+          ]
+        },
+        {
+          name: 'rate', type: 1, description: 'Set the price per 1,000 (e.g. gifting, Roblox Plus)',
+          options: [
+            { name: 'product', type: 3, description: 'Product, e.g. Roblox Plus', required: true, autocomplete: true },
+            { name: 'type', type: 3, description: 'Price list, e.g. Rate', required: true, autocomplete: true },
+            { name: 'price', type: 10, description: 'Customer price per 1,000', required: true, min_value: 0 },
+            { name: 'reseller', type: 10, description: 'Reseller/booster price per 1,000 (empty = keep current)', required: false, min_value: 0 },
+          ]
+        },
+        {
+          name: 'adjust', type: 1, description: 'Raise or lower every price in a product at once',
+          options: [
+            { name: 'change', type: 3, description: 'e.g. +5, -10, +5%, -3%', required: true },
+            { name: 'product', type: 3, description: 'Product to change', required: true, autocomplete: true },
+            { name: 'type', type: 3, description: 'Only this price list (empty = all of the product)', required: false, autocomplete: true },
+            {
+              name: 'apply_to', type: 3, description: 'Which prices to change (default: both)', required: false,
+              choices: [
+                { name: 'customer and reseller', value: 'both' },
+                { name: 'customer only', value: 'customer' },
+                { name: 'reseller only', value: 'reseller' },
+              ]
+            },
+          ]
+        },
+        {
+          name: 'remove', type: 1, description: 'Remove a product or one of its price lists',
+          options: [
+            { name: 'product', type: 3, description: 'Product', required: true, autocomplete: true },
+            { name: 'type', type: 3, description: 'Only this price list (empty = whole product)', required: false, autocomplete: true },
+          ]
+        },
+        { name: 'undo', type: 1, description: 'Revert the last pricing change' },
+        { name: 'export', type: 1, description: 'Download all pricing as a JSON file' },
+        {
+          name: 'import', type: 1, description: 'Replace all pricing with an edited JSON file',
+          options: [
+            { name: 'file', type: 11, description: 'JSON file from /pricing export', required: true },
+          ]
+        },
+      ]
     }
     /*{
       name: 'codes',
